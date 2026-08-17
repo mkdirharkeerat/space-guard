@@ -12,7 +12,8 @@ import {
   Radio,
   Clock,
   Activity,
-  ShieldCheck
+  Zap,
+  Flame
 } from 'lucide-react';
 import { sound } from '../utils/audio';
 
@@ -38,73 +39,67 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, dataAsO
   };
 
   const navItems = [
-    { id: 'globe', label: '3D Orbit View', icon: Globe2 },
-    { id: 'scan', label: 'Conjunction Screen', icon: Radar },
-    { id: 'maneuver', label: 'CW Maneuver Planner', icon: Rocket },
-    { id: 'historical', label: '2009 Collision Replay', icon: History },
-    { id: 'bplane', label: 'B-Plane Geometry', icon: Target },
-    { id: 'catalog', label: 'Live Objects', icon: Satellite },
-    { id: 'math', label: 'Physics & Math', icon: BookOpen },
+    { id: 'globe', label: '3D Globe', icon: Globe2, color: 'bg-neo-yellow' },
+    { id: 'scan', label: 'Conjunction Screen', icon: Radar, color: 'bg-neo-green' },
+    { id: 'maneuver', label: 'CW Maneuver', icon: Rocket, color: 'bg-neo-cyan' },
+    { id: 'historical', label: '2009 Collision Replay', icon: History, color: 'bg-neo-pink' },
+    { id: 'bplane', label: 'B-Plane', icon: Target, color: 'bg-neo-orange' },
+    { id: 'catalog', label: 'Live Catalog', icon: Satellite, color: 'bg-[#B8EAFF]' },
+    { id: 'math', label: 'Math & Specs', icon: BookOpen, color: 'bg-[#E2D4F0]' },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-void/90 backdrop-blur-xl border-b border-hud-border">
-      {/* Top Telemetry Strip */}
-      <div className="hidden sm:flex items-center justify-between px-6 py-1 bg-deep/80 border-b border-hud-borderFaint text-[11px] font-mono text-slate-400">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-hud-green animate-pulse"></span>
-            <span className="text-slate-300">DATA SOURCE:</span>
-            <span className="text-hud-cyan font-bold">CelesTrak SGP4 Cache</span>
-          </div>
-          {dataAsOf && (
-            <div className="flex items-center gap-1">
-              <span>UPDATED:</span>
-              <span className="text-slate-200">{new Date(dataAsOf).toLocaleTimeString()} UTC</span>
-            </div>
-          )}
+    <header className="sticky top-0 z-50 w-full bg-white border-b-4 border-black shadow-neo">
+      {/* Top Retro Marquee Ticker */}
+      <div className="flex items-center justify-between px-4 sm:px-6 py-1.5 bg-neo-yellow border-b-2 border-black text-xs font-mono font-bold text-black overflow-hidden">
+        <div className="flex items-center gap-3">
+          <span className="px-2 py-0.5 bg-black text-neo-yellow font-black uppercase text-[10px] tracking-wider rounded">
+            LIVE TELEMETRY
+          </span>
+          <span className="truncate">
+            🛰️ SPACE-GUARD · SGP4 CELESTRAK PROPAGATION · FOSTER/ALFANO ANALYTIC Pc ENGINE
+          </span>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-hud-green" />
-            <span className="text-hud-green font-bold">{utcTime}</span>
+        <div className="hidden sm:flex items-center gap-4 text-[11px]">
+          <div className="flex items-center gap-1.5 bg-white px-2 py-0.5 border border-black rounded shadow-neo-sm">
+            <Clock className="w-3.5 h-3.5" />
+            <span>{utcTime}</span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span className={`w-2 h-2 rounded-full ${backendStatus ? 'bg-hud-green shadow-[0_0_8px_rgba(0,255,136,0.8)]' : 'bg-amber-400'}`}></span>
-            <span className="text-slate-300">API:</span>
-            <span className={backendStatus ? 'text-hud-green font-bold' : 'text-amber-400 font-bold'}>
-              {backendStatus ? 'ONLINE (v2.1.0)' : 'STANDBY'}
-            </span>
+          <div className={`flex items-center gap-1.5 px-2 py-0.5 border border-black rounded shadow-neo-sm font-black ${
+            backendStatus ? 'bg-neo-green text-black' : 'bg-neo-red text-white'
+          }`}>
+            <span className="w-2 h-2 rounded-full bg-black"></span>
+            <span>{backendStatus ? 'API ONLINE (v2.1.0)' : 'API DISCONNECTED'}</span>
           </div>
         </div>
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="flex items-center justify-between px-6 h-16">
-        {/* Logo / Wordmark */}
+      <div className="flex items-center justify-between px-4 sm:px-6 h-16">
+        {/* Brand Wordmark */}
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-hud-green/15 text-hud-green border border-hud-green/40 shadow-[0_0_12px_rgba(0,255,136,0.3)]">
-            <Radio className="w-5 h-5 animate-pulse" />
+          <div className="p-2 rounded-lg bg-neo-green border-3 border-black shadow-neo-sm">
+            <Radio className="w-5 h-5 text-black animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-base font-bold text-white tracking-widest font-display">
+              <span className="text-xl font-black text-black tracking-tight font-sans">
                 SPACE-GUARD
               </span>
-              <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-hud-green text-black">
-                SIH 2026
+              <span className="px-2 py-0.5 rounded text-[10px] font-black bg-neo-pink text-black border-2 border-black shadow-neo-sm">
+                SIH 2026 #17
               </span>
             </div>
-            <span className="text-[10px] text-hud-green/80 font-mono tracking-wider block">
-              ORBITAL COLLISION DEFENSE SYSTEM
+            <span className="text-[10px] text-slate-800 font-mono font-bold tracking-wider block">
+              ORBITAL COLLISION DEFENSE PLATFORM
             </span>
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <nav className="hidden xl:flex items-center gap-1">
+        {/* Tab Buttons Navigation */}
+        <nav className="hidden xl:flex items-center gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -115,38 +110,38 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, dataAsO
                   sound.playClick();
                   setActiveTab(item.id);
                 }}
-                className={`px-3 py-2 rounded-lg text-xs font-mono tracking-wide transition-all flex items-center gap-2 ${
+                className={`px-3.5 py-2 text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 rounded-lg border-3 border-black ${
                   isActive
-                    ? 'bg-hud-green text-black font-bold shadow-[0_0_15px_rgba(0,255,136,0.35)]'
-                    : 'text-slate-300 hover:text-white hover:bg-deep/80'
+                    ? `${item.color} text-black shadow-neo translate-x-[-1px] translate-y-[-1px]`
+                    : 'bg-white text-black hover:bg-neo-cream shadow-neo-sm active:translate-x-0.5 active:translate-y-0.5'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 <span>{item.label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Sound Toggle */}
+        {/* Sound Toggle & Action */}
         <div className="flex items-center gap-2">
           <button
             onClick={toggleSound}
-            title={soundEnabled ? 'Mute Telemetry Audio' : 'Unmute Telemetry Audio'}
-            className={`p-2 rounded-lg border text-xs font-mono transition-all flex items-center gap-1.5 ${
+            title={soundEnabled ? 'Mute Audio' : 'Unmute Audio'}
+            className={`px-3 py-2 rounded-lg border-3 border-black text-xs font-mono font-black transition-all flex items-center gap-1.5 shadow-neo-sm ${
               soundEnabled
-                ? 'bg-hud-green/10 text-hud-green border-hud-green/30 hover:bg-hud-green/20'
-                : 'bg-deep text-slate-500 border-slate-800 hover:text-slate-300'
+                ? 'bg-neo-cyan text-black hover:bg-cyan-300'
+                : 'bg-slate-200 text-slate-600'
             }`}
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-            <span className="hidden md:inline">{soundEnabled ? 'AUDIO ON' : 'MUTED'}</span>
+            <span className="hidden md:inline">{soundEnabled ? 'SFX ON' : 'MUTED'}</span>
           </button>
         </div>
       </div>
 
-      {/* Mobile Navigation Strip */}
-      <div className="xl:hidden flex items-center gap-1 overflow-x-auto px-4 py-2 border-t border-hud-borderFaint bg-deep/60">
+      {/* Mobile Horizontal Navigation Tabs */}
+      <div className="xl:hidden flex items-center gap-2 overflow-x-auto px-4 py-2 bg-neo-cream border-t-2 border-black">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -157,13 +152,13 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, dataAsO
                 sound.playClick();
                 setActiveTab(item.id);
               }}
-              className={`px-2.5 py-1.5 rounded text-[11px] font-mono whitespace-nowrap flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-black uppercase whitespace-nowrap flex items-center gap-1.5 border-2 border-black transition-all ${
                 isActive
-                  ? 'bg-hud-green text-black font-bold'
-                  : 'text-slate-300 hover:text-white bg-void/50 border border-slate-800'
+                  ? `${item.color} text-black shadow-neo-sm`
+                  : 'bg-white text-black'
               }`}
             >
-              <Icon className="w-3 h-3" />
+              <Icon className="w-3.5 h-3.5" />
               <span>{item.label}</span>
             </button>
           );

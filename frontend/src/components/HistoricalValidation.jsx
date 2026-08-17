@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { History, ShieldAlert, Play, CheckCircle, Flame, ExternalLink, Activity, Award } from 'lucide-react';
+import { History, Play, CheckCircle, Flame, Activity, Award } from 'lucide-react';
 import { sound } from '../utils/audio';
 import { formatScientific, formatDistance, formatVelocity } from '../utils/constants';
 
@@ -49,23 +49,23 @@ export default function HistoricalValidation({ onSelectEvent }) {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 rounded-xl glass-panel-red border border-red-500/30">
+    <div className="flex flex-col gap-6 p-6 rounded-2xl bg-white border-4 border-black shadow-neo-lg font-mono">
       {/* Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-red-500/20">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b-3 border-black">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 shadow-[0_0_15px_rgba(255,59,59,0.3)]">
-            <History className="w-6 h-6 animate-pulse" />
+          <div className="p-3 rounded-xl bg-neo-pink border-3 border-black shadow-neo">
+            <History className="w-6 h-6 text-black" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-white tracking-wide font-sans">
+              <h2 className="text-xl font-black text-black tracking-tight font-sans">
                 Real-World Collision Replay & Validation
               </h2>
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-red-500 text-black">
-                HISTORICAL BENCHMARK
+              <span className="px-2.5 py-0.5 rounded text-[11px] font-black bg-neo-red text-white border-2 border-black shadow-neo-sm">
+                2009 BENCHMARK
               </span>
             </div>
-            <p className="text-xs text-red-200/80 font-mono mt-0.5">
+            <p className="text-xs text-slate-700 font-bold mt-0.5">
               10 February 2009 · 16:56 UTC · 789 km Altitude · Over Taymyr Peninsula, Siberia
             </p>
           </div>
@@ -75,109 +75,109 @@ export default function HistoricalValidation({ onSelectEvent }) {
           <button
             onClick={fetchHistoricalData}
             disabled={loading}
-            className="px-3.5 py-2 rounded-lg bg-red-950/80 text-red-200 hover:text-white border border-red-500/40 text-xs font-mono transition-all flex items-center gap-1.5 shadow-lg"
+            className="px-4 py-2.5 rounded-xl bg-neo-yellow text-black border-3 border-black text-xs font-black transition-all flex items-center gap-1.5 shadow-neo hover:shadow-neo-lg active:translate-x-1 active:translate-y-1"
           >
-            <Activity className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>{loading ? 'REPLAYING PIPELINE...' : 'RE-RUN BENCHMARK'}</span>
+            <Activity className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <span>{loading ? 'REPLAYING...' : 'RE-RUN BENCHMARK'}</span>
           </button>
         </div>
       </div>
 
       {/* Overview Context Card */}
-      <div className="p-4 rounded-lg bg-void/80 border border-red-500/20 text-xs font-mono leading-relaxed text-slate-300 flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-red-400 font-bold uppercase tracking-wider text-[11px]">
+      <div className="p-5 rounded-xl bg-neo-cream border-3 border-black shadow-neo text-xs font-bold leading-relaxed text-slate-900 flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-neo-red font-black uppercase text-xs">
           <Flame className="w-4 h-4" />
-          <span>The Kessler Catalyst Encounter</span>
+          <span>The Kessler Syndrome Catalyst Collision</span>
         </div>
         <p>
-          On February 10, 2009, <strong className="text-white">Iridium 33</strong> (active commercial comms satellite) and{' '}
-          <strong className="text-white">Cosmos 2251</strong> (derelict military satellite) collided at <strong className="text-red-400">14.1 km/s relative speed</strong>. It was the first catastrophic hypervelocity collision in spaceflight history, producing over 2,000 cataloged fragments.
+          On February 10, 2009, <strong className="text-black bg-neo-yellow px-1 border border-black rounded">Iridium 33</strong> (active commercial comms satellite) and{' '}
+          <strong className="text-black bg-neo-pink px-1 border border-black rounded">Cosmos 2251</strong> (derelict military satellite) collided at <strong className="text-neo-red font-black">14.1 km/s relative speed</strong>. It was the first accidental hypervelocity satellite collision in history.
         </p>
-        <p className="text-hud-cyan">
+        <p className="text-slate-800">
           Space-Guard ingests pre-collision TLEs (epoch 09041) into the exact same two-stage SGP4 + Analytic Gaussian Pc pipeline to prove the algorithm reliably triggers a <strong>Critical Alert 48 hours prior</strong>.
         </p>
       </div>
 
-      {/* Live Pipeline Computed Metrics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono">
-        <div className="p-4 rounded-lg bg-void/90 border border-red-500/30 flex flex-col">
-          <span className="text-[11px] text-red-400/80 font-semibold uppercase">Computed Miss Distance</span>
-          <span className="text-2xl font-bold text-red-400 mt-1">
+      {/* Computed Metrics Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="p-4 rounded-xl bg-neo-red text-white border-3 border-black shadow-neo flex flex-col">
+          <span className="text-[11px] font-black uppercase">Computed Miss Distance</span>
+          <span className="text-3xl font-black mt-1">
             {formatDistance(data?.miss_distance_km ?? 0.003)}
           </span>
-          <span className="text-[10px] text-slate-500 mt-0.5">Physical Near-Zero Crossing</span>
+          <span className="text-[10px] font-bold mt-0.5">Physical Impact Range</span>
         </div>
 
-        <div className="p-4 rounded-lg bg-void/90 border border-red-500/30 flex flex-col">
-          <span className="text-[11px] text-red-400/80 font-semibold uppercase">Relative Velocity</span>
-          <span className="text-2xl font-bold text-slate-100 mt-1">
+        <div className="p-4 rounded-xl bg-neo-yellow text-black border-3 border-black shadow-neo flex flex-col">
+          <span className="text-[11px] font-black uppercase">Relative Velocity</span>
+          <span className="text-3xl font-black mt-1">
             {(data?.relative_velocity_km_s ?? 14.12).toFixed(2)} km/s
           </span>
-          <span className="text-[10px] text-slate-500 mt-0.5">50,832 km/h Closing Rate</span>
+          <span className="text-[10px] font-bold mt-0.5">50,832 km/h Closing Rate</span>
         </div>
 
-        <div className="p-4 rounded-lg bg-void/90 border border-red-500/30 flex flex-col">
-          <span className="text-[11px] text-red-400/80 font-semibold uppercase">Collision Probability (Pc)</span>
-          <span className="text-2xl font-bold text-red-400 mt-1">
+        <div className="p-4 rounded-xl bg-neo-pink text-black border-3 border-black shadow-neo flex flex-col">
+          <span className="text-[11px] font-black uppercase">Collision Pc</span>
+          <span className="text-3xl font-black mt-1">
             {formatScientific(data?.pc ?? 0.0002)}
           </span>
-          <span className="text-[10px] text-red-400/90 font-bold mt-0.5">CRITICAL ALERT (Pc &gt; 10⁻⁴)</span>
+          <span className="text-[10px] font-black mt-0.5">CRITICAL ALERT (Pc &gt; 10⁻⁴)</span>
         </div>
 
-        <div className="p-4 rounded-lg bg-void/90 border border-red-500/30 flex flex-col">
-          <span className="text-[11px] text-red-400/80 font-semibold uppercase">Predicted TCA (UTC)</span>
-          <span className="text-lg font-bold text-slate-100 mt-1 truncate">
+        <div className="p-4 rounded-xl bg-neo-cyan text-black border-3 border-black shadow-neo flex flex-col">
+          <span className="text-[11px] font-black uppercase">Predicted TCA</span>
+          <span className="text-base font-black mt-1 truncate">
             {data?.tca_utc || '2009-02-10 16:56:00'}
           </span>
-          <span className="text-[10px] text-slate-500 mt-0.5">Accurate to Actual Impact</span>
+          <span className="text-[10px] font-bold mt-0.5">Matches Historical Collision</span>
         </div>
       </div>
 
       {/* Avoidance Replay Counterfactual */}
-      <div className="p-5 rounded-lg bg-deep/90 border border-hud-green/30 flex flex-col gap-4 font-mono">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="p-5 rounded-xl bg-neo-cream border-3 border-black shadow-neo flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-hud-green" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+            <Award className="w-5 h-5 text-black" />
+            <h3 className="text-sm font-black text-black uppercase tracking-wider">
               Counterfactual Avoidance Demonstration (CW Model)
             </h3>
           </div>
           <button
             onClick={handleSimulateAvoidance}
-            className="px-4 py-1.5 rounded-lg bg-hud-green text-black font-bold text-xs hover:bg-hud-emerald transition-all shadow-[0_0_12px_rgba(0,255,136,0.3)] flex items-center gap-1.5 self-start sm:self-auto"
+            className="px-5 py-2.5 rounded-xl bg-neo-green text-black font-black text-xs hover:bg-emerald-400 border-3 border-black shadow-neo hover:shadow-neo-lg active:translate-x-1 active:translate-y-1 transition-all flex items-center gap-2"
           >
-            <Play className="w-3.5 h-3.5 fill-black" />
-            <span>EXECUTE AVOIDANCE BURN REPLAY</span>
+            <Play className="w-4 h-4 fill-black" />
+            <span>EXECUTE HISTORICAL AVOIDANCE BURN</span>
           </button>
         </div>
 
         {simulatedAvoidance ? (
-          <div className="p-4 rounded bg-void/80 border border-hud-green/50 flex flex-col gap-2 animate-fadeIn">
-            <div className="flex items-center gap-2 text-hud-green font-bold text-xs">
-              <CheckCircle className="w-4 h-4" />
+          <div className="p-4 rounded-xl bg-white border-3 border-black shadow-neo flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-black font-black text-xs">
+              <CheckCircle className="w-4 h-4 text-neo-green" />
               <span>AVOIDANCE BURN VERIFIED: COLLISION PREVENTED</span>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Applying a tiny <strong className="text-hud-amber">ΔV = 0.10 m/s</strong> thruster impulse on Iridium 33{' '}
-              <strong className="text-hud-cyan">24 hours prior to TCA</strong> expands the along-track miss distance to{' '}
-              <strong className="text-hud-green text-sm font-bold">+4.83 km</strong>, dropping the collision probability from{' '}
-              <strong className="text-red-400">2.0 × 10⁻⁴ (Critical)</strong> to <strong className="text-hud-green">4.2 × 10⁻⁷ (Safe)</strong>.
+            <p className="text-xs text-slate-800 font-bold leading-relaxed">
+              Applying a tiny <strong className="bg-neo-yellow px-1 border border-black rounded">ΔV = 0.10 m/s</strong> thruster impulse on Iridium 33{' '}
+              <strong className="bg-neo-cyan px-1 border border-black rounded">24 hours prior to TCA</strong> expands the along-track miss distance to{' '}
+              <strong className="text-black text-sm font-black">+4.83 km</strong>, dropping the collision probability from{' '}
+              <strong className="text-neo-red">2.0 × 10⁻⁴ (Critical)</strong> to <strong className="text-neo-green">4.2 × 10⁻⁷ (Safe)</strong>.
             </p>
           </div>
         ) : (
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600 font-bold">
             Click the button above to simulate how Space-Guard's Clohessy-Wiltshire planner would have successfully navigated Iridium 33 to safe clearance.
           </p>
         )}
       </div>
 
-      {/* Assumptions & Intellectual Honesty Box */}
-      <div className="p-4 rounded-lg bg-void/60 border border-slate-800 text-[11px] font-mono text-slate-400 flex flex-col gap-1.5">
-        <span className="text-slate-300 font-bold uppercase tracking-wider text-[10px]">
+      {/* Assumptions Footer */}
+      <div className="p-4 rounded-xl bg-white border-2 border-black text-xs font-bold text-slate-700 flex flex-col gap-1 shadow-neo-sm">
+        <span className="text-black font-black uppercase text-[11px]">
           Transparent Engineering Assumptions (§12 Compliance):
         </span>
-        <ul className="list-disc list-inside space-y-0.5 text-slate-400">
-          <li><strong>Positional Uncertainty (σ):</strong> Assumed 500 m isotropic standard deviation (TLE precision limit).</li>
+        <ul className="list-disc list-inside space-y-0.5">
+          <li><strong>Positional Uncertainty (σ):</strong> Assumed 500 m isotropic standard deviation.</li>
           <li><strong>Hard-Body Radius (HBR):</strong> 10 m combined collision cross-section.</li>
           <li><strong>Ephemeris:</strong> SGP4 propagated close to TLE epoch to minimize drift error.</li>
         </ul>

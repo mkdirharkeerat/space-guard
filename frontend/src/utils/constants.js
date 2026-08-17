@@ -1,37 +1,41 @@
-// Space-Guard Constants & Helper Functions
+// Space-Guard Constants & Helper Functions (Neo-Brutalist Theme)
 
 export const RISK_TIERS = {
   CRITICAL: {
     name: 'Critical',
     threshold: 'Pc > 1.0e-4',
-    color: '#ff3b3b',
-    bgClass: 'bg-red-500/10 text-red-400 border-red-500/30',
-    badgeClass: 'bg-red-500 text-black font-bold shadow-[0_0_12px_rgba(255,59,59,0.5)]',
-    pulseClass: 'border-red-500 shadow-[0_0_20px_rgba(255,59,59,0.3)]',
+    color: '#FF3333',
+    bgClass: 'bg-neo-red text-white border-2 border-black',
+    badgeClass: 'bg-neo-red text-white font-black border-2 border-black shadow-neo-sm uppercase',
+    boxClass: 'neo-box-red',
+    pillClass: 'bg-[#FF3333] text-white border-2 border-black font-black shadow-neo-sm',
   },
   HIGH: {
     name: 'High',
     threshold: '1.0e-5 < Pc ≤ 1.0e-4',
-    color: '#ff893b',
-    bgClass: 'bg-orange-500/10 text-orange-400 border-orange-500/30',
-    badgeClass: 'bg-orange-500 text-black font-bold shadow-[0_0_12px_rgba(255,137,59,0.5)]',
-    pulseClass: 'border-orange-500 shadow-[0_0_15px_rgba(255,137,59,0.3)]',
+    color: '#FF6B00',
+    bgClass: 'bg-neo-orange text-white border-2 border-black',
+    badgeClass: 'bg-neo-orange text-white font-black border-2 border-black shadow-neo-sm uppercase',
+    boxClass: 'bg-neo-orange text-white border-3 border-black shadow-neo',
+    pillClass: 'bg-[#FF6B00] text-white border-2 border-black font-black shadow-neo-sm',
   },
   MODERATE: {
     name: 'Moderate',
     threshold: '1.0e-6 < Pc ≤ 1.0e-5',
-    color: '#ffb830',
-    bgClass: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
-    badgeClass: 'bg-yellow-400 text-black font-bold shadow-[0_0_10px_rgba(255,184,48,0.4)]',
-    pulseClass: 'border-yellow-400 shadow-[0_0_12px_rgba(255,184,48,0.2)]',
+    color: '#FFE600',
+    bgClass: 'bg-neo-yellow text-black border-2 border-black',
+    badgeClass: 'bg-neo-yellow text-black font-black border-2 border-black shadow-neo-sm uppercase',
+    boxClass: 'neo-box-yellow',
+    pillClass: 'bg-[#FFE600] text-black border-2 border-black font-black shadow-neo-sm',
   },
   LOW: {
     name: 'Low',
     threshold: 'Pc ≤ 1.0e-6',
-    color: '#00ff88',
-    bgClass: 'bg-hud-green/10 text-hud-green border-hud-green/30',
-    badgeClass: 'bg-hud-green text-black font-bold shadow-[0_0_10px_rgba(0,255,136,0.4)]',
-    pulseClass: 'border-hud-green shadow-[0_0_10px_rgba(0,255,136,0.2)]',
+    color: '#00FF66',
+    bgClass: 'bg-neo-green text-black border-2 border-black',
+    badgeClass: 'bg-neo-green text-black font-black border-2 border-black shadow-neo-sm uppercase',
+    boxClass: 'neo-box-green',
+    pillClass: 'bg-[#00FF66] text-black border-2 border-black font-black shadow-neo-sm',
   }
 };
 

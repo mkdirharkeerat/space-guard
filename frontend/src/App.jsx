@@ -17,7 +17,7 @@ export default function App() {
   const [objects, setObjects] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Check health and initialize
+  // Check health
   const checkHealth = async () => {
     try {
       const res = await fetch('/health');
@@ -29,7 +29,7 @@ export default function App() {
     }
   };
 
-  // Trigger live scan
+  // Trigger scan
   const triggerScan = async () => {
     setIsScanning(true);
     sound.playRadarPing();
@@ -40,7 +40,6 @@ export default function App() {
       setScanData(data);
       if (data.events && data.events.length > 0) {
         setSelectedEvent(data.events[0]);
-        // If critical alert found, play alert audio
         if (data.events[0].pc > 1e-4) {
           sound.playAlertCritical();
         } else {
@@ -48,7 +47,7 @@ export default function App() {
         }
       }
     } catch (err) {
-      console.warn('Backend scan failed, using verified physics sample:', err);
+      console.warn('Backend scan fallback:', err);
       const sampleScan = {
         data_as_of: new Date().toISOString(),
         object_count: 40,
@@ -57,7 +56,7 @@ export default function App() {
         events: [
           {
             target_id: 'IRIDIUM 33',
-            chaser_id: 'COSMOS 2251 [Historical Validation]',
+            chaser_id: 'COSMOS 2251 [2009 Historical Replay]',
             tca_utc: '2009-02-10 16:56:00 UTC',
             miss_distance_km: 0.003,
             relative_velocity_km_s: 14.12,
@@ -123,8 +122,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-void flex flex-col selection:bg-hud-green selection:text-black">
-      {/* Navigation Bar */}
+    <div className="min-h-screen neo-grid-bg text-black flex flex-col selection:bg-neo-yellow selection:text-black">
+      {/* Neo-Brutalist Navbar */}
       <Navbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -132,17 +131,16 @@ export default function App() {
         dataAsOf={scanData?.data_as_of}
       />
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
         {/* Globe View Tab */}
         {activeTab === 'globe' && (
-          <div className="flex flex-col gap-6 animate-fadeIn">
+          <div className="flex flex-col gap-6">
             <Globe3D 
               selectedEvent={selectedEvent} 
               activeEvents={scanData?.events || []} 
               objects={objects} 
             />
-            {/* Quick Conjunction Bar beneath Globe */}
             <ScanDashboard 
               scanData={scanData}
               onTriggerScan={triggerScan}
@@ -157,7 +155,7 @@ export default function App() {
 
         {/* Screening Tab */}
         {activeTab === 'scan' && (
-          <div className="animate-fadeIn">
+          <div>
             <ScanDashboard 
               scanData={scanData}
               onTriggerScan={triggerScan}
@@ -172,7 +170,7 @@ export default function App() {
 
         {/* CW Maneuver Planner Tab */}
         {activeTab === 'maneuver' && (
-          <div className="animate-fadeIn">
+          <div>
             <ManeuverPlanner 
               selectedEvent={selectedEvent}
               onManeuverApplied={() => {}}
@@ -182,7 +180,7 @@ export default function App() {
 
         {/* Historical Validation Tab */}
         {activeTab === 'historical' && (
-          <div className="animate-fadeIn">
+          <div>
             <HistoricalValidation 
               onSelectEvent={(ev) => {
                 setSelectedEvent(ev);
@@ -192,16 +190,16 @@ export default function App() {
           </div>
         )}
 
-        {/* B-Plane Encounter Geometry Tab */}
+        {/* B-Plane Tab */}
         {activeTab === 'bplane' && (
-          <div className="animate-fadeIn">
+          <div>
             <BPlaneVisualizer selectedEvent={selectedEvent} />
           </div>
         )}
 
-        {/* Live Catalog Explorer Tab */}
+        {/* Catalog Tab */}
         {activeTab === 'catalog' && (
-          <div className="animate-fadeIn">
+          <div>
             <CatalogExplorer 
               onSelectObject={(obj) => {
                 setActiveTab('globe');
@@ -210,19 +208,26 @@ export default function App() {
           </div>
         )}
 
-        {/* Math & Algorithm Foundations Tab */}
+        {/* Math Tab */}
         {activeTab === 'math' && (
-          <div className="animate-fadeIn">
+          <div>
             <MathExplainer />
           </div>
         )}
       </main>
 
-      {/* Sci-Fi Footer */}
-      <footer className="w-full border-t border-hud-borderFaint bg-deep/60 py-4 px-6 text-center text-xs font-mono text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>SPACE-GUARD · SIH 2026 Problem Statement #17 · Aerospace Defense Architecture</span>
-          <span className="text-slate-400">Analytic Foster/Alfano Pc Engine + Clohessy-Wiltshire STM Planner</span>
+      {/* Neo-Brutalist Footer */}
+      <footer className="w-full border-t-4 border-black bg-white py-5 px-6 text-center text-xs font-mono font-black text-black">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 bg-neo-green text-black border-2 border-black rounded shadow-neo-sm">
+              SPACE-GUARD v2.1.0
+            </span>
+            <span>SMART INDIA HACKATHON 2026 · PROBLEM STATEMENT #17</span>
+          </div>
+          <span className="bg-neo-yellow px-2 py-1 border-2 border-black rounded shadow-neo-sm">
+            FOSTER/ALFANO ANALYTIC Pc + CLOHESSY-WILTSHIRE SVD PLANNER
+          </span>
         </div>
       </footer>
     </div>

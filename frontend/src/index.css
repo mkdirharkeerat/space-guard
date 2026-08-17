@@ -4,112 +4,142 @@
 
 @layer base {
   :root {
-    --void: #04070f;
-    --deep: #070c18;
-    --ph: #00ff88;
-    --ph-dim: rgba(0, 255, 136, 0.12);
-    --ph-border: rgba(0, 255, 136, 0.22);
-    --amber: #ffb830;
-    --red: #ff3b3b;
-    --cyan: #00e5ff;
+    --neo-bg: #FAF8F5;
+    --neo-black: #000000;
+    --neo-yellow: #FFE600;
+    --neo-green: #00FF66;
+    --neo-pink: #FF4D8D;
+    --neo-cyan: #00E5FF;
+    --neo-red: #FF3333;
   }
 
   body {
-    background-color: #04070f;
-    color: #c8ffd8;
+    background-color: #FAF8F5;
+    color: #000000;
     font-family: 'IBM Plex Mono', monospace;
     overflow-x: hidden;
   }
 }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #070c18;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 136, 0.25);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 136, 0.5);
-}
-
-/* Sci-fi Scanlines */
-.scanlines {
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.15) 2px,
-    rgba(0, 0, 0, 0.15) 4px
-  );
-  pointer-events: none;
-}
-
-/* Tactical Grid */
-.tactical-grid {
+/* Neo-Brutalist Grid Background */
+.neo-grid-bg {
+  background-color: #FAF8F5;
   background-image: 
-    linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
+    linear-gradient(#E5DFD5 1.5px, transparent 1.5px),
+    linear-gradient(90deg, #E5DFD5 1.5px, transparent 1.5px);
   background-size: 32px 32px;
 }
 
-/* Phosphor Glow Utilities */
-.glow-green {
-  box-shadow: 0 0 15px rgba(0, 255, 136, 0.35), inset 0 0 10px rgba(0, 255, 136, 0.1);
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF8F5;
+  border-left: 2px solid #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #FFE600;
+  border: 2px solid #000000;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00FF66;
 }
 
-.glow-red {
-  box-shadow: 0 0 15px rgba(255, 59, 59, 0.4), inset 0 0 10px rgba(255, 59, 59, 0.15);
+/* Neo-Brutalist Utility Classes */
+.neo-box {
+  background-color: #FFFFFF;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  border-radius: 12px;
 }
 
-.glow-amber {
-  box-shadow: 0 0 15px rgba(255, 184, 48, 0.35), inset 0 0 10px rgba(255, 184, 48, 0.1);
+.neo-box-lg {
+  background-color: #FFFFFF;
+  border: 3px solid #000000;
+  box-shadow: 6px 6px 0px 0px #000000;
+  border-radius: 14px;
 }
 
-.glow-cyan {
-  box-shadow: 0 0 15px rgba(0, 229, 255, 0.35), inset 0 0 10px rgba(0, 229, 255, 0.1);
+.neo-box-yellow {
+  background-color: #FFE600;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  border-radius: 12px;
 }
 
-.text-glow {
-  text-shadow: 0 0 8px currentColor;
+.neo-box-green {
+  background-color: #00FF66;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  border-radius: 12px;
 }
 
-/* Glassmorphism Panels */
-.glass-panel {
-  background: rgba(7, 12, 24, 0.85);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 255, 136, 0.18);
+.neo-box-cyan {
+  background-color: #00E5FF;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  border-radius: 12px;
 }
 
-.glass-panel-amber {
-  background: rgba(20, 14, 6, 0.85);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 184, 48, 0.25);
+.neo-box-red {
+  background-color: #FF4D4D;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  border-radius: 12px;
 }
 
-.glass-panel-red {
-  background: rgba(24, 7, 7, 0.85);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 59, 59, 0.3);
+.neo-box-pink {
+  background-color: #FF4D8D;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  border-radius: 12px;
 }
 
-/* Radar pulse animation */
-@keyframes radar-ping {
-  0% {
-    transform: scale(0.6);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(2.4);
-    opacity: 0;
-  }
+/* Neo Interactive Button */
+.neo-btn {
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.neo-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+.neo-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px #000000;
 }
 
-.animate-radar-ping {
-  animation: radar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+/* Neo Badge / Sticker */
+.neo-badge {
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0px 0px #000000;
+  font-weight: 700;
+  border-radius: 6px;
+}
+
+/* Hazard Stripe Pattern */
+.hazard-stripes {
+  background: repeating-linear-gradient(
+    -45deg,
+    #FFE600,
+    #FFE600 12px,
+    #000000 12px,
+    #000000 24px
+  );
+}
+
+.hazard-stripes-red {
+  background: repeating-linear-gradient(
+    -45deg,
+    #FF3333,
+    #FF3333 12px,
+    #000000 12px,
+    #000000 24px
+  );
 }

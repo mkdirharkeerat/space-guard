@@ -14,10 +14,8 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
   const conjunctionGroupRef = useRef(null);
   const animFrameIdRef = useRef(null);
 
-  const [viewMode, setViewMode] = useState('tactical'); // 'tactical' | 'night' | 'wireframe'
   const [autoRotate, setAutoRotate] = useState(true);
   const [cameraDistance, setCameraDistance] = useState(22);
-  const [isHovered, setIsHovered] = useState(false);
 
   // Mouse interaction state
   const isDraggingRef = useRef(false);
@@ -49,34 +47,33 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     rendererRef.current = renderer;
 
     // 4. Lighting
-    const ambientLight = new THREE.AmbientLight(0x00ff88, 0.25);
+    const ambientLight = new THREE.AmbientLight(0x00ff88, 0.35);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
     sunLight.position.set(15, 10, 15);
     scene.add(sunLight);
 
-    const blueRimLight = new THREE.DirectionalLight(0x00a3ff, 0.8);
+    const blueRimLight = new THREE.DirectionalLight(0x00e5ff, 1.2);
     blueRimLight.position.set(-15, -10, -10);
     scene.add(blueRimLight);
 
-    // 5. Earth Sphere Creation (Procedural High-Tech Canvas Texture)
-    const earthRadius = 6.378; // Normalized Earth radius
+    // 5. Earth Sphere Creation (Procedural High-Contrast Vector Grid)
+    const earthRadius = 6.378;
     const earthGeom = new THREE.SphereGeometry(earthRadius, 64, 64);
 
-    // Generate procedural glowing cyber grid Earth texture
     const canvas = document.createElement('canvas');
     canvas.width = 2048;
     canvas.height = 1024;
     const ctx = canvas.getContext('2d');
     
-    // Background void
-    ctx.fillStyle = '#070f1e';
+    // Bold deep navy void background for maximum contrast
+    ctx.fillStyle = '#080d1a';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Grid lines (lat / long)
-    ctx.strokeStyle = 'rgba(0, 255, 136, 0.15)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#00FF66';
+    ctx.lineWidth = 1.5;
     for (let x = 0; x <= canvas.width; x += 64) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -90,12 +87,11 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
       ctx.stroke();
     }
 
-    // Continents silhouette approximation dots
-    ctx.fillStyle = 'rgba(0, 255, 136, 0.4)';
-    for (let i = 0; i < 4000; i++) {
+    // Landmass approximation
+    ctx.fillStyle = '#FFE600';
+    for (let i = 0; i < 4500; i++) {
       const u = Math.random();
       const v = Math.random();
-      // Grouping clusters for landmasses
       const x = u * canvas.width;
       const y = v * canvas.height;
       if (
@@ -105,7 +101,7 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
         (x > 1600 && x < 1850 && y > 600 && y < 850) // Australia
       ) {
         ctx.beginPath();
-        ctx.arc(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40, Math.random() * 2 + 1, 0, Math.PI * 2);
+        ctx.arc(x + (Math.random() - 0.5) * 35, y + (Math.random() - 0.5) * 35, Math.random() * 2.2 + 1, 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -116,10 +112,10 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
 
     const earthMat = new THREE.MeshStandardMaterial({
       map: earthTexture,
-      roughness: 0.7,
-      metalness: 0.3,
-      emissive: new THREE.Color(0x002414),
-      emissiveIntensity: 0.4,
+      roughness: 0.6,
+      metalness: 0.2,
+      emissive: new THREE.Color(0x0a1f14),
+      emissiveIntensity: 0.5,
     });
 
     const earthMesh = new THREE.Mesh(earthGeom, earthMat);
@@ -127,11 +123,11 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     earthRef.current = earthMesh;
 
     // Atmospheric Glow Layer
-    const atmosGeom = new THREE.SphereGeometry(earthRadius * 1.035, 48, 48);
+    const atmosGeom = new THREE.SphereGeometry(earthRadius * 1.04, 48, 48);
     const atmosMat = new THREE.MeshBasicMaterial({
-      color: 0x00ff88,
+      color: 0x00ff66,
       transparent: true,
-      opacity: 0.12,
+      opacity: 0.15,
       side: THREE.BackSide,
       blending: THREE.AdditiveBlending,
     });
@@ -151,33 +147,32 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     scene.add(conjunctionGroup);
     conjunctionGroupRef.current = conjunctionGroup;
 
-    // 6. Starfield Background
-    const starsCount = 1200;
+    // Starfield Background
+    const starsCount = 1000;
     const starGeometry = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starsCount * 3);
     const starColors = new Float32Array(starsCount * 3);
 
     for (let i = 0; i < starsCount * 3; i += 3) {
-      const r = 80 + Math.random() * 120;
+      const r = 70 + Math.random() * 100;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       starPositions[i] = r * Math.sin(phi) * Math.cos(theta);
       starPositions[i + 1] = r * Math.sin(phi) * Math.sin(theta);
       starPositions[i + 2] = r * Math.cos(phi);
 
-      const isGreen = Math.random() > 0.7;
-      starColors[i] = isGreen ? 0.2 : 0.8;
-      starColors[i + 1] = isGreen ? 1.0 : 0.8;
-      starColors[i + 2] = isGreen ? 0.6 : 1.0;
+      starColors[i] = 1.0;
+      starColors[i + 1] = 0.9;
+      starColors[i + 2] = 0.0;
     }
     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
     starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
 
     const starMaterial = new THREE.PointsMaterial({
-      size: 1.2,
+      size: 1.5,
       vertexColors: true,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.7,
     });
     const starField = new THREE.Points(starGeometry, starMaterial);
     scene.add(starField);
@@ -199,9 +194,8 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
       animFrameIdRef.current = requestAnimationFrame(animate);
       const delta = clock.getDelta();
 
-      // Smooth rotation interpolation
       if (autoRotate && !isDraggingRef.current) {
-        targetRotationRef.current.y += delta * 0.08;
+        targetRotationRef.current.y += delta * 0.09;
       }
 
       currentRotationRef.current.x += (targetRotationRef.current.x - currentRotationRef.current.x) * 0.1;
@@ -222,10 +216,9 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
       if (conjunctionGroup) {
         conjunctionGroup.rotation.y = currentRotationRef.current.y;
         conjunctionGroup.rotation.x = currentRotationRef.current.x;
-        // Pulsate conjunction beacons
         conjunctionGroup.children.forEach(child => {
           if (child.userData.isBeacon) {
-            const scale = 1 + 0.3 * Math.sin(clock.getElapsedTime() * 4);
+            const scale = 1 + 0.4 * Math.sin(clock.getElapsedTime() * 5);
             child.scale.set(scale, scale, scale);
           }
         });
@@ -249,7 +242,6 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
 
       targetRotationRef.current.y += deltaX * 0.005;
       targetRotationRef.current.x += deltaY * 0.005;
-      // Clamp vertical pitch to prevent flipping
       targetRotationRef.current.x = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, targetRotationRef.current.x));
     };
     const onMouseUp = () => {
@@ -282,11 +274,10 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     };
   }, []);
 
-  // Update Orbits and Markers when selectedEvent or objects change
+  // Update Orbits and Markers
   useEffect(() => {
     if (!orbitsGroupRef.current || !conjunctionGroupRef.current || !satellitesGroupRef.current) return;
 
-    // Clear existing
     while (orbitsGroupRef.current.children.length > 0) {
       orbitsGroupRef.current.remove(orbitsGroupRef.current.children[0]);
     }
@@ -297,9 +288,8 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
       satellitesGroupRef.current.remove(satellitesGroupRef.current.children[0]);
     }
 
-    const scaleFactor = 1 / 1000; // 1 Three unit = 1000 km
+    const scaleFactor = 1 / 1000;
 
-    // Helper: Create an orbital ellipse/ring in 3D
     const createOrbitRing = (radiusKm, incDeg, raanDeg, colorHex) => {
       const points = [];
       const segments = 128;
@@ -312,8 +302,8 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
       const mat = new THREE.LineBasicMaterial({
         color: colorHex,
         transparent: true,
-        opacity: 0.65,
-        linewidth: 2,
+        opacity: 0.8,
+        linewidth: 3,
       });
       const line = new THREE.Line(geom, mat);
       line.rotation.z = (incDeg || 0) * (Math.PI / 180);
@@ -321,36 +311,29 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
       return line;
     };
 
-    // Render active conjunctions
     activeEvents.forEach((ev, idx) => {
       const isSelected = selectedEvent && selectedEvent.target_id === ev.target_id && selectedEvent.chaser_id === ev.chaser_id;
       const isCritical = (ev.risk_tier || '').toLowerCase().includes('crit') || ev.pc > 1e-4;
 
-      // Approximate orbital radius ~7100 km (LEO)
       const altKm = 7150 + idx * 40;
-      const incA = 86.4; // Target inclination (e.g. Iridium)
-      const incB = 74.0; // Chaser inclination (e.g. Cosmos)
+      const incA = 86.4;
+      const incB = 74.0;
 
       if (isSelected || idx < 3) {
-        // Orbit A (Cyan / Green)
-        const orbitA = createOrbitRing(altKm, incA, idx * 30, isCritical ? 0x00ff88 : 0x00e5ff);
+        const orbitA = createOrbitRing(altKm, incA, idx * 30, isCritical ? 0x00ff66 : 0x00e5ff);
         orbitsGroupRef.current.add(orbitA);
 
-        // Orbit B (Orange / Red)
-        const orbitB = createOrbitRing(altKm, incB, idx * 30 + 45, isCritical ? 0xff3b3b : 0xffa330);
+        const orbitB = createOrbitRing(altKm, incB, idx * 30 + 45, isCritical ? 0xff3333 : 0xffaa00);
         orbitsGroupRef.current.add(orbitB);
 
-        // Conjunction encounter intersection point
         const encDist = altKm * scaleFactor;
-        // Intersection point in spherical space
         const encX = encDist * Math.cos(idx * 0.8);
         const encY = encDist * Math.sin(incA * Math.PI / 180) * 0.7;
         const encZ = encDist * Math.sin(idx * 0.8);
 
-        // Pulsing Marker
-        const beaconGeom = new THREE.SphereGeometry(0.3, 16, 16);
+        const beaconGeom = new THREE.SphereGeometry(0.35, 16, 16);
         const beaconMat = new THREE.MeshBasicMaterial({
-          color: isCritical ? 0xff3b3b : 0xffb830,
+          color: isCritical ? 0xff3333 : 0xffe600,
           wireframe: true,
         });
         const beaconMesh = new THREE.Mesh(beaconGeom, beaconMat);
@@ -358,8 +341,7 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
         beaconMesh.userData = { isBeacon: true, event: ev };
         conjunctionGroupRef.current.add(beaconMesh);
 
-        // Inner solid core
-        const coreGeom = new THREE.SphereGeometry(0.12, 16, 16);
+        const coreGeom = new THREE.SphereGeometry(0.15, 16, 16);
         const coreMat = new THREE.MeshBasicMaterial({
           color: isCritical ? 0xffffff : 0xffe600,
         });
@@ -369,7 +351,6 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
       }
     });
 
-    // Render populated background satellites from objects list
     if (objects.length > 0) {
       const satGeom = new THREE.BufferGeometry();
       const satPositions = [];
@@ -379,7 +360,7 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
         if (obj.position_km && obj.position_km.length === 3) {
           const [x, y, z] = obj.position_km;
           satPositions.push(x * scaleFactor, z * scaleFactor, -y * scaleFactor);
-          satColors.push(0.0, 0.9, 0.5);
+          satColors.push(0.0, 1.0, 0.4);
         }
       });
 
@@ -387,10 +368,10 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
         satGeom.setAttribute('position', new THREE.Float32BufferAttribute(satPositions, 3));
         satGeom.setAttribute('color', new THREE.Float32BufferAttribute(satColors, 3));
         const satMat = new THREE.PointsMaterial({
-          size: 2.2,
+          size: 2.5,
           vertexColors: true,
           transparent: true,
-          opacity: 0.85,
+          opacity: 0.9,
         });
         const satPoints = new THREE.Points(satGeom, satMat);
         satellitesGroupRef.current.add(satPoints);
@@ -413,84 +394,67 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
   };
 
   return (
-    <div 
-      className="relative w-full h-[520px] lg:h-[620px] rounded-xl overflow-hidden border border-hud-border bg-void/90 tactical-grid"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="relative w-full h-[520px] lg:h-[620px] rounded-2xl overflow-hidden border-4 border-black bg-black shadow-neo-lg">
       {/* Three.js Canvas Container */}
       <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-      {/* Sci-Fi CRT Scanline Overlay */}
-      <div className="absolute inset-0 scanlines opacity-60 pointer-events-none" />
-
-      {/* Top Left HUD Telemetry Readout */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-1 p-3 rounded-lg glass-panel text-xs">
-        <div className="flex items-center gap-2 text-hud-green font-display uppercase tracking-widest text-[11px]">
-          <Radio className="w-3.5 h-3.5 animate-pulse text-hud-green" />
-          <span>3D Orbital Telemetry HUD</span>
+      {/* Top Left Neo-Brutalist HUD Badge */}
+      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 p-3.5 rounded-xl bg-white border-3 border-black shadow-neo text-xs font-mono">
+        <div className="flex items-center gap-2 text-black font-black uppercase text-xs">
+          <div className="w-3 h-3 rounded-full bg-neo-green border-2 border-black animate-pulse" />
+          <span>3D ORBITAL RADAR HUD</span>
         </div>
-        <div className="text-slate-400 font-mono flex items-center gap-2">
-          <span>COORDINATES:</span>
-          <span className="text-hud-cyan font-semibold">GCRS / ECI FRAME</span>
+        <div className="text-black font-bold flex items-center justify-between gap-4">
+          <span>FRAME:</span>
+          <span className="px-1.5 py-0.5 bg-neo-yellow border border-black rounded text-[10px]">GCRS / ECI</span>
         </div>
-        <div className="text-slate-400 font-mono flex items-center gap-2">
-          <span>EARTH RADIUS:</span>
-          <span className="text-slate-200">6,378.14 km</span>
-        </div>
-        <div className="text-slate-400 font-mono flex items-center gap-2">
-          <span>SCALE RATIO:</span>
-          <span className="text-slate-200">1:1,000 km</span>
+        <div className="text-black font-bold flex items-center justify-between gap-4">
+          <span>ALTITUDE BAND:</span>
+          <span>LEO (~789 km)</span>
         </div>
         {selectedEvent && (
-          <div className="mt-2 pt-2 border-t border-hud-borderFaint flex flex-col gap-0.5">
-            <span className="text-red-400 font-bold flex items-center gap-1">
-              <ShieldAlert className="w-3.5 h-3.5" />
+          <div className="mt-1 pt-2 border-t-2 border-black flex flex-col gap-1">
+            <span className="text-neo-red font-black flex items-center gap-1">
+              <ShieldAlert className="w-4 h-4" />
               LOCK: {selectedEvent.target_id} × {selectedEvent.chaser_id}
             </span>
-            <span className="text-slate-300">Miss: {(selectedEvent.miss_distance_km).toFixed(3)} km</span>
+            <span className="text-black font-bold">Miss: {(selectedEvent.miss_distance_km).toFixed(3)} km</span>
           </div>
         )}
       </div>
 
-      {/* Top Right Controls Toolbar */}
+      {/* Top Right Neo Action Controls */}
       <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
         <button
           onClick={handleToggleRotate}
           title={autoRotate ? 'Pause Rotation' : 'Resume Auto Rotation'}
-          className={`p-2 rounded-lg border text-xs font-mono transition-all flex items-center gap-1.5 backdrop-blur-md ${
+          className={`px-3.5 py-2 rounded-xl border-3 border-black text-xs font-mono font-black transition-all flex items-center gap-2 shadow-neo ${
             autoRotate
-              ? 'bg-hud-green/15 text-hud-green border-hud-green/40 shadow-[0_0_10px_rgba(0,255,136,0.2)]'
-              : 'bg-deep/80 text-slate-400 border-hud-border hover:text-white'
+              ? 'bg-neo-yellow text-black hover:bg-yellow-300'
+              : 'bg-white text-black hover:bg-slate-100'
           }`}
         >
-          <RotateCcw className={`w-3.5 h-3.5 ${autoRotate ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }} />
-          <span>{autoRotate ? 'ORBIT ACTIVE' : 'PAUSED'}</span>
+          <RotateCcw className={`w-4 h-4 ${autoRotate ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }} />
+          <span>{autoRotate ? 'ROTATING' : 'PAUSED'}</span>
         </button>
 
         <button
           onClick={handleResetCamera}
           title="Reset Camera View"
-          className="p-2 rounded-lg border border-hud-border bg-deep/80 text-slate-300 hover:text-hud-green hover:border-hud-green/40 transition-all"
+          className="p-2 rounded-xl border-3 border-black bg-neo-cyan text-black hover:bg-cyan-300 transition-all shadow-neo"
         >
-          <Crosshair className="w-4 h-4" />
+          <Crosshair className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Bottom Center Interaction Hint */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 pointer-events-none px-4 py-1.5 rounded-full bg-deep/90 border border-hud-borderFaint text-[11px] text-slate-400 flex items-center gap-3 shadow-lg backdrop-blur-md font-mono">
-        <span className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-hud-green"></span>
-          Drag to Rotate
-        </span>
-        <span className="text-slate-600">|</span>
-        <span className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-hud-cyan"></span>
-          Scroll to Zoom
-        </span>
-        <span className="text-slate-600">|</span>
-        <span className="text-hud-amber font-semibold">
-          {activeEvents.length} Conjunction Beacons Active
+      {/* Bottom Center Indicator Badge */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-5 py-2 rounded-xl bg-neo-green border-3 border-black text-xs text-black font-black flex items-center gap-3 shadow-neo">
+        <span>DRAG TO ROTATE</span>
+        <span className="text-black">/</span>
+        <span>SCROLL TO ZOOM</span>
+        <span className="text-black">/</span>
+        <span className="bg-black text-white px-2 py-0.5 rounded text-[10px]">
+          {activeEvents.length} CONJUNCTIONS ACTIVE
         </span>
       </div>
     </div>
