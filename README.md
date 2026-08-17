@@ -156,13 +156,15 @@ pip install -r requirements.txt
 uvicorn backend.app.api.main:app --port 8000
 ```
 
-### 5. Serve the frontend (new terminal)
+### 5. Start the React Frontend (Vite)
 ```bash
-python3 -m http.server 3000
+cd frontend
+npm install
+npm run dev
 ```
 
-### 6. Open the dashboard
-Visit **http://localhost:3000/dashboard.html** and click **INITIATE SCAN**.
+### 6. Open the Mission Control Dashboard
+Visit **http://localhost:5173** (or the zero-dependency fallback at `http://localhost:3000/dashboard.html`).
 
 ---
 
@@ -170,8 +172,11 @@ Visit **http://localhost:3000/dashboard.html** and click **INITIATE SCAN**.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/health` | Health check |
-| `POST` | `/scan` | Run full conjunction pipeline |
+| `GET` | `/health` | Health check & ML status |
+| `POST` | `/scan` | Run full two-stage conjunction pipeline |
+| `GET` | `/api/objects` | Propagated GCRS coordinates for catalog satellites |
+| `POST` | `/api/maneuver` | Clohessy-Wiltshire impulsive burn planner |
+| `GET` | `/api/validation/iridium-cosmos` | 2009 Iridium/Cosmos collision validation replay |
 
 ### `POST /scan` — Example Response
 ```json
@@ -198,9 +203,9 @@ Visit **http://localhost:3000/dashboard.html** and click **INITIATE SCAN**.
 |---|---|
 | Backend | Python 3.11, FastAPI, Uvicorn |
 | Orbital Mechanics | SGP4, Skyfield |
-| Scientific Computing | NumPy, SciPy |
-| ML Triage | scikit-learn |
-| Frontend | Vanilla HTML5 / CSS3 / JavaScript |
+| Scientific Computing | NumPy, SciPy (minimize_scalar) |
+| ML Triage | scikit-learn (Random Forest surrogate) |
+| Frontend | React 19, Vite, Three.js, Tailwind CSS, Lucide Icons, Web Audio API |
 
 ---
 

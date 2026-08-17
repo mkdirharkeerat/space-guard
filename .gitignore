@@ -29,9 +29,13 @@ data/tle_cache/*.tle
 Thumbs.db
 
 # Frontend build
+frontend/node_modules/
+frontend/dist/
 frontend/.vite/
 node_modules/
+dist/
 
 # Logs
 *.log
 Archive.zip
+
