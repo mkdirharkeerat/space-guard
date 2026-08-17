@@ -5,7 +5,7 @@ import numpy as np
 # Add backend to path so we can import app
 sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
 
-from app.risk.monte_carlo_pc import monte_carlo_pc, get_risk_tier
+from app.risk.analytic_pc import analytic_pc, get_risk_tier
 from app.config import DEFAULT_HBR_KM, DEFAULT_SIGMA_KM
 
 def verify_phase3():
@@ -33,7 +33,7 @@ def verify_phase3():
         miss_dist = case["miss_km"]
         miss_vector = np.array([miss_dist, 0.0])
         
-        pc = monte_carlo_pc(miss_vector, DEFAULT_SIGMA_KM, test_hbr_km)
+        pc = analytic_pc(miss_vector, DEFAULT_SIGMA_KM, test_hbr_km)
         tier = get_risk_tier(pc)
         
         print(f"\n{case['name']} (Miss: {miss_dist} km)")

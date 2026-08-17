@@ -3,6 +3,7 @@ from sklearn.ensemble import RandomForestRegressor
 from typing import List, Dict, Any
 
 from ..config import DEFAULT_HBR_KM, DEFAULT_SIGMA_KM
+from ..risk.analytic_pc import analytic_pc
 
 class MLTriageModel:
     def __init__(self):

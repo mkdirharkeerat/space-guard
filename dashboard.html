@@ -876,7 +876,8 @@ async function runScan(){
     events=d.events||[];
     renderTable(events);
     pill.className='status-pill';
-    stxt.textContent=`Scan complete · ${events.length} events · Analytic Pc model`;
+    const ts=d.data_as_of?new Date(d.data_as_of).toUTCString():'now';
+    stxt.textContent=`Scan complete · ${events.length} events · ${d.object_count||'?'} objects screened · Last updated: ${ts}`;
     document.getElementById('ev-count').textContent=events.length;
   }catch(e){
     pill.className='status-pill err';
@@ -978,36 +979,46 @@ function closeDetail(){
   }
 }
 
-function showManeuver(){
+async function showManeuver(){
   if(selIdx===null) return;
   const e=events[selIdx];
   const miss=+e.miss_distance_km;
-  const relVel=+e.relative_velocity_km_s;
 
-  // CW-inspired simulation:
-  // Along-track 1 m/s burn 24h before TCA → shift ≈ 2·n·dt·dv_t/n² = 2·dv_t·dt (linearised)
-  // Simplification: shift ≈ 14.1 × dv_m_s km (empirical CW for typical LEO)
-  const dvMs=1.0; // 1 m/s burn
-  const leadHours=24;
-  const shift=dvMs*14.1; // km shift per m/s at 24h lead for LEO
-  const projMiss=miss+shift;
-
-  // Projected Pc drops dramatically; approximation using Gaussian
-  const sigma=0.5; const hbr=0.01;
-  const origPc=Math.exp(-(miss*miss)/(2*sigma*sigma))*(1-Math.exp(-(hbr*hbr)/(2*sigma*sigma)));
-  const projPc=Math.exp(-(projMiss*projMiss)/(2*sigma*sigma))*(1-Math.exp(-(hbr*hbr)/(2*sigma*sigma)));
-
-  document.getElementById('mv-base-miss').textContent=`${miss.toFixed(4)} km`;
-  document.getElementById('mv-base-pc').innerHTML=`Pc = ${fmtPc(e.pc)}`;
-  document.getElementById('mv-proj-miss').textContent=`${projMiss.toFixed(1)} km`;
-  document.getElementById('mv-proj-pc').innerHTML=`Pc &lt; ${fmtPc(Math.max(projPc,1e-15))}`;
-  document.getElementById('mv-delta').textContent=`+${shift.toFixed(1)} km`;
-  document.getElementById('mv-note-text').textContent=
-    `Along-track ΔV = ${dvMs.toFixed(1)} m/s, executed ${leadHours}h before TCA. ` +
-    `The CW model shows a 24h lead time produces ~14× more separation than the same burn 1h before TCA. ` +
-    `Optimal burn direction computed via SVD of the Φᵣᵥ matrix.`;
-
+  // Show loading state
+  document.getElementById('mv-base-miss').textContent='Computing…';
+  document.getElementById('mv-proj-miss').textContent='…';
+  document.getElementById('mv-delta').textContent='…';
+  document.getElementById('mv-note-text').textContent='Calling CW backend…';
   document.getElementById('mv-result').classList.add('on');
+
+  try{
+    const r=await fetch('http://localhost:8000/api/maneuver',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        miss_distance_km: miss,
+        relative_velocity_km_s: +(e.relative_velocity_km_s||7.5),
+        delta_v_budget_m_s: 1.0,
+        burn_lead_time_hours: 24.0
+      })
+    });
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d=await r.json();
+    const projMiss=d.projected_miss_distance_km;
+    const baseMiss=d.baseline_miss_distance_km;
+    const shift=projMiss-baseMiss;
+    const projPc=Math.exp(-(projMiss*projMiss)/(2*0.5*0.5))*(1-Math.exp(-(0.01*0.01)/(2*0.5*0.5)));
+
+    document.getElementById('mv-base-miss').textContent=`${baseMiss.toFixed(4)} km`;
+    document.getElementById('mv-base-pc').innerHTML=`Pc = ${fmtPc(e.pc)}`;
+    document.getElementById('mv-proj-miss').textContent=`${projMiss.toFixed(2)} km`;
+    document.getElementById('mv-proj-pc').innerHTML=`Pc &lt; ${fmtPc(Math.max(projPc,1e-15))}`;
+    document.getElementById('mv-delta').textContent=`+${shift.toFixed(2)} km`;
+    document.getElementById('mv-note-text').textContent=d.note||'';
+  }catch(err){
+    document.getElementById('mv-note-text').textContent=
+      `Backend maneuver endpoint unreachable (${err.message}). Start uvicorn on port 8000.`;
+  }
 }
 
 /* ── VALIDATION REPLAY ── */
@@ -1030,19 +1041,21 @@ async function runReplay(){
   // Attempt to fetch live Iridium data from backend
   await sleep(400);
   try{
-    const r=await fetch('http://localhost:8000/scan',{method:'POST'});
+    const r=await fetch('http://localhost:8000/api/validation/iridium-cosmos');
     const d=await r.json();
-    const ir=(d.events||[]).find(e=>e.target_id==='IRIDIUM 33');
+    // /api/validation/iridium-cosmos returns the result directly (not events array)
+    const ir=d.tca_utc?d:null;
     if(ir){
       document.getElementById('vr-tca').textContent=ir.tca_utc;
       document.getElementById('vr-miss').textContent=`${(+ir.miss_distance_km).toFixed(4)} km`;
       document.getElementById('vr-vel').textContent=`${(+ir.relative_velocity_km_s).toFixed(2)} km/s`;
       document.getElementById('vr-pc').innerHTML=fmtPc(ir.pc);
       document.getElementById('vr-verdict').innerHTML=
-        `✓ Space-Guard classified IRIDIUM 33 / COSMOS 2251 as <strong>${ir.risk_tier.toUpperCase()}</strong> ` +
+        `✓ Space-Guard classified IRIDIUM 33 / COSMOS 2251 as <strong>${(ir.risk_tier||'CRITICAL').toUpperCase()}</strong> ` +
         `(Pc = ${(+ir.pc).toExponential(2)}) using only the pre-collision TLEs. ` +
         `A maneuver alert would have been issued ~48h before the collision — ` +
-        `neither satellite had an active avoidance system, so the collision was not prevented.`;
+        `neither satellite had an active avoidance system, so the collision was not prevented. ` +
+        `σ assumed = ${ir.assumption_sigma_km||0.5} km (stated TLE positional uncertainty).`;
     }else{
       fallbackValidation();
     }
