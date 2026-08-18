@@ -1,183 +1,202 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Globe2, 
-  Radar, 
-  Rocket, 
-  History, 
-  Target, 
-  Satellite, 
-  BookOpen, 
-  ArrowRight, 
+import {
+  Globe2,
+  Radar,
+  Rocket,
+  History,
+  Target,
+  Satellite,
+  ArrowRight,
   Activity,
-  Layers,
-  Cpu,
   Shield,
+  Zap,
+  Flame,
   CheckCircle2,
-  AlertTriangle
+  Cpu
 } from 'lucide-react';
-import { sound } from '../utils/audio';
+import FadeIn from '@/components/FadeIn';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import BlurText from '@/components/react-bits/BlurText';
+import CountUp from '@/components/react-bits/CountUp';
+import SpotlightCard from '@/components/react-bits/SpotlightCard';
+import DotGrid from '@/components/react-bits/DotGrid';
+import { sound } from '@/utils/audio';
 
-export default function HomePage({ backendStatus, onTriggerScan, scanData }) {
+export default function HomePage({ backendStatus, scanData }) {
   const features = [
     {
       to: '/globe',
-      title: '3D Orbital Radar & Tracking',
-      tag: 'TELEMETRY VIEWPORT',
+      title: '3D Orbital Radar',
       icon: Globe2,
-      desc: 'Interactive Earth visualization with propagated inclined satellite orbits, conjunction encounter nodes, and vector coordinate frames.',
+      tag: '3D TELEMETRY',
+      desc: 'Interactive Earth with real satellite orbits, conjunction nodes, and 2009 collision simulation.',
     },
     {
       to: '/screening',
-      title: 'Two-Stage Conjunction Screening',
-      tag: 'FAST FILTER + TCA',
+      title: 'Conjunction Screening',
       icon: Radar,
-      desc: 'Altitude-band coarse overlap filter (±50km) followed by numerical Scipy golden-section minimization to pinpoint precise encounter times.',
+      tag: 'FAST FILTER',
+      desc: 'Two-stage screening filter with golden-section TCA search and Foster/Alfano analytic Pc.',
     },
     {
       to: '/maneuver',
-      title: 'Clohessy-Wiltshire Maneuver Planner',
-      tag: 'SVD THRUSTER OPTIMIZER',
+      title: 'Maneuver Planner',
       icon: Rocket,
-      desc: 'Impulsive burn calculation via SVD of the State Transition Matrix Φ_rv. Demonstrates 14× fuel efficiency scaling for early burns.',
+      tag: 'SVD OPTIMIZER',
+      desc: 'Clohessy-Wiltshire impulsive thruster optimization demonstrating 14× early fuel scaling.',
     },
     {
       to: '/historical',
-      title: '2009 Collision Benchmark Replay',
-      tag: 'VALIDATION LAB',
+      title: '2009 Collision Replay',
       icon: History,
-      desc: 'Tested directly against pre-collision TLEs of the 2009 Iridium 33 / Cosmos 2251 collision. Flags Critical Alert 48h prior.',
+      tag: 'CASE STUDY',
+      desc: 'Benchmark against real Iridium 33 / Cosmos 2251 pre-collision TLEs and counterfactual avoidance.',
     },
     {
       to: '/bplane',
-      title: 'B-Plane Encounter Geometry',
-      tag: 'ANALYTIC Pc INTEGRAL',
-      icon: Target,
-      desc: 'Cross-sectional encounter plane with Gaussian 1σ, 2σ, 3σ uncertainty contours and 10m hard-body collision cross-section.',
+      title: 'B-Plane Geometry',
+      tag: '2D GAUSSIAN',
+      desc: 'Encounter cross-section with 1σ, 2σ, 3σ Gaussian uncertainty contours and 10m hard-body radius.',
     },
     {
       to: '/catalog',
-      title: 'Live Satellite Ephemeris',
-      tag: 'GCRS / ECI FRAME',
+      title: 'Satellite Catalog',
       icon: Satellite,
-      desc: 'Search and inspect propagated coordinates, orbital velocity vectors, and altitude bands across active catalog satellites.',
+      tag: 'GCRS / ECI',
+      desc: 'Live propagated satellite ephemeris, altitude bands, and velocity vectors from CelesTrak.',
     },
   ];
 
   const pipelineSteps = [
     {
       step: '01',
-      title: 'TLE Ingestion & SGP4 Propagation',
-      desc: 'Ingests active Two-Line Element sets from CelesTrak cache and propagates states to GCRS/ECI frame via Skyfield SGP4.',
+      title: 'TLE Ingestion & SGP4',
+      desc: 'Ingests active Two-Line Element sets and propagates coordinates to GCRS/ECI frame in real-time.',
       badge: 'PROPAGATION',
     },
     {
       step: '02',
-      title: 'Coarse Altitude Filter (Stage 1)',
-      desc: 'Filters pairs whose apogee and perigee do not overlap within ±50 km margin, discarding over 98% of candidate combinations.',
-      badge: 'O(N²) FILTER',
+      title: 'Coarse Altitude Filter',
+      desc: 'Discards non-overlapping apogee/perigee altitude bands within ±50 km margin to keep compute fast.',
+      badge: 'STAGE 1',
     },
     {
       step: '03',
-      title: 'Refined TCA Search & Analytic Pc',
-      desc: 'Numerical scalar minimization locates true Time of Closest Approach. Foster/Alfano 2D Gaussian integral computes Pc.',
-      badge: 'FOSTER/ALFANO',
+      title: 'TCA Search & Analytic Pc',
+      desc: 'Golden-section scalar minimization pinpoints exact TCA; Foster/Alfano calculates 2D Gaussian Pc.',
+      badge: 'STAGE 2',
     },
     {
       step: '04',
       title: 'CW Maneuver Optimization',
-      desc: 'Calculates optimal impulsive thruster burn vectors via Clohessy-Wiltshire STM, steering satellites to safe clearance.',
-      badge: 'SVD IMPULSE',
+      desc: 'Calculates impulsive ΔV thruster burn via SVD of Φ_rv, establishing safe orbital clearance.',
+      badge: 'AVOIDANCE',
     },
   ];
 
   return (
-    <div className="flex flex-col gap-10 font-mono text-space-200 pb-12">
-      {/* 1. Hero Section */}
-      <section className="p-8 sm:p-12 rounded-lg bg-space-900 border border-space-800 flex flex-col gap-6 relative overflow-hidden">
-        {/* Top Badges */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="px-2.5 py-0.5 bg-space-850 border border-space-700 rounded text-space-300 font-medium text-xs">
-            SMART INDIA HACKATHON 2026
-          </span>
-          <span className="px-2.5 py-0.5 bg-space-850 border border-space-700 rounded text-telemetry-emerald font-medium text-xs">
-            PROBLEM STATEMENT #17
-          </span>
-          <span className="px-2.5 py-0.5 bg-space-850 border border-space-700 rounded text-space-300 font-medium text-xs">
-            SPACE DEBRIS DETECTION & COLLISION AVOIDANCE
-          </span>
-        </div>
+    <div className="relative flex flex-col gap-12 pb-12 font-sans">
+      {/* Ambient background dot grid */}
+      <DotGrid className="opacity-40" />
 
-        {/* Hero Title & Subtitle */}
-        <div className="flex flex-col gap-3 max-w-4xl">
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-semibold font-sans tracking-tight text-white leading-tight">
-            Autonomous Orbital Conjunction Assessment & Collision Avoidance Platform
-          </h1>
-          <p className="text-sm sm:text-base text-space-400 leading-relaxed max-w-3xl">
-            A real-time satellite conjunction risk assessment platform built on the same <strong className="text-white">Foster/Alfano 2D Gaussian analytic Pc models</strong> used by ESA and NASA, integrated with <strong className="text-white">Clohessy-Wiltshire impulsive maneuver optimization</strong>.
-          </p>
-        </div>
+      {/* Hero Section */}
+      <FadeIn>
+        <section className="relative space-y-6 pt-4">
+          <div className="space-y-4 max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary" className="font-normal text-xs bg-secondary/80 text-secondary-foreground border border-border">
+                Smart India Hackathon 2026 · Problem #17
+              </Badge>
+              <Badge variant="outline" className="font-normal text-xs border-primary/30 text-primary">
+                Foster/Alfano 2D Gaussian Pc
+              </Badge>
+            </div>
 
-        {/* CTA Button Strip */}
-        <div className="flex flex-wrap items-center gap-3 pt-2">
-          <Link
-            to="/screening"
-            onClick={() => sound.playClick()}
-            className="px-6 py-3 rounded bg-telemetry-emerald text-black font-semibold text-xs uppercase tracking-wider hover:bg-emerald-400 transition-colors flex items-center gap-2"
-          >
-            <Activity className="w-4 h-4" />
-            <span>Launch Conjunction Screening</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-
-          <Link
-            to="/globe"
-            onClick={() => sound.playClick()}
-            className="px-5 py-3 rounded bg-space-850 text-space-200 hover:text-white border border-space-700 hover:border-space-600 font-medium text-xs uppercase tracking-wider transition-colors flex items-center gap-2"
-          >
-            <Globe2 className="w-4 h-4 text-telemetry-cyan" />
-            <span>Open 3D Radar</span>
-          </Link>
-
-          <Link
-            to="/historical"
-            onClick={() => sound.playClick()}
-            className="px-5 py-3 rounded bg-space-850 text-space-200 hover:text-white border border-space-700 hover:border-space-600 font-medium text-xs uppercase tracking-wider transition-colors flex items-center gap-2"
-          >
-            <History className="w-4 h-4 text-red-400" />
-            <span>2009 Collision Replay</span>
-          </Link>
-        </div>
-
-        {/* Quick Telemetry Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-space-800">
-          <div className="p-3 bg-space-950/60 border border-space-800 rounded">
-            <span className="text-[10px] text-space-500 uppercase block">Tracked Catalog Objects</span>
-            <strong className="text-lg font-semibold text-white">27,000+</strong>
+            <div className="space-y-2">
+              <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight leading-tight text-foreground">
+                <BlurText 
+                  text="Autonomous Orbital Conjunction Assessment & Collision Avoidance" 
+                  delay={40}
+                  className="inline-block"
+                />
+              </h1>
+              <p className="text-muted-foreground text-base sm:text-lg leading-relaxed pt-1">
+                Real-time orbital collision risk screening using Foster/Alfano analytic Gaussian models,
+                integrated with Clohessy-Wiltshire impulsive maneuver optimization.
+              </p>
+            </div>
           </div>
-          <div className="p-3 bg-space-950/60 border border-space-800 rounded">
-            <span className="text-[10px] text-space-500 uppercase block">Relative Closing Speed</span>
-            <strong className="text-lg font-semibold text-white">7 - 14 km/s</strong>
-          </div>
-          <div className="p-3 bg-space-950/60 border border-space-800 rounded">
-            <span className="text-[10px] text-space-500 uppercase block">Analytic Pc Latency</span>
-            <strong className="text-lg font-semibold text-telemetry-emerald">&lt; 10 µs / pair</strong>
-          </div>
-          <div className="p-3 bg-space-950/60 border border-space-800 rounded">
-            <span className="text-[10px] text-space-500 uppercase block">Fuel Efficiency Scaling</span>
-            <strong className="text-lg font-semibold text-telemetry-cyan">14× (24h prior)</strong>
-          </div>
-        </div>
-      </section>
 
-      {/* 2. System Modules Bento Grid */}
-      <section className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md">
+              <Link to="/screening" onClick={() => sound.playClick()}>
+                <Activity className="size-4 mr-1.5" />
+                Launch Screening
+                <ArrowRight className="size-4 ml-1.5" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="border-border hover:bg-accent/60 font-medium">
+              <Link to="/globe" onClick={() => sound.playClick()}>
+                <Globe2 className="size-4 mr-1.5 text-primary" />
+                Open 3D Radar
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="lg" className="text-muted-foreground hover:text-foreground font-medium">
+              <Link to="/historical" onClick={() => sound.playClick()}>
+                <History className="size-4 mr-1.5 text-rose-400" />
+                2009 Collision Replay
+              </Link>
+            </Button>
+          </div>
+
+          {/* Stats strip with CountUp animation */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
+            <div className="rounded-xl border border-border/80 bg-card/50 backdrop-blur-md p-4 flex flex-col justify-between">
+              <span className="text-xs text-muted-foreground font-medium">Catalog objects</span>
+              <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground font-mono mt-1">
+                <CountUp to={27000} separator="," suffix="+" duration={1.5} />
+              </div>
+              <span className="text-[11px] text-muted-foreground/70 mt-0.5">Active LEO debris</span>
+            </div>
+
+            <div className="rounded-xl border border-border/80 bg-card/50 backdrop-blur-md p-4 flex flex-col justify-between">
+              <span className="text-xs text-muted-foreground font-medium">Relative velocity</span>
+              <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground font-mono mt-1">
+                <CountUp to={14.1} decimals={1} suffix=" km/s" duration={1.8} />
+              </div>
+              <span className="text-[11px] text-muted-foreground/70 mt-0.5">Head-on closing rate</span>
+            </div>
+
+            <div className="rounded-xl border border-border/80 bg-card/50 backdrop-blur-md p-4 flex flex-col justify-between">
+              <span className="text-xs text-muted-foreground font-medium">Analytic Pc latency</span>
+              <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-emerald-400 font-mono mt-1">
+                &lt; 10 µs
+              </div>
+              <span className="text-[11px] text-muted-foreground/70 mt-0.5">Per candidate pair</span>
+            </div>
+
+            <div className="rounded-xl border border-border/80 bg-card/50 backdrop-blur-md p-4 flex flex-col justify-between">
+              <span className="text-xs text-muted-foreground font-medium">Fuel efficiency</span>
+              <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-primary font-mono mt-1">
+                <CountUp to={14} suffix="×" duration={1.4} />
+              </div>
+              <span className="text-[11px] text-muted-foreground/70 mt-0.5">At 24h prior burn</span>
+            </div>
+          </div>
+        </section>
+      </FadeIn>
+
+      {/* Feature Modules Bento Grid */}
+      <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold font-sans tracking-wide text-white">
-            Operational Modules & Technical Tools
+          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+            System Modules & Tools
           </h2>
-          <p className="text-xs text-space-400">
-            Dedicated workstations for orbital screening, visual telemetry, and maneuver planning
+          <p className="text-sm text-muted-foreground">
+            Interactive workstations for real-time screening, orbital telemetry, and maneuver execution.
           </p>
         </div>
 
@@ -189,91 +208,91 @@ export default function HomePage({ backendStatus, onTriggerScan, scanData }) {
                 key={f.to}
                 to={f.to}
                 onClick={() => sound.playClick()}
-                className="p-5 rounded-lg bg-space-900 border border-space-800 hover:border-space-700 hover:bg-space-850 transition-all flex flex-col justify-between gap-4 group"
+                className="group"
               >
-                <div className="flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between">
-                    <div className="p-2 bg-space-800 border border-space-700 rounded text-telemetry-cyan">
-                      <Icon className="w-5 h-5" />
+                <SpotlightCard className="h-full p-5 flex flex-col justify-between gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                        <Icon className="size-4" />
+                      </div>
+                      <Badge variant="outline" className="text-[10px] font-mono border-border text-muted-foreground">
+                        {f.tag}
+                      </Badge>
                     </div>
-                    <span className="px-2 py-0.5 bg-space-800 text-space-400 border border-space-700 rounded text-[10px] uppercase font-mono">
-                      {f.tag}
-                    </span>
+                    <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {f.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {f.desc}
+                    </p>
                   </div>
-                  <h3 className="text-sm font-semibold font-sans text-white group-hover:text-telemetry-cyan transition-colors">
-                    {f.title}
-                  </h3>
-                  <p className="text-xs text-space-400 leading-relaxed">
-                    {f.desc}
-                  </p>
-                </div>
 
-                <div className="flex items-center gap-1 text-xs text-space-500 group-hover:text-space-300 pt-2 border-t border-space-800">
-                  <span>Open Tool</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground group-hover:text-foreground pt-2 border-t border-border/50 transition-colors">
+                    <span>Open Module</span>
+                    <ArrowRight className="size-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </SpotlightCard>
               </Link>
             );
           })}
         </div>
       </section>
 
-      {/* 3. 4-Stage Orbital Mechanics Pipeline */}
-      <section className="p-6 sm:p-8 rounded-lg bg-space-900 border border-space-800 flex flex-col gap-5">
+      {/* 4-Stage Orbital Mechanics Pipeline */}
+      <section className="rounded-2xl border border-border/80 bg-card/40 backdrop-blur-md p-6 sm:p-8 space-y-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded bg-space-850 border border-space-700 text-telemetry-emerald">
-            <Cpu className="w-5 h-5" />
+          <div className="size-9 rounded-lg bg-secondary flex items-center justify-center text-primary">
+            <Cpu className="size-5" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold font-sans tracking-wide text-white">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
               Four-Stage Orbital Mechanics Architecture
             </h2>
-            <p className="text-xs text-space-400">
-              End-to-end mathematical pipeline from TLE ingestion to impulsive avoidance burns
+            <p className="text-xs text-muted-foreground">
+              Deterministic physics pipeline from TLE catalog ingestion to impulsive ΔV avoidance burns.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {pipelineSteps.map((s) => (
-            <div key={s.step} className="p-4 rounded-lg bg-space-950/80 border border-space-800 flex flex-col justify-between gap-3">
-              <div className="flex flex-col gap-2">
+            <div key={s.step} className="rounded-xl border border-border/60 bg-secondary/30 p-4 space-y-2 flex flex-col justify-between">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-semibold text-telemetry-cyan font-mono">{s.step}</span>
-                  <span className="px-1.5 py-0.2 bg-space-900 border border-space-800 rounded text-[9px] text-space-400 uppercase">
+                  <span className="text-sm font-semibold font-mono text-primary">{s.step}</span>
+                  <Badge variant="outline" className="text-[9px] font-mono border-border/80 text-muted-foreground">
                     {s.badge}
-                  </span>
+                  </Badge>
                 </div>
-                <h4 className="text-xs font-semibold text-white">{s.title}</h4>
-                <p className="text-[11px] text-space-400 leading-relaxed">{s.desc}</p>
+                <h4 className="text-sm font-medium text-foreground">{s.title}</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* 4. Historical Replay Highlight */}
-      <section className="p-6 sm:p-8 rounded-lg bg-space-900 border border-space-800 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="flex flex-col gap-2 max-w-2xl">
-          <span className="px-2 py-0.5 bg-red-500/20 text-red-300 border border-red-500/40 text-[10px] uppercase font-semibold rounded w-fit">
-            HISTORICAL VALIDATION CASE STUDY
-          </span>
-          <h3 className="text-lg font-semibold font-sans text-white">
-            The 2009 Iridium 33 / Cosmos 2251 Collision Replay
+      {/* Historical Validation Banner */}
+      <section className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="space-y-2 max-w-2xl">
+          <Badge variant="outline" className="text-rose-400 border-rose-500/30 font-medium text-[11px]">
+            Historical Benchmark
+          </Badge>
+          <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
+            2009 Iridium 33 / Cosmos 2251 Collision Replay
           </h3>
-          <p className="text-xs text-space-400 leading-relaxed">
-            Evaluated against real pre-collision TLEs (epoch 09041), Space-Guard independently flags a <strong className="text-white">Critical Alert (Pc &gt; 10⁻⁴)</strong> and demonstrates how a small 0.1 m/s burn 24h prior creates +4.83 km clearance.
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Evaluated against real pre-collision TLEs (epoch 09041), Space-Guard flags a Critical Alert (Pc &gt; 10⁻⁴) 48h prior and demonstrates how an impulsive 0.10 m/s burn creates +4.83 km clearance.
           </p>
         </div>
 
-        <Link
-          to="/historical"
-          onClick={() => sound.playClick()}
-          className="px-5 py-2.5 rounded bg-space-850 hover:bg-space-800 text-white border border-space-700 text-xs uppercase font-medium transition-colors flex items-center gap-2 whitespace-nowrap self-start md:self-auto"
-        >
-          <span>Run Historical Replay</span>
-          <ArrowRight className="w-4 h-4 text-telemetry-cyan" />
-        </Link>
+        <Button asChild variant="outline" className="border-rose-500/30 hover:bg-rose-500/10 text-foreground font-medium shrink-0">
+          <Link to="/historical" onClick={() => sound.playClick()}>
+            <span>Launch Replay Lab</span>
+            <ArrowRight className="size-4 ml-1.5" />
+          </Link>
+        </Button>
       </section>
     </div>
   );

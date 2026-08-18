@@ -9,7 +9,7 @@ export default function ScreeningPage({ scanData, onTriggerScan, isScanning, sel
   const guideSteps = [
     {
       title: 'Initiate 24h Scan',
-      description: 'Click "⚡ INITIATE LIVE SCAN" to ingest current CelesTrak TLEs and run the coarse filter & Scipy golden-section minimization.',
+      description: 'Click "Run Conjunction Scan" to ingest current CelesTrak TLEs and run the coarse filter & Scipy golden-section minimization.',
     },
     {
       title: 'Filter by Risk Tiers',
@@ -22,7 +22,7 @@ export default function ScreeningPage({ scanData, onTriggerScan, isScanning, sel
   ];
 
   return (
-    <div className="flex flex-col gap-6 font-mono text-black">
+    <div className="flex flex-col gap-6">
       {/* How It Works Guide */}
       <GuideBox
         title="Two-Stage Conjunction Screening & Triage · User Guide"

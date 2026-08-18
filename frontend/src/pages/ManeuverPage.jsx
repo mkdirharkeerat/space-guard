@@ -19,7 +19,7 @@ export default function ManeuverPage({ selectedEvent }) {
   ];
 
   return (
-    <div className="flex flex-col gap-6 font-mono text-black">
+    <div className="flex flex-col gap-6">
       {/* How to Plan Maneuvers Guide */}
       <GuideBox
         title="Clohessy-Wiltshire Avoidance Burn Planner · User Guide"

@@ -1,37 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { 
-  Globe2, 
-  Radar, 
-  Rocket, 
-  History, 
-  Target, 
-  Satellite, 
-  BookOpen, 
-  Volume2, 
-  VolumeX, 
-  Radio,
-  Clock,
+import {
+  Globe2,
+  Radar,
+  Rocket,
+  History,
+  Target,
+  Satellite,
+  BookOpen,
+  Volume2,
+  VolumeX,
   Home,
   Menu,
   X,
-  Shield
+  Orbit,
 } from 'lucide-react';
 import { sound } from '../utils/audio';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function Navbar({ backendStatus, dataAsOf }) {
-  const [utcTime, setUtcTime] = useState('');
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setUtcTime(now.toISOString().slice(0, 19).replace('T', ' ') + ' UTC');
-    };
-    updateTime();
-    const timer = setInterval(updateTime, 1000);
-    return () => clearInterval(timer);
+    sound.enabled = false;
   }, []);
 
   const toggleSound = () => {
@@ -42,150 +35,117 @@ export default function Navbar({ backendStatus, dataAsOf }) {
   };
 
   const navItems = [
-    { to: '/', label: 'Overview', icon: Home },
+    { to: '/', label: 'Home', icon: Home },
     { to: '/globe', label: '3D Radar', icon: Globe2 },
     { to: '/screening', label: 'Screening', icon: Radar },
-    { to: '/maneuver', label: 'CW Maneuver', icon: Rocket },
+    { to: '/maneuver', label: 'Maneuver', icon: Rocket },
     { to: '/historical', label: '2009 Replay', icon: History },
     { to: '/bplane', label: 'B-Plane', icon: Target },
-    { to: '/catalog', label: 'Ephemeris', icon: Satellite },
-    { to: '/docs', label: 'Documentation', icon: BookOpen },
+    { to: '/catalog', label: 'Catalog', icon: Satellite },
+    { to: '/docs', label: 'Docs', icon: BookOpen },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-space-950/95 backdrop-blur-md border-b border-space-800 font-mono">
-      {/* Top Telemetry Strip */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-1 bg-space-900/90 border-b border-space-800/60 text-[11px] text-space-400 overflow-hidden">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-telemetry-emerald animate-pulse" />
-            <span className="text-space-300 font-semibold uppercase tracking-wider">SYSTEM:</span>
-            <span className="text-telemetry-emerald">SGP4 / CELESTRAK CACHE</span>
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
+      <div className="max-w-6xl mx-auto flex items-center justify-between h-14 px-4 sm:px-6">
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <div className="flex items-center justify-center size-8 rounded-md bg-secondary text-primary transition-colors group-hover:bg-accent">
+            <Orbit className="size-4" />
           </div>
-          {dataAsOf && (
-            <span className="hidden md:inline text-space-500">
-              | UPDATED: {new Date(dataAsOf).toLocaleTimeString()} UTC
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-4 text-[11px]">
-          <div className="flex items-center gap-1.5 text-space-300">
-            <Clock className="w-3.5 h-3.5 text-telemetry-cyan" />
-            <span>{utcTime}</span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <span className={`w-2 h-2 rounded-full ${backendStatus ? 'bg-telemetry-emerald' : 'bg-amber-400'}`} />
-            <span className="text-space-400">API:</span>
-            <span className={backendStatus ? 'text-telemetry-emerald font-medium' : 'text-amber-400 font-medium'}>
-              {backendStatus ? 'ONLINE (v2.1.0)' : 'STANDBY'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Navigation Bar */}
-      <div className="flex items-center justify-between px-4 sm:px-6 h-14">
-        {/* Brand Wordmark */}
-        <Link 
-          to="/" 
-          onClick={() => sound.playClick()}
-          className="flex items-center gap-3 group"
-        >
-          <div className="p-1.5 rounded bg-space-850 border border-space-700 text-telemetry-emerald group-hover:border-telemetry-emerald/50 transition-colors">
-            <Radio className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold tracking-wider text-white font-sans uppercase">
-                SPACE-GUARD
-              </span>
-              <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-medium bg-space-800 text-space-300 border border-space-700">
-                SIH PS #17
-              </span>
-            </div>
-            <span className="text-[10px] text-space-500 font-mono tracking-wider block">
-              ORBITAL COLLISION DEFENSE PLATFORM
+          <div className="leading-tight">
+            <span className="text-sm font-medium tracking-tight">Space-Guard</span>
+            <span className="hidden sm:block text-[11px] text-muted-foreground">
+              Orbital collision defense
             </span>
           </div>
         </Link>
 
-        {/* Desktop Tab Navigation */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink
                 key={item.to}
                 to={item.to}
-                onClick={() => sound.playClick()}
+                end={item.to === '/'}
                 className={({ isActive }) =>
-                  `px-3 py-1.5 text-xs font-mono tracking-wide transition-all flex items-center gap-1.5 rounded-md border ${
+                  cn(
+                    'px-2.5 py-1.5 text-[13px] rounded-md transition-colors flex items-center gap-1.5',
                     isActive
-                      ? 'bg-space-800 text-telemetry-emerald border-space-600 font-medium'
-                      : 'bg-transparent text-space-400 hover:text-white hover:bg-space-900 border-transparent'
-                  }`
+                      ? 'bg-secondary text-foreground font-medium'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/60'
+                  )
                 }
               >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{item.label}</span>
+                <Icon className="size-3.5 opacity-70" />
+                {item.label}
               </NavLink>
             );
           })}
         </nav>
 
-        {/* Controls */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleSound}
-            title={soundEnabled ? 'Mute Telemetry Sound' : 'Unmute Telemetry Sound'}
-            className={`p-1.5 rounded border text-xs font-mono transition-all flex items-center gap-1.5 ${
-              soundEnabled
-                ? 'bg-space-850 text-telemetry-cyan border-space-700 hover:bg-space-800'
-                : 'bg-space-950 text-space-600 border-space-850'
-            }`}
-          >
-            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-            <span className="hidden md:inline text-[11px]">{soundEnabled ? 'AUDIO' : 'MUTED'}</span>
-          </button>
+          <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground mr-1">
+            <span
+              className={cn(
+                'size-1.5 rounded-full transition-colors',
+                backendStatus ? 'bg-emerald-500/80' : 'bg-amber-500/80'
+              )}
+            />
+            <span>{backendStatus ? 'API online' : 'Offline'}</span>
+            {dataAsOf && (
+              <span className="hidden xl:inline text-muted-foreground/70">
+                · Updated {new Date(dataAsOf).toLocaleTimeString()}
+              </span>
+            )}
+          </div>
 
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-1.5 rounded border border-space-700 bg-space-850 text-space-300"
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={toggleSound}
+            title={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
+            className="text-muted-foreground"
           >
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          </button>
+            {soundEnabled ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden text-muted-foreground"
+          >
+            {mobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+          </Button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden flex flex-col gap-1 p-3 bg-space-900 border-t border-space-800">
+        <nav className="lg:hidden border-t border-border/60 px-3 py-2 flex flex-col gap-0.5 animate-fade-in">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink
                 key={item.to}
                 to={item.to}
-                onClick={() => {
-                  sound.playClick();
-                  setMobileMenuOpen(false);
-                }}
+                end={item.to === '/'}
+                onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  `px-3 py-2 rounded text-xs font-mono flex items-center gap-2 transition-all ${
+                  cn(
+                    'px-3 py-2 rounded-md text-sm flex items-center gap-2 transition-colors',
                     isActive
-                      ? 'bg-space-800 text-telemetry-emerald font-medium'
-                      : 'text-space-400 hover:text-white'
-                  }`
+                      ? 'bg-secondary text-foreground font-medium'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/60'
+                  )
                 }
               >
-                <Icon className="w-4 h-4" />
-                <span>{item.label}</span>
+                <Icon className="size-4 opacity-70" />
+                {item.label}
               </NavLink>
             );
           })}
-        </div>
+        </nav>
       )}
     </header>
   );

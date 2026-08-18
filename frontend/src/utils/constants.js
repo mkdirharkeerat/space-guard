@@ -1,45 +1,45 @@
-// Space-Guard Constants & Helper Functions (Aerospace Defense Grade)
+// Space-Guard Constants & Helper Functions
 
 export const RISK_TIERS = {
   CRITICAL: {
     name: 'Critical',
     threshold: 'Pc > 1.0e-4',
-    color: '#EF4444',
-    bgClass: 'bg-red-500/10 text-red-400 border border-red-500/30',
-    badgeClass: 'bg-red-500/20 text-red-300 border border-red-500/40 font-mono font-semibold tracking-wider uppercase',
-    pillClass: 'bg-red-500/20 text-red-300 border border-red-500/40 font-mono font-semibold',
+    color: '#f87171',
+    bgClass: 'bg-red-500/8 text-red-400/90 border border-red-500/20',
+    badgeClass: 'bg-red-500/10 text-red-300/90 border border-red-500/25 text-xs font-medium',
+    pillClass: 'bg-red-500/10 text-red-300/90 border border-red-500/25 text-xs font-medium',
   },
   HIGH: {
     name: 'High',
     threshold: '1.0e-5 < Pc ≤ 1.0e-4',
-    color: '#F97316',
-    bgClass: 'bg-orange-500/10 text-orange-400 border border-orange-500/30',
-    badgeClass: 'bg-orange-500/20 text-orange-300 border border-orange-500/40 font-mono font-semibold tracking-wider uppercase',
-    pillClass: 'bg-orange-500/20 text-orange-300 border border-orange-500/40 font-mono font-semibold',
+    color: '#fb923c',
+    bgClass: 'bg-orange-500/8 text-orange-400/90 border border-orange-500/20',
+    badgeClass: 'bg-orange-500/10 text-orange-300/90 border border-orange-500/25 text-xs font-medium',
+    pillClass: 'bg-orange-500/10 text-orange-300/90 border border-orange-500/25 text-xs font-medium',
   },
   MODERATE: {
     name: 'Moderate',
     threshold: '1.0e-6 < Pc ≤ 1.0e-5',
-    color: '#F59E0B',
-    bgClass: 'bg-amber-500/10 text-amber-400 border border-amber-500/30',
-    badgeClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold tracking-wider uppercase',
-    pillClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold',
+    color: '#fbbf24',
+    bgClass: 'bg-amber-500/8 text-amber-400/90 border border-amber-500/20',
+    badgeClass: 'bg-amber-500/10 text-amber-300/90 border border-amber-500/25 text-xs font-medium',
+    pillClass: 'bg-amber-500/10 text-amber-300/90 border border-amber-500/25 text-xs font-medium',
   },
   LOW: {
     name: 'Low',
     threshold: 'Pc ≤ 1.0e-6',
-    color: '#10B981',
-    bgClass: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30',
-    badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-semibold tracking-wider uppercase',
-    pillClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-semibold',
-  }
+    color: '#34d399',
+    bgClass: 'bg-emerald-500/8 text-emerald-400/90 border border-emerald-500/20',
+    badgeClass: 'bg-emerald-500/10 text-emerald-300/90 border border-emerald-500/25 text-xs font-medium',
+    pillClass: 'bg-emerald-500/10 text-emerald-300/90 border border-emerald-500/25 text-xs font-medium',
+  },
 };
 
 export const DEFAULT_ASSUMPTIONS = {
-  sigma_km: 0.5,           // 500m assumed 1-sigma TLE positional uncertainty
-  hbr_km: 0.010,           // 10m combined hard-body radius
-  mu_earth: 398600.4418,   // Earth gravitational parameter (km^3/s^2)
-  r_earth: 6378.137,       // Earth equatorial radius (km)
+  sigma_km: 0.5,
+  hbr_km: 0.010,
+  mu_earth: 398600.4418,
+  r_earth: 6378.137,
   algorithm_screening: 'Two-stage (±50km altitude band + Scipy scalar minimization)',
   algorithm_pc: 'Analytic 2D Gaussian B-Plane Integral (Foster/Alfano formulation)',
   algorithm_maneuver: 'Clohessy-Wiltshire STM with SVD Direction Optimization',

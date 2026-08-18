@@ -8,10 +8,17 @@ import {
   Download, 
   Radio, 
   Zap,
-  ArrowRight
+  ArrowRight,
+  Shield,
+  Search,
+  CheckCircle2
 } from 'lucide-react';
-import { sound } from '../utils/audio';
-import { RISK_TIERS, formatScientific, formatDistance, formatVelocity, getTierData } from '../utils/constants';
+import { sound } from '@/utils/audio';
+import { RISK_TIERS, formatScientific, formatDistance, formatVelocity, getTierData } from '@/utils/constants';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import CountUp from '@/components/react-bits/CountUp';
 
 export default function ScanDashboard({ 
   scanData, 
@@ -57,142 +64,157 @@ export default function ScanDashboard({
     downloadAnchor.remove();
   };
 
+  const getBadgeVariant = (tierStr, pc) => {
+    const tier = (tierStr || '').toUpperCase();
+    if (tier.includes('CRIT') || pc > 1e-4) return 'destructive';
+    if (tier.includes('HIGH')) return 'secondary';
+    if (tier.includes('MOD')) return 'outline';
+    return 'default';
+  };
+
   return (
-    <div className="flex flex-col gap-5 font-mono text-space-200">
+    <div className="flex flex-col gap-6 font-sans text-foreground">
       {/* Top Banner / Initiate Scan Bar */}
-      <div className="p-5 rounded-lg bg-space-900 border border-space-800 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-        <div className="flex items-center gap-3.5">
-          <div className="p-3 rounded bg-space-850 border border-space-700 text-telemetry-emerald">
-            <Radar className={`w-6 h-6 ${isScanning ? 'animate-spin' : ''}`} />
+      <div className="p-6 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="size-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+            <Radar className={`size-5 ${isScanning ? 'animate-spin' : ''}`} />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-semibold text-white tracking-wide font-sans">
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl font-semibold tracking-tight text-foreground">
                 Conjunction Screening & Triage Center
               </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-space-800 text-telemetry-emerald border border-space-700">
-                SGP4 + ANALYTIC Pc
-              </span>
+              <Badge variant="outline" className="font-mono text-[10px] border-primary/30 text-primary">
+                SGP4 + Foster/Alfano Pc
+              </Badge>
             </div>
-            <p className="text-xs text-space-400 mt-0.5">
-              Two-stage filter: Altitude band ±50km → Scipy TCA minimization → Foster/Alfano 2D Gaussian integral
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Two-stage filter: Altitude band overlap (±50km) → Golden-section TCA search → 2D Gaussian integral
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          <button
+          <Button
             onClick={onTriggerScan}
             disabled={isScanning}
-            className={`px-5 py-2.5 rounded font-mono text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-2 border ${
-              isScanning
-                ? 'bg-space-850 text-space-500 border-space-800 cursor-not-allowed'
-                : 'bg-telemetry-emerald text-black hover:bg-emerald-400 border-emerald-400 shadow-sm active:scale-95'
-            }`}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm transition-all"
           >
-            <Activity className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
-            <span>{isScanning ? 'SCREENING 24H WINDOW...' : 'RUN CONJUNCTION SCAN'}</span>
-          </button>
+            <Activity className={`size-4 mr-2 ${isScanning ? 'animate-spin' : ''}`} />
+            <span>{isScanning ? 'Scanning 24h Window...' : 'Run Conjunction Scan'}</span>
+          </Button>
 
           {events.length > 0 && (
-            <button
+            <Button
+              variant="outline"
               onClick={handleExportReport}
-              className="px-3.5 py-2.5 rounded bg-space-850 text-space-300 hover:text-white border border-space-700 text-xs font-mono transition-all flex items-center gap-1.5"
+              className="border-border hover:bg-accent/60 text-xs"
             >
-              <Download className="w-3.5 h-3.5 text-telemetry-cyan" />
-              <span>EXPORT JSON</span>
-            </button>
+              <Download className="size-3.5 mr-1.5 text-primary" />
+              <span>Export JSON</span>
+            </Button>
           )}
         </div>
       </div>
 
-      {/* Metrics Summary Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
-        <div className="p-3.5 rounded-lg bg-space-900/90 border border-space-800 flex flex-col">
-          <span className="text-[10px] text-space-500 uppercase tracking-wider">Catalog Satellites</span>
-          <span className="text-xl font-semibold text-white mt-1">
-            {scanData?.object_count ?? 40}
-          </span>
-          <span className="text-[10px] text-space-400 mt-0.5">Active LEO Objects</span>
-        </div>
+      {/* Metrics Summary Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Card className="bg-card/50 backdrop-blur-md border-border/80">
+          <CardContent className="p-4 flex flex-col justify-between">
+            <span className="text-xs text-muted-foreground font-medium">Catalog Satellites</span>
+            <div className="text-2xl font-semibold tracking-tight text-foreground font-mono mt-1">
+              <CountUp to={scanData?.object_count ?? 40} duration={1.2} />
+            </div>
+            <span className="text-[11px] text-muted-foreground/70 mt-0.5">Active LEO Objects</span>
+          </CardContent>
+        </Card>
 
-        <div className="p-3.5 rounded-lg bg-space-900/90 border border-space-800 flex flex-col">
-          <span className="text-[10px] text-space-500 uppercase tracking-wider">Candidate Pairs (Stage 1)</span>
-          <span className="text-xl font-semibold text-telemetry-cyan mt-1">
-            {scanData?.candidate_pairs ?? 12}
-          </span>
-          <span className="text-[10px] text-space-400 mt-0.5">±50km Altitude Overlap</span>
-        </div>
+        <Card className="bg-card/50 backdrop-blur-md border-border/80">
+          <CardContent className="p-4 flex flex-col justify-between">
+            <span className="text-xs text-muted-foreground font-medium">Candidate Pairs (Stage 1)</span>
+            <div className="text-2xl font-semibold tracking-tight text-primary font-mono mt-1">
+              <CountUp to={scanData?.candidate_pairs ?? 12} duration={1.2} />
+            </div>
+            <span className="text-[11px] text-muted-foreground/70 mt-0.5">±50km Altitude Overlap</span>
+          </CardContent>
+        </Card>
 
-        <div className="p-3.5 rounded-lg bg-space-900/90 border border-space-800 flex flex-col">
-          <span className="text-[10px] text-space-500 uppercase tracking-wider">Conjunctions Surfaced</span>
-          <span className="text-xl font-semibold text-white mt-1">
-            {events.length}
-          </span>
-          <span className="text-[10px] text-space-400 mt-0.5">TCA in Next 24 Hours</span>
-        </div>
+        <Card className="bg-card/50 backdrop-blur-md border-border/80">
+          <CardContent className="p-4 flex flex-col justify-between">
+            <span className="text-xs text-muted-foreground font-medium">Conjunctions Surfaced</span>
+            <div className="text-2xl font-semibold tracking-tight text-foreground font-mono mt-1">
+              <CountUp to={events.length} duration={1.2} />
+            </div>
+            <span className="text-[11px] text-muted-foreground/70 mt-0.5">TCA within 24 Hours</span>
+          </CardContent>
+        </Card>
 
-        <div className={`p-3.5 rounded-lg border flex flex-col ${
+        <Card className={`backdrop-blur-md transition-colors ${
           criticalCount > 0 
-            ? 'bg-red-950/20 border-red-500/30' 
-            : 'bg-space-900/90 border-space-800'
+            ? 'bg-destructive/10 border-destructive/30' 
+            : 'bg-card/50 border-border/80'
         }`}>
-          <span className={`text-[10px] uppercase tracking-wider ${criticalCount > 0 ? 'text-red-400 font-semibold' : 'text-space-500'}`}>
-            Critical Alerts
-          </span>
-          <span className={`text-xl font-semibold mt-1 ${criticalCount > 0 ? 'text-red-400' : 'text-telemetry-emerald'}`}>
-            {criticalCount > 0 ? `${criticalCount} THREATS` : 'ALL CLEAR'}
-          </span>
-          <span className="text-[10px] text-space-500 mt-0.5">Pc &gt; 1.0 × 10⁻⁴ Threshold</span>
-        </div>
+          <CardContent className="p-4 flex flex-col justify-between">
+            <span className={`text-xs font-medium ${criticalCount > 0 ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>
+              Critical Threats
+            </span>
+            <div className={`text-2xl font-semibold tracking-tight font-mono mt-1 ${criticalCount > 0 ? 'text-destructive' : 'text-emerald-400'}`}>
+              {criticalCount > 0 ? `${criticalCount} Threat${criticalCount > 1 ? 's' : ''}` : 'All Clear'}
+            </div>
+            <span className="text-[11px] text-muted-foreground/70 mt-0.5">Pc &gt; 1.0 × 10⁻⁴ Threshold</span>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Main Conjunction Table & Inspector */}
+      {/* Main Conjunctions List & Inspector Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left Column: Filterable Event List (8 cols) */}
         <div className="lg:col-span-8 flex flex-col gap-3">
-          {/* Filter Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-space-900/90 border border-space-800 text-xs">
+          {/* Search and Filters */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-border/80 bg-card/40 backdrop-blur-md text-xs">
             <div className="flex items-center gap-1.5 overflow-x-auto">
-              <span className="text-space-400 text-[11px] uppercase mr-1 flex items-center gap-1">
-                <Filter className="w-3 h-3" /> Tier:
+              <span className="text-muted-foreground text-[11px] uppercase mr-1 flex items-center gap-1">
+                <Filter className="size-3" /> Filter:
               </span>
               {['ALL', 'CRITICAL', 'HIGH', 'MODERATE', 'LOW'].map((tier) => (
-                <button
+                <Button
                   key={tier}
+                  variant={activeFilter === tier ? 'secondary' : 'ghost'}
+                  size="sm"
                   onClick={() => {
                     sound.playClick();
                     setActiveFilter(tier);
                   }}
-                  className={`px-2.5 py-1 rounded text-xs transition-all font-mono ${
-                    activeFilter === tier
-                      ? 'bg-space-800 text-white border border-space-600 font-medium'
-                      : 'bg-transparent text-space-400 hover:text-space-200 border border-transparent'
+                  className={`h-7 px-2.5 text-xs font-mono transition-colors ${
+                    activeFilter === tier ? 'font-medium text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   {tier}
-                </button>
+                </Button>
               ))}
             </div>
 
-            <input
-              type="text"
-              placeholder="Search satellite name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-3 py-1 bg-space-950 border border-space-700 rounded text-xs text-white placeholder-space-500 focus:outline-none focus:border-space-500"
-            />
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search satellite..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-8 pl-8 pr-3 bg-secondary/50 border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
           </div>
 
-          {/* Events Cards List */}
+          {/* Event Cards List */}
           <div className="flex flex-col gap-2.5">
             {filteredEvents.length === 0 ? (
-              <div className="p-8 text-center rounded-lg bg-space-900/50 border border-dashed border-space-800 text-space-400 text-xs">
+              <div className="p-8 text-center rounded-xl border border-dashed border-border text-muted-foreground text-xs">
                 No conjunction events match the current filter.
               </div>
             ) : (
               filteredEvents.map((ev, idx) => {
-                const tierData = getTierData(ev.risk_tier, ev.pc);
                 const isSelected = selectedEvent && selectedEvent.target_id === ev.target_id && selectedEvent.chaser_id === ev.chaser_id;
                 const isCrit = (ev.risk_tier || '').toLowerCase().includes('crit') || ev.pc > 1e-4;
 
@@ -203,62 +225,62 @@ export default function ScanDashboard({
                       sound.playClick();
                       onSelectEvent(ev);
                     }}
-                    className={`p-3.5 rounded-lg cursor-pointer transition-all border font-mono ${
+                    className={`p-4 rounded-xl cursor-pointer border transition-all ${
                       isSelected
-                        ? 'bg-space-850 border-space-600 shadow-md ring-1 ring-telemetry-emerald/40'
+                        ? 'bg-card border-primary/50 shadow-md ring-1 ring-primary/30'
                         : isCrit
-                        ? 'bg-red-950/10 border-red-500/25 hover:border-red-500/40'
-                        : 'bg-space-900/80 border-space-800 hover:border-space-700 hover:bg-space-850'
+                        ? 'bg-rose-500/5 border-rose-500/20 hover:border-rose-500/40'
+                        : 'bg-card/40 border-border/70 hover:border-border hover:bg-card/80'
                     }`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       {/* Satellite Pair */}
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded ${tierData.pillClass}`}>
-                          <ShieldAlert className="w-4 h-4" />
+                      <div className="flex items-center gap-3.5">
+                        <div className={`size-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          isCrit ? 'bg-destructive/15 text-destructive' : 'bg-primary/10 text-primary'
+                        }`}>
+                          <ShieldAlert className="size-4" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-white text-xs">
+                            <span className="font-semibold text-sm text-foreground">
                               {ev.target_id}
                             </span>
-                            <span className="text-space-500 text-xs">×</span>
-                            <span className="font-semibold text-space-200 text-xs">
+                            <span className="text-muted-foreground text-xs">×</span>
+                            <span className="font-medium text-sm text-muted-foreground">
                               {ev.chaser_id}
                             </span>
                           </div>
-                          <div className="flex items-center gap-3 text-[11px] text-space-400 mt-0.5">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-telemetry-cyan" />
-                              TCA: <strong className="text-space-300">{ev.tca_utc}</strong>
-                            </span>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono mt-0.5">
+                            <Clock className="size-3 text-primary" />
+                            <span>TCA: {ev.tca_utc}</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Physics Metrics */}
-                      <div className="flex flex-wrap items-center gap-4">
-                        <div className="text-right flex flex-col">
-                          <span className="text-[10px] text-space-500 uppercase">Miss Distance</span>
-                          <span className="font-semibold text-white text-xs">
+                      <div className="flex flex-wrap items-center gap-4 text-right">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-muted-foreground uppercase font-mono">Miss Distance</span>
+                          <span className="font-semibold text-foreground text-xs font-mono">
                             {formatDistance(ev.miss_distance_km)}
                           </span>
                         </div>
 
                         {ev.relative_velocity_km_s && (
-                          <div className="text-right flex flex-col hidden sm:flex">
-                            <span className="text-[10px] text-space-500 uppercase">Rel Velocity</span>
-                            <span className="font-semibold text-white text-xs">
+                          <div className="flex flex-col hidden sm:flex">
+                            <span className="text-[10px] text-muted-foreground uppercase font-mono">Rel Velocity</span>
+                            <span className="font-semibold text-foreground text-xs font-mono">
                               {Number(ev.relative_velocity_km_s).toFixed(1)} km/s
                             </span>
                           </div>
                         )}
 
-                        <div className="text-right flex flex-col">
-                          <span className="text-[10px] text-space-500 uppercase">Analytic Pc</span>
-                          <span className={`px-2 py-0.5 rounded text-xs font-semibold ${tierData.badgeClass}`}>
+                        <div className="flex flex-col items-end">
+                          <span className="text-[10px] text-muted-foreground uppercase font-mono mb-0.5">Collision Pc</span>
+                          <Badge variant={getBadgeVariant(ev.risk_tier, ev.pc)} className="font-mono text-[11px]">
                             {formatScientific(ev.pc)}
-                          </span>
+                          </Badge>
                         </div>
                       </div>
                     </div>
@@ -269,98 +291,97 @@ export default function ScanDashboard({
           </div>
         </div>
 
-        {/* Right Column: Conjunction Inspector (4 cols) */}
+        {/* Right Column: Conjunction Inspector Drawer (4 cols) */}
         <div className="lg:col-span-4">
           {selectedEvent ? (
-            <div className="p-4 rounded-lg bg-space-900 border border-space-800 flex flex-col gap-3.5 sticky top-20">
-              <div className="flex items-center justify-between pb-2.5 border-b border-space-800">
-                <span className="text-xs font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
-                  <Radio className="w-3.5 h-3.5 text-telemetry-emerald" />
-                  Conjunction Inspector
-                </span>
-                <span className={`px-2 py-0.5 rounded text-[11px] ${getTierData(selectedEvent.risk_tier, selectedEvent.pc).badgeClass}`}>
-                  {selectedEvent.risk_tier || 'CRITICAL'}
-                </span>
-              </div>
+            <Card className="border-border/80 bg-card/60 backdrop-blur-md sticky top-20">
+              <CardHeader className="pb-3 border-b border-border/60">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Radio className="size-4 text-primary" />
+                    <CardTitle className="text-sm font-semibold">Encounter Inspector</CardTitle>
+                  </div>
+                  <Badge variant={getBadgeVariant(selectedEvent.risk_tier, selectedEvent.pc)} className="font-mono text-[10px]">
+                    {selectedEvent.risk_tier || 'CRITICAL'}
+                  </Badge>
+                </div>
+              </CardHeader>
 
-              {/* Pair Details */}
-              <div className="flex flex-col gap-1.5 p-3 rounded bg-space-950/80 border border-space-800 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-space-500">Target Object:</span>
-                  <strong className="text-white">{selectedEvent.target_id}</strong>
+              <CardContent className="p-4 space-y-4">
+                {/* Pair Details */}
+                <div className="space-y-1.5 p-3 rounded-lg bg-secondary/30 border border-border/50 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Target:</span>
+                    <span className="font-medium text-foreground">{selectedEvent.target_id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Chaser:</span>
+                    <span className="font-medium text-foreground">{selectedEvent.chaser_id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">TCA (UTC):</span>
+                    <span className="font-mono text-primary font-medium">{selectedEvent.tca_utc}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-space-500">Chaser Object:</span>
-                  <strong className="text-space-200">{selectedEvent.chaser_id}</strong>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-space-500">TCA (UTC):</span>
-                  <span className="text-telemetry-cyan">{selectedEvent.tca_utc}</span>
-                </div>
-              </div>
 
-              {/* Physics Values */}
-              <div className="grid grid-cols-2 gap-2.5 text-xs font-mono">
-                <div className="p-2.5 rounded bg-space-950/80 border border-space-800 flex flex-col">
-                  <span className="text-[10px] text-space-500 uppercase">Miss Distance</span>
-                  <strong className="text-sm text-white mt-0.5 font-semibold">
-                    {formatDistance(selectedEvent.miss_distance_km)}
-                  </strong>
-                </div>
-                <div className="p-2.5 rounded bg-space-950/80 border border-space-800 flex flex-col">
-                  <span className="text-[10px] text-space-500 uppercase">Rel Velocity</span>
-                  <strong className="text-sm text-white mt-0.5 font-semibold">
-                    {selectedEvent.relative_velocity_km_s ? `${Number(selectedEvent.relative_velocity_km_s).toFixed(2)} km/s` : '14.12 km/s'}
-                  </strong>
-                </div>
-                <div className="p-2.5 rounded bg-space-950/80 border border-space-800 flex flex-col col-span-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] text-space-400 uppercase">Analytic Pc (Foster/Alfano)</span>
-                    <strong className="text-telemetry-emerald text-sm font-semibold">
-                      {formatScientific(selectedEvent.pc)}
+                {/* Physics Values */}
+                <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                  <div className="p-3 rounded-lg bg-secondary/30 border border-border/50 flex flex-col">
+                    <span className="text-[10px] text-muted-foreground uppercase">Miss Distance</span>
+                    <strong className="text-sm text-foreground mt-0.5 font-semibold">
+                      {formatDistance(selectedEvent.miss_distance_km)}
                     </strong>
                   </div>
-                  {selectedEvent.ml_prescreen_score !== undefined && (
-                    <div className="flex justify-between items-center text-[10px] text-space-500 mt-1 pt-1 border-t border-space-850">
-                      <span>ML Surrogate Score:</span>
-                      <span className="text-space-300">{formatScientific(selectedEvent.ml_prescreen_score)}</span>
+                  <div className="p-3 rounded-lg bg-secondary/30 border border-border/50 flex flex-col">
+                    <span className="text-[10px] text-muted-foreground uppercase">Rel Velocity</span>
+                    <strong className="text-sm text-foreground mt-0.5 font-semibold">
+                      {selectedEvent.relative_velocity_km_s ? `${Number(selectedEvent.relative_velocity_km_s).toFixed(2)} km/s` : '14.12 km/s'}
+                    </strong>
+                  </div>
+                  <div className="p-3 rounded-lg bg-secondary/30 border border-border/50 flex flex-col col-span-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] text-muted-foreground uppercase">Analytic Pc (Foster/Alfano)</span>
+                      <strong className="text-emerald-400 text-sm font-semibold">
+                        {formatScientific(selectedEvent.pc)}
+                      </strong>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex flex-col gap-2 pt-1">
-                <button
-                  onClick={() => {
-                    sound.playClick();
-                    onOpenManeuver(selectedEvent);
-                  }}
-                  className="w-full py-2.5 px-3.5 rounded bg-telemetry-emerald text-black font-semibold text-xs hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Zap className="w-3.5 h-3.5 fill-black" />
-                  <span>SIMULATE CW AVOIDANCE BURN</span>
-                </button>
+                {/* Actions */}
+                <div className="flex flex-col gap-2 pt-1">
+                  <Button
+                    onClick={() => {
+                      sound.playClick();
+                      onOpenManeuver(selectedEvent);
+                    }}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-xs shadow-sm"
+                  >
+                    <Zap className="size-3.5 mr-1.5" />
+                    <span>Simulate CW Avoidance Burn</span>
+                  </Button>
 
-                <button
-                  onClick={() => {
-                    sound.playClick();
-                    onOpenBPlane(selectedEvent);
-                  }}
-                  className="w-full py-2 px-3.5 rounded bg-space-850 hover:bg-space-800 text-space-200 hover:text-white border border-space-700 text-xs transition-colors flex items-center justify-center gap-2"
-                >
-                  <span>VIEW ENCOUNTER B-PLANE</span>
-                </button>
-              </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      sound.playClick();
+                      onOpenBPlane(selectedEvent);
+                    }}
+                    className="w-full border-border hover:bg-accent/60 text-xs"
+                  >
+                    <span>View Encounter B-Plane</span>
+                  </Button>
+                </div>
 
-              <div className="text-[10px] text-space-500 bg-space-950/40 p-2 rounded border border-space-850 leading-relaxed">
-                Assumes isotropic uncertainty σ = 500m & HBR = 10m combined cross-section.
-              </div>
-            </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed text-center">
+                  Assumes isotropic uncertainty σ = 500m & HBR = 10m combined cross-section.
+                </p>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="p-6 text-center rounded-lg bg-space-900/50 border border-space-800 text-space-500 text-xs">
+            <Card className="border-border/60 bg-card/40 p-8 text-center text-muted-foreground text-xs">
               Select any conjunction from the list to inspect encounter telemetry.
-            </div>
+            </Card>
           )}
         </div>
       </div>

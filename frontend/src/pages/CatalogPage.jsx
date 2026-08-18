@@ -22,7 +22,7 @@ export default function CatalogPage({ onSelectObject }) {
   ];
 
   return (
-    <div className="flex flex-col gap-6 font-mono text-black">
+    <div className="flex flex-col gap-6">
       {/* GuideBox */}
       <GuideBox
         title="Live Satellite Catalog & Ephemeris · User Guide"

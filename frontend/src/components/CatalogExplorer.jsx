@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, RefreshCw, Satellite } from 'lucide-react';
-import { sound } from '../utils/audio';
+import { Search, RefreshCw, Satellite, Globe } from 'lucide-react';
+import { sound } from '@/utils/audio';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function CatalogExplorer({ onSelectObject }) {
   const [objects, setObjects] = useState([]);
@@ -45,107 +48,115 @@ export default function CatalogExplorer({ onSelectObject }) {
   );
 
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-lg bg-space-900 border border-space-800 font-mono text-space-200">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-space-800">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded bg-space-850 border border-space-700 text-telemetry-cyan">
-            <Satellite className="w-5 h-5" />
+    <Card className="border-border/80 bg-card/60 backdrop-blur-md shadow-sm font-sans">
+      <CardHeader className="pb-4 border-b border-border/60">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+              <Satellite className="size-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold tracking-tight text-foreground">
+                Live Satellite Ephemeris Catalog
+              </CardTitle>
+              <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                Real-time SGP4 GCRS/ECI coordinates propagated from CelesTrak active orbital elements
+              </CardDescription>
+            </div>
           </div>
-          <div>
-            <h2 className="text-base font-semibold text-white tracking-wide font-sans">
-              Live Satellite Ephemeris Catalog
-            </h2>
-            <p className="text-xs text-space-400">
-              Real-time SGP4 GCRS/ECI coordinates propagated from CelesTrak active TLEs
-            </p>
+
+          <div className="flex items-center gap-3">
+            {dataAsOf && (
+              <span className="text-xs text-muted-foreground font-mono hidden md:inline-block">
+                Updated: {new Date(dataAsOf).toLocaleTimeString()} UTC
+              </span>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchObjects}
+              disabled={loading}
+              className="border-border hover:bg-accent/60 text-xs font-mono"
+            >
+              <RefreshCw className={`size-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </Button>
           </div>
         </div>
+      </CardHeader>
 
-        <div className="flex items-center gap-3">
-          {dataAsOf && (
-            <span className="text-[11px] text-space-500 hidden md:inline-block">
-              Updated: {new Date(dataAsOf).toLocaleTimeString()} UTC
-            </span>
-          )}
-          <button
-            onClick={fetchObjects}
-            disabled={loading}
-            className="px-3.5 py-1.5 rounded bg-space-850 text-space-300 hover:text-white border border-space-700 text-xs transition-colors flex items-center gap-1.5"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>REFRESH</span>
-          </button>
+      <CardContent className="p-6 space-y-4">
+        {/* Search Input Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search by satellite name (e.g. STARLINK, ISS, IRIDIUM) or NORAD ID..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 bg-secondary/40 border border-border rounded-lg text-xs text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+          />
         </div>
-      </div>
 
-      {/* Search Input Bar */}
-      <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-space-500" />
-        <input
-          type="text"
-          placeholder="Search by satellite name (e.g. STARLINK, ISS, IRIDIUM) or NORAD ID..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 bg-space-950 border border-space-700 rounded text-xs text-white placeholder-space-500 focus:outline-none focus:border-space-500"
-        />
-      </div>
+        {/* Table */}
+        <div className="overflow-x-auto rounded-xl border border-border/80 bg-background/60">
+          <table className="w-full text-left text-xs font-sans">
+            <thead className="bg-secondary/30 text-muted-foreground border-b border-border/80 text-[11px] uppercase font-mono tracking-wider">
+              <tr>
+                <th className="py-3 px-4">NORAD ID</th>
+                <th className="py-3 px-4">Satellite Name</th>
+                <th className="py-3 px-4">Position [X, Y, Z] (km)</th>
+                <th className="py-3 px-4">Velocity Vector</th>
+                <th className="py-3 px-4">Altitude</th>
+                <th className="py-3 px-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50 font-mono">
+              {filtered.map((sat) => {
+                const pos = sat.position_km || [0, 0, 0];
+                const vel = sat.velocity_km_s || [0, 0, 0];
+                const r = Math.sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]);
+                const altKm = Math.max(0, r - 6378.137);
+                const vMag = Math.sqrt(vel[0] * vel[0] + vel[1] * vel[1] + vel[2] * vel[2]);
 
-      {/* Table */}
-      <div className="overflow-x-auto rounded border border-space-800 bg-space-950/60">
-        <table className="w-full text-left font-mono text-xs">
-          <thead className="bg-space-850 text-space-400 border-b border-space-800 text-[11px] uppercase tracking-wider">
-            <tr>
-              <th className="py-2.5 px-3.5">NORAD ID</th>
-              <th className="py-2.5 px-3.5">Satellite / Object</th>
-              <th className="py-2.5 px-3.5">Position [X, Y, Z] (km)</th>
-              <th className="py-2.5 px-3.5">Velocity [Vx, Vy, Vz]</th>
-              <th className="py-2.5 px-3.5">Altitude</th>
-              <th className="py-2.5 px-3.5 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-space-800/60">
-            {filtered.map((sat) => {
-              const pos = sat.position_km || [0, 0, 0];
-              const vel = sat.velocity_km_s || [0, 0, 0];
-              const r = Math.sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]);
-              const altKm = Math.max(0, r - 6378.137);
-              const vMag = Math.sqrt(vel[0] * vel[0] + vel[1] * vel[1] + vel[2] * vel[2]);
-
-              return (
-                <tr key={sat.norad_id} className="hover:bg-space-850/60 transition-colors">
-                  <td className="py-2.5 px-3.5 font-semibold text-telemetry-cyan">
-                    #{sat.norad_id}
-                  </td>
-                  <td className="py-2.5 px-3.5 font-semibold text-white">
-                    {sat.name}
-                  </td>
-                  <td className="py-2.5 px-3.5 text-space-400 text-[11px]">
-                    [{pos.map(p => Number(p).toFixed(0)).join(', ')}]
-                  </td>
-                  <td className="py-2.5 px-3.5 text-space-400 text-[11px]">
-                    {vMag.toFixed(2)} km/s
-                  </td>
-                  <td className="py-2.5 px-3.5 font-medium text-telemetry-emerald">
-                    ~{altKm.toFixed(0)} km
-                  </td>
-                  <td className="py-2.5 px-3.5 text-right">
-                    <button
-                      onClick={() => {
-                        sound.playClick();
-                        if (onSelectObject) onSelectObject(sat);
-                      }}
-                      className="px-2.5 py-0.5 rounded bg-space-800 hover:bg-space-700 text-space-300 hover:text-white border border-space-700 text-[11px] transition-colors"
-                    >
-                      3D Track
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                return (
+                  <tr key={sat.norad_id} className="hover:bg-secondary/20 transition-colors">
+                    <td className="py-3 px-4 font-semibold text-primary">
+                      #{sat.norad_id}
+                    </td>
+                    <td className="py-3 px-4 font-medium text-foreground font-sans">
+                      {sat.name}
+                    </td>
+                    <td className="py-3 px-4 text-muted-foreground text-[11px]">
+                      [{pos.map(p => Number(p).toFixed(0)).join(', ')}]
+                    </td>
+                    <td className="py-3 px-4 text-muted-foreground text-[11px]">
+                      {vMag.toFixed(2)} km/s
+                    </td>
+                    <td className="py-3 px-4 font-medium text-emerald-400">
+                      ~{altKm.toFixed(0)} km
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => {
+                          sound.playClick();
+                          if (onSelectObject) onSelectObject(sat);
+                        }}
+                        className="h-7 px-2.5 text-[11px] font-sans"
+                      >
+                        <Globe className="size-3 mr-1" />
+                        3D Track
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

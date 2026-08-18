@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { History, Play, CheckCircle, Activity, Award, Flame, Zap } from 'lucide-react';
+import { History, Play, CheckCircle, Activity, Award, Flame, Zap, Shield } from 'lucide-react';
 import Globe3D from './Globe3D';
-import { sound } from '../utils/audio';
-import { formatScientific, formatDistance, formatVelocity } from '../utils/constants';
+import { sound } from '@/utils/audio';
+import { formatScientific, formatDistance, formatVelocity } from '@/utils/constants';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function HistoricalValidation({ onSelectEvent }) {
   const [data, setData] = useState(null);
@@ -55,142 +58,146 @@ export default function HistoricalValidation({ onSelectEvent }) {
   };
 
   return (
-    <div className="flex flex-col gap-5 p-5 rounded-lg bg-space-900 border border-space-800 font-mono text-space-200">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-space-800">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded bg-space-850 border border-space-700 text-red-400">
-            <History className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-semibold text-white tracking-wide font-sans">
-                Real-World Collision Replay & Avoidance Lab
-              </h2>
-              <span className="px-2 py-0.5 rounded text-[10px] bg-red-500/20 text-red-300 border border-red-500/40 font-semibold">
-                2009 BENCHMARK
-              </span>
+    <div className="flex flex-col gap-6 font-sans text-foreground">
+      {/* Header Card */}
+      <Card className="border-border/80 bg-card/60 backdrop-blur-md">
+        <CardHeader className="pb-4 border-b border-border/60">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shrink-0">
+                <History className="size-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-lg font-semibold tracking-tight text-foreground">
+                    Real-World Collision Replay & Avoidance Lab
+                  </CardTitle>
+                  <Badge variant="outline" className="border-rose-500/30 text-rose-400 text-[10px] font-mono">
+                    2009 Benchmark
+                  </Badge>
+                </div>
+                <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                  10 February 2009 · 16:56 UTC · 789 km Altitude · Over Taymyr Peninsula, Siberia
+                </CardDescription>
+              </div>
             </div>
-            <p className="text-xs text-space-400 mt-0.5">
-              10 February 2009 · 16:56 UTC · 789 km Altitude · Over Taymyr Peninsula, Siberia
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchHistoricalData}
+              disabled={loading}
+              className="border-border hover:bg-accent/60 text-xs font-mono self-start lg:self-auto"
+            >
+              <Activity className={`size-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
+              <span>{loading ? 'Replaying...' : 'Re-run Benchmark'}</span>
+            </Button>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-6 space-y-6">
+          {/* Summary */}
+          <div className="p-4 rounded-xl border border-border/70 bg-secondary/20 text-xs leading-relaxed text-muted-foreground space-y-2">
+            <p>
+              On February 10, 2009, <strong className="text-foreground">Iridium 33</strong> (active commercial comms satellite) and{' '}
+              <strong className="text-foreground">Cosmos 2251</strong> (derelict military satellite) collided at <strong className="text-rose-400">14.1 km/s relative velocity</strong>, generating thousands of trackable debris fragments.
+            </p>
+            <p>
+              Space-Guard ingests pre-collision TLEs (epoch 09041) into the exact same SGP4 + Analytic Gaussian Pc pipeline to verify the system independently triggers a <strong className="text-rose-400">Critical Alert (Pc &gt; 10⁻⁴) 48h prior</strong>.
             </p>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2 self-start lg:self-auto">
-          <button
-            onClick={fetchHistoricalData}
-            disabled={loading}
-            className="px-3.5 py-2 rounded bg-space-850 text-space-200 hover:text-white border border-space-700 text-xs font-mono transition-colors flex items-center gap-1.5"
-          >
-            <Activity className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>{loading ? 'REPLAYING PIPELINE...' : 'RE-RUN BENCHMARK'}</span>
-          </button>
-        </div>
-      </div>
+          {/* Interactive 3D Globe Replay */}
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-muted-foreground text-[11px] uppercase font-mono">Select 3D Mode:</span>
+                <Button
+                  size="sm"
+                  variant={simMode === 'collision_2009' ? 'destructive' : 'outline'}
+                  onClick={handleSimulateCollision}
+                  className="h-8 text-xs font-medium"
+                >
+                  <Flame className="size-3.5 mr-1.5" />
+                  <span>1. Simulate 2009 Collision</span>
+                </Button>
 
-      {/* Interactive 3D Globe Simulation */}
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-space-400 uppercase font-semibold">Simulation Mode:</span>
-            <button
-              onClick={handleSimulateCollision}
-              className={`px-3 py-1.5 rounded text-xs font-semibold uppercase flex items-center gap-1.5 border transition-all ${
-                simMode === 'collision_2009'
-                  ? 'bg-red-500 text-white border-red-400'
-                  : 'bg-space-950 text-space-400 border-space-800 hover:text-white'
-              }`}
-            >
-              <Flame className="w-3.5 h-3.5" />
-              <span>1. 2009 Catastrophic Collision</span>
-            </button>
+                <Button
+                  size="sm"
+                  variant={simMode === 'avoidance_2009' ? 'default' : 'outline'}
+                  onClick={handleSimulateAvoidance}
+                  className="h-8 text-xs font-medium"
+                >
+                  <Zap className="size-3.5 mr-1.5" />
+                  <span>2. Simulate Avoidance Maneuver</span>
+                </Button>
+              </div>
+            </div>
 
-            <button
-              onClick={handleSimulateAvoidance}
-              className={`px-3 py-1.5 rounded text-xs font-semibold uppercase flex items-center gap-1.5 border transition-all ${
-                simMode === 'avoidance_2009'
-                  ? 'bg-telemetry-cyan text-black border-telemetry-cyan font-bold'
-                  : 'bg-space-950 text-space-400 border-space-800 hover:text-white'
-              }`}
-            >
-              <Zap className="w-3.5 h-3.5" />
-              <span>2. Space-Guard Avoidance Maneuver (+4.83 km)</span>
-            </button>
+            <Globe3D 
+              initialMode={simMode}
+              activeEvents={[{
+                target_id: 'IRIDIUM 33',
+                chaser_id: 'COSMOS 2251',
+                miss_distance_km: 0.003,
+                pc: 0.0002,
+                risk_tier: 'Critical',
+                tca_utc: '2009-02-10 16:56:00 UTC'
+              }]}
+              onModeChange={setSimMode}
+            />
           </div>
-        </div>
 
-        <Globe3D 
-          initialMode={simMode}
-          activeEvents={[{
-            target_id: 'IRIDIUM 33',
-            chaser_id: 'COSMOS 2251',
-            miss_distance_km: 0.003,
-            pc: 0.0002,
-            risk_tier: 'Critical',
-            tca_utc: '2009-02-10 16:56:00 UTC'
-          }]}
-          onModeChange={setSimMode}
-        />
-      </div>
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
+            <div className="p-3.5 rounded-xl border border-rose-500/30 bg-rose-500/5 flex flex-col justify-between">
+              <span className="text-[10px] text-rose-400 uppercase font-medium">Computed Miss</span>
+              <span className="text-xl font-semibold text-rose-300 mt-1">
+                {formatDistance(data?.miss_distance_km ?? 0.003)}
+              </span>
+              <span className="text-[10px] text-muted-foreground mt-0.5">Physical Impact</span>
+            </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded bg-space-950/90 border border-red-500/30 flex flex-col">
-          <span className="text-[10px] text-red-400 font-medium uppercase">Computed Miss Distance</span>
-          <span className="text-xl font-semibold text-red-300 mt-1">
-            {formatDistance(data?.miss_distance_km ?? 0.003)}
-          </span>
-          <span className="text-[10px] text-space-500 mt-0.5">Physical Impact Crossing</span>
-        </div>
+            <div className="p-3.5 rounded-xl border border-border/80 bg-secondary/30 flex flex-col justify-between">
+              <span className="text-[10px] text-muted-foreground uppercase font-medium">Relative Speed</span>
+              <span className="text-xl font-semibold text-foreground mt-1">
+                {(data?.relative_velocity_km_s ?? 14.12).toFixed(2)} km/s
+              </span>
+              <span className="text-[10px] text-muted-foreground mt-0.5">50,832 km/h</span>
+            </div>
 
-        <div className="p-3.5 rounded bg-space-950/90 border border-space-800 flex flex-col">
-          <span className="text-[10px] text-space-400 font-medium uppercase">Relative Velocity</span>
-          <span className="text-xl font-semibold text-white mt-1">
-            {(data?.relative_velocity_km_s ?? 14.12).toFixed(2)} km/s
-          </span>
-          <span className="text-[10px] text-space-500 mt-0.5">50,832 km/h Closing Rate</span>
-        </div>
+            <div className="p-3.5 rounded-xl border border-rose-500/30 bg-rose-500/5 flex flex-col justify-between">
+              <span className="text-[10px] text-rose-400 uppercase font-medium">Collision Pc</span>
+              <span className="text-xl font-semibold text-rose-300 mt-1">
+                {formatScientific(data?.pc ?? 0.0002)}
+              </span>
+              <span className="text-[10px] text-rose-400 mt-0.5 font-semibold">CRITICAL (Pc &gt; 10⁻⁴)</span>
+            </div>
 
-        <div className="p-3.5 rounded bg-space-950/90 border border-red-500/30 flex flex-col">
-          <span className="text-[10px] text-red-400 font-medium uppercase">Collision Pc</span>
-          <span className="text-xl font-semibold text-red-300 mt-1">
-            {formatScientific(data?.pc ?? 0.0002)}
-          </span>
-          <span className="text-[10px] text-red-400 font-medium mt-0.5">CRITICAL (Pc &gt; 10⁻⁴)</span>
-        </div>
-
-        <div className="p-3.5 rounded bg-space-950/90 border border-space-800 flex flex-col">
-          <span className="text-[10px] text-space-400 font-medium uppercase">Avoidance Result</span>
-          <span className="text-xl font-semibold text-telemetry-emerald mt-1">
-            +4.83 km
-          </span>
-          <span className="text-[10px] text-telemetry-emerald mt-0.5">Safe Clearance (ΔV = 0.10 m/s)</span>
-        </div>
-      </div>
-
-      {/* Avoidance Counterfactual Details */}
-      <div className="p-4 rounded bg-space-950/80 border border-space-800 flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <Award className="w-4 h-4 text-telemetry-emerald" />
-          <h3 className="text-xs font-semibold text-white uppercase tracking-wider">
-            Counterfactual Avoidance Demonstration (CW Model)
-          </h3>
-        </div>
-
-        <div className="p-3 rounded bg-space-900 border border-telemetry-emerald/40 flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 text-telemetry-emerald font-semibold text-xs">
-            <CheckCircle className="w-4 h-4" />
-            <span>AVOIDANCE MANEUVER VERIFIED: COLLISION PREVENTED</span>
+            <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 flex flex-col justify-between">
+              <span className="text-[10px] text-emerald-400 uppercase font-medium">Avoidance Shift</span>
+              <span className="text-xl font-semibold text-emerald-400 mt-1">
+                +4.83 km
+              </span>
+              <span className="text-[10px] text-emerald-400 mt-0.5">Safe (ΔV = 0.10 m/s)</span>
+            </div>
           </div>
-          <p className="text-xs text-space-300 leading-relaxed">
-            Applying a small <strong className="text-white">ΔV = 0.10 m/s</strong> thruster impulse on Iridium 33{' '}
-            <strong className="text-telemetry-cyan">24 hours prior to TCA</strong> expands along-track miss distance to{' '}
-            <strong className="text-telemetry-emerald">+4.83 km</strong>, reducing collision probability from{' '}
-            <strong className="text-red-400">2.0 × 10⁻⁴ (Critical)</strong> to <strong className="text-telemetry-emerald">4.2 × 10⁻⁷ (Safe)</strong>.
-          </p>
-        </div>
-      </div>
+
+          {/* Avoidance Counterfactual Details */}
+          <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-400 font-semibold text-xs">
+              <CheckCircle className="size-4" />
+              <span>Counterfactual Avoidance Verification (Clohessy-Wiltshire Model)</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Applying an impulsive <strong className="text-foreground">ΔV = 0.10 m/s</strong> thruster burn on Iridium 33{' '}
+              <strong className="text-foreground">24 hours prior to TCA</strong> expands along-track miss distance to{' '}
+              <strong className="text-emerald-400 font-semibold">+4.83 km</strong>, reducing collision probability from{' '}
+              <strong className="text-rose-400 font-semibold">2.0 × 10⁻⁴ (Critical)</strong> to <strong className="text-emerald-400 font-semibold">4.2 × 10⁻⁷ (Safe)</strong>.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

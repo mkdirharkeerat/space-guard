@@ -693,24 +693,24 @@ export default function Globe3D({
   };
 
   return (
-    <div className="relative w-full h-[520px] lg:h-[600px] rounded-lg overflow-hidden border border-space-800 bg-[#040711] shadow-2xl select-none font-mono">
+    <div className="relative w-full h-[520px] lg:h-[600px] rounded-2xl overflow-hidden border border-border/80 bg-background shadow-lg select-none font-sans">
       {/* Three.js Canvas Container */}
       <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
       {/* Top Center Simulation Mode Switcher Bar */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 p-1 bg-space-950/90 border border-space-800 rounded-lg shadow-xl backdrop-blur-md text-xs">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 p-1 bg-card/90 border border-border/80 rounded-xl shadow-xl backdrop-blur-md text-xs">
         <button
           onClick={() => {
             sound.playClick();
             setSimMode('live');
           }}
-          className={`px-3 py-1.5 rounded text-[11px] font-semibold uppercase transition-all flex items-center gap-1.5 ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
             simMode === 'live'
-              ? 'bg-telemetry-emerald text-black shadow-sm'
-              : 'text-space-400 hover:text-white hover:bg-space-900'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
           }`}
         >
-          <Radio className="w-3.5 h-3.5" />
+          <Radio className="size-3.5" />
           <span>Live Radar</span>
         </button>
 
@@ -721,13 +721,13 @@ export default function Globe3D({
             setSimProgress(0);
             setIsPlaying(true);
           }}
-          className={`px-3 py-1.5 rounded text-[11px] font-semibold uppercase transition-all flex items-center gap-1.5 ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
             simMode === 'collision_2009'
-              ? 'bg-red-500 text-white shadow-sm'
-              : 'text-space-400 hover:text-white hover:bg-space-900'
+              ? 'bg-destructive text-destructive-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
           }`}
         >
-          <Flame className="w-3.5 h-3.5" />
+          <Flame className="size-3.5" />
           <span>1. Simulate 2009 Collision</span>
         </button>
 
@@ -738,50 +738,50 @@ export default function Globe3D({
             setSimProgress(0);
             setIsPlaying(true);
           }}
-          className={`px-3 py-1.5 rounded text-[11px] font-semibold uppercase transition-all flex items-center gap-1.5 ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
             simMode === 'avoidance_2009'
-              ? 'bg-telemetry-cyan text-black shadow-sm'
-              : 'text-space-400 hover:text-white hover:bg-space-900'
+              ? 'bg-emerald-500 text-black font-semibold shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
           }`}
         >
-          <Zap className="w-3.5 h-3.5" />
+          <Zap className="size-3.5" />
           <span>2. Simulate Escape Maneuver</span>
         </button>
       </div>
 
       {/* Top Left HUD Telemetry Readout */}
-      <div className="absolute top-16 left-4 z-10 flex flex-col gap-1.5 p-3 rounded bg-space-950/90 border border-space-800 text-xs backdrop-blur-md">
-        <div className="flex items-center gap-2 text-white font-medium uppercase text-xs">
-          <div className={`w-2 h-2 rounded-full animate-pulse ${
-            simMode === 'collision_2009' ? 'bg-red-500' : simMode === 'avoidance_2009' ? 'bg-telemetry-cyan' : 'bg-telemetry-emerald'
+      <div className="absolute top-16 left-4 z-10 flex flex-col gap-1.5 p-3.5 rounded-xl bg-card/90 border border-border/80 text-xs backdrop-blur-md shadow-md">
+        <div className="flex items-center gap-2 text-foreground font-semibold text-xs">
+          <div className={`size-2 rounded-full animate-pulse ${
+            simMode === 'collision_2009' ? 'bg-destructive' : simMode === 'avoidance_2009' ? 'bg-emerald-400' : 'bg-primary'
           }`} />
-          <span>
+          <span className="font-mono uppercase text-[11px]">
             {simMode === 'live' ? 'LIVE RADAR TRACKING' : simMode === 'collision_2009' ? '2009 COLLISION REENACTMENT' : 'CW AVOIDANCE SIMULATION'}
           </span>
         </div>
         
         {simMode === 'live' ? (
-          <>
-            <div className="text-space-400 text-[11px] flex justify-between gap-4">
+          <div className="flex flex-col gap-1 text-[11px] text-muted-foreground font-mono">
+            <div className="flex justify-between gap-4">
               <span>FRAME:</span>
-              <span className="text-telemetry-cyan font-semibold">GCRS / ECI</span>
+              <span className="text-primary font-semibold">GCRS / ECI</span>
             </div>
-            <div className="text-space-400 text-[11px] flex justify-between gap-4">
+            <div className="flex justify-between gap-4">
               <span>ALTITUDE:</span>
-              <span className="text-space-300">LEO (789 km)</span>
+              <span className="text-foreground">LEO (789 km)</span>
             </div>
-          </>
+          </div>
         ) : simMode === 'collision_2009' ? (
-          <div className="flex flex-col gap-0.5 text-[11px]">
-            <span className="text-red-400 font-semibold">Iridium 33 × Cosmos 2251</span>
-            <span className="text-space-300">Rel Speed: 14.12 km/s (Head-On)</span>
-            <span className="text-red-400 font-medium">Impact: 10 Feb 2009 16:56 UTC</span>
+          <div className="flex flex-col gap-0.5 text-[11px] font-mono">
+            <span className="text-destructive font-semibold">Iridium 33 × Cosmos 2251</span>
+            <span className="text-foreground">Rel Speed: 14.12 km/s</span>
+            <span className="text-muted-foreground">Impact: 10 Feb 2009 16:56 UTC</span>
           </div>
         ) : (
-          <div className="flex flex-col gap-0.5 text-[11px]">
-            <span className="text-telemetry-cyan font-semibold">Iridium 33 Escape Burn</span>
-            <span className="text-space-300">ΔV = 0.10 m/s at T - 24h</span>
-            <span className="text-telemetry-emerald font-semibold">Clearance: +4.83 km (Safe)</span>
+          <div className="flex flex-col gap-0.5 text-[11px] font-mono">
+            <span className="text-primary font-semibold">Iridium 33 Escape Burn</span>
+            <span className="text-foreground">ΔV = 0.10 m/s at T - 24h</span>
+            <span className="text-emerald-400 font-semibold">Clearance: +4.83 km (Safe)</span>
           </div>
         )}
       </div>
@@ -791,28 +791,28 @@ export default function Globe3D({
         <button
           onClick={handleToggleRotate}
           title={autoRotate ? 'Pause Rotation' : 'Resume Rotation'}
-          className={`px-3 py-1.5 rounded border text-xs transition-all flex items-center gap-1.5 backdrop-blur-md ${
+          className={`px-3 py-1.5 rounded-lg border text-xs font-mono transition-all flex items-center gap-1.5 backdrop-blur-md ${
             autoRotate
-              ? 'bg-space-850 text-telemetry-emerald border-space-700 hover:bg-space-800'
-              : 'bg-space-950 text-space-400 border-space-850 hover:text-white'
+              ? 'bg-card/90 text-primary border-primary/30 hover:bg-card'
+              : 'bg-card/90 text-muted-foreground border-border hover:text-foreground'
           }`}
         >
-          <RotateCcw className={`w-3.5 h-3.5 ${autoRotate ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }} />
+          <RotateCcw className={`size-3.5 ${autoRotate ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }} />
           <span>{autoRotate ? 'ROTATING' : 'PAUSED'}</span>
         </button>
 
         <button
           onClick={handleResetCamera}
           title="Reset Camera"
-          className="p-1.5 rounded border border-space-800 bg-space-950/90 text-space-300 hover:text-white hover:border-space-700 transition-all backdrop-blur-md"
+          className="p-2 rounded-lg border border-border/80 bg-card/90 text-muted-foreground hover:text-foreground hover:border-border transition-all backdrop-blur-md"
         >
-          <Crosshair className="w-4 h-4" />
+          <Crosshair className="size-3.5" />
         </button>
       </div>
 
       {/* Bottom Timeline Control Bar (Active in 2009 Collision & Avoidance modes) */}
       {simMode !== 'live' ? (
-        <div className="absolute bottom-4 left-4 right-4 z-20 p-3 bg-space-950/95 border border-space-800 rounded-lg shadow-2xl backdrop-blur-md flex flex-col gap-2">
+        <div className="absolute bottom-4 left-4 right-4 z-20 p-3.5 bg-card/95 border border-border/80 rounded-xl shadow-2xl backdrop-blur-md flex flex-col gap-2.5">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-3">
               <button
@@ -820,9 +820,9 @@ export default function Globe3D({
                   sound.playClick();
                   setIsPlaying(!isPlaying);
                 }}
-                className="p-1.5 rounded bg-space-800 hover:bg-space-700 text-white border border-space-700"
+                className="p-1.5 rounded-md bg-secondary hover:bg-secondary/80 text-foreground border border-border"
               >
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
               </button>
 
               <button
@@ -831,14 +831,14 @@ export default function Globe3D({
                   setSimProgress(0);
                 }}
                 title="Restart Simulation"
-                className="p-1.5 rounded bg-space-850 hover:bg-space-800 text-space-300 hover:text-white border border-space-700"
+                className="p-1.5 rounded-md bg-secondary/60 hover:bg-secondary text-muted-foreground hover:text-foreground border border-border"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="size-4" />
               </button>
 
-              <div className="flex items-center gap-1.5 text-xs text-space-300 font-mono">
-                <span className="text-space-500">Timeline:</span>
-                <strong className={simProgress >= 0.8 ? (simMode === 'collision_2009' ? 'text-red-400' : 'text-telemetry-emerald') : 'text-white'}>
+              <div className="flex items-center gap-1.5 text-xs text-foreground font-mono">
+                <span className="text-muted-foreground">Timeline:</span>
+                <strong className={simProgress >= 0.8 ? (simMode === 'collision_2009' ? 'text-destructive' : 'text-emerald-400') : 'text-foreground'}>
                   {simProgress < 0.8 
                     ? `T - ${((0.8 - simProgress) * 30).toFixed(1)}h`
                     : simProgress === 0.8
@@ -852,27 +852,27 @@ export default function Globe3D({
             <div className="hidden sm:flex items-center gap-2 text-xs">
               {simMode === 'collision_2009' ? (
                 simProgress >= 0.8 ? (
-                  <span className="px-2.5 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40 font-semibold flex items-center gap-1">
-                    <Flame className="w-3.5 h-3.5" />
-                    CATASTROPHIC IMPACT · DEBRIS SCATTERING
+                  <span className="px-2.5 py-0.5 rounded-md bg-destructive/15 text-destructive border border-destructive/30 font-medium flex items-center gap-1">
+                    <Flame className="size-3.5" />
+                    Catastrophic Impact · Debris Dispersion
                   </span>
                 ) : (
-                  <span className="text-red-400">Head-on closing rate: 14.1 km/s (Pc: 2.0e-4)</span>
+                  <span className="text-destructive/80 font-mono text-[11px]">Head-on rate: 14.1 km/s (Pc: 2.0e-4)</span>
                 )
               ) : (
                 simProgress >= 0.8 ? (
-                  <span className="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-telemetry-emerald" />
-                    SAFE CLEARANCE: +4.83 KM · NO COLLISION
+                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="size-3.5 text-emerald-400" />
+                    Safe Clearance: +4.83 km · Collision Avoided
                   </span>
                 ) : (
-                  <span className="text-telemetry-cyan">Avoidance burn applied at T-24h (ΔV: 0.10 m/s)</span>
+                  <span className="text-primary font-mono text-[11px]">Avoidance burn applied at T-24h (ΔV: 0.10 m/s)</span>
                 )
               )}
             </div>
 
             {/* Speed Multipliers */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 font-mono">
               {[1, 5, 15].map(spd => (
                 <button
                   key={spd}
@@ -880,10 +880,10 @@ export default function Globe3D({
                     sound.playClick();
                     setSimSpeed(spd);
                   }}
-                  className={`px-2 py-0.5 rounded text-[10px] font-mono border transition-colors ${
+                  className={`px-2 py-0.5 rounded text-[10px] border transition-colors ${
                     simSpeed === spd
-                      ? 'bg-space-700 text-white border-space-500 font-semibold'
-                      : 'bg-space-900 text-space-400 border-space-800 hover:text-white'
+                      ? 'bg-primary text-primary-foreground border-primary font-semibold'
+                      : 'bg-secondary/40 text-muted-foreground border-border hover:text-foreground'
                   }`}
                 >
                   {spd}x
@@ -903,17 +903,17 @@ export default function Globe3D({
               const val = Number(e.target.value);
               setSimProgress(val);
             }}
-            className="w-full h-1.5 bg-space-800 rounded appearance-none cursor-pointer accent-telemetry-emerald"
+            className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
           />
         </div>
       ) : (
         /* Live Mode Status Indicator */
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 px-4 py-1 rounded bg-space-950/85 border border-space-800 text-[11px] text-space-400 font-mono flex items-center gap-3 backdrop-blur-md">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 px-4 py-1 rounded-full bg-card/90 border border-border/80 text-[11px] text-muted-foreground font-mono flex items-center gap-3 backdrop-blur-md shadow-md">
           <span>Drag to Rotate</span>
-          <span className="text-space-700">|</span>
+          <span className="text-border">|</span>
           <span>Scroll to Zoom</span>
-          <span className="text-space-700">|</span>
-          <span className="text-telemetry-cyan font-medium">
+          <span className="text-border">|</span>
+          <span className="text-primary font-medium">
             {activeEvents.length} Conjunctions Tracked
           </span>
         </div>

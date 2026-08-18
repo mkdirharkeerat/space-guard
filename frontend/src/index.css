@@ -1,62 +1,76 @@
+@import "tw-animate-css";
+@import "@fontsource-variable/geist";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --bg-main: #050811;
-    --card-bg: #090F1E;
-    --border-color: rgba(255, 255, 255, 0.08);
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 6%;
+    --secondary: 217 33% 14%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217 33% 16%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 16%;
+    --input: 217 33% 16%;
+    --ring: 217 91% 60%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply font-sans antialiased;
+    color-scheme: dark;
   }
 
   body {
-    background-color: #050811;
-    color: #E2E8F0;
-    font-family: 'IBM Plex Mono', monospace;
-    overflow-x: hidden;
-    letter-spacing: -0.01em;
+    @apply bg-background text-foreground overflow-x-hidden;
+    background-color: #070B14;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Subtle Technical Grid Background */
-.aerospace-grid {
-  background-color: #050811;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
+@layer utilities {
+  .text-data {
+    @apply font-mono text-sm tabular-nums;
+  }
 }
 
-/* Professional Custom Scrollbar */
+/* Subtle Technical Ambient Mesh */
+.ambient-bg {
+  background-color: #070B14;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
+}
+
+/* Sleek Modern Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #050811;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E293B;
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
-
-/* High Precision Telemetry Cards */
-.telemetry-card {
-  background: rgba(9, 15, 30, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-}
-
-.telemetry-card:hover {
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-.telemetry-card-active {
-  background: rgba(11, 20, 40, 0.95);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.08);
+  background: rgba(255, 255, 255, 0.22);
 }

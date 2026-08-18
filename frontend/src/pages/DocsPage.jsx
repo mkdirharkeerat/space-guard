@@ -1,7 +1,9 @@
 import React from 'react';
-import MathExplainer from '../components/MathExplainer';
-import GuideBox from '../components/GuideBox';
-import { BookOpen, Shield, Code2, Server, Award, CheckCircle } from 'lucide-react';
+import MathExplainer from '@/components/MathExplainer';
+import GuideBox from '@/components/GuideBox';
+import { BookOpen, Shield, Server, FileText } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function DocsPage() {
   const guideSteps = [
@@ -28,7 +30,7 @@ export default function DocsPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-6 font-mono text-black">
+    <div className="flex flex-col gap-6 font-sans text-foreground">
       {/* GuideBox */}
       <GuideBox
         title="Orbital Mechanics Reference & Documentation · Evaluator Guide"
@@ -41,88 +43,94 @@ export default function DocsPage() {
       <MathExplainer />
 
       {/* Engineering Assumptions & Transparency */}
-      <div className="p-6 rounded-2xl bg-white border-4 border-black shadow-neo flex flex-col gap-4">
-        <div className="flex items-center gap-3 pb-3 border-b-2 border-black">
-          <div className="p-2.5 bg-neo-yellow border-2 border-black rounded-xl shadow-neo-sm">
-            <Shield className="w-5 h-5 text-black" />
+      <Card className="border-border/80 bg-card/60 backdrop-blur-md shadow-sm">
+        <CardHeader className="pb-4 border-b border-border/60">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+              <Shield className="size-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold tracking-tight text-foreground">
+                Engineering Assumptions & Compliance (§12)
+              </CardTitle>
+              <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                Full statement of operational assumptions and parameters for evaluation judges
+              </CardDescription>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-black font-sans text-black">
-              Engineering Assumptions & Compliance (§12)
-            </h3>
-            <p className="text-xs text-slate-700 font-bold">
-              Full statement of operational assumptions for evaluation judges
-            </p>
-          </div>
-        </div>
+        </CardHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-bold">
-          <div className="p-4 bg-neo-cream border-2 border-black rounded-xl shadow-neo-sm flex flex-col gap-1">
-            <span className="text-[11px] text-black font-black uppercase">Positional Uncertainty (σ)</span>
-            <p className="text-slate-800">
-              Assumed isotropic Gaussian standard deviation of <strong>σ = 500 m</strong> (0.5 km) representing standard SGP4 TLE precision limits.
-            </p>
-          </div>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div className="p-4 rounded-xl border border-border/70 bg-secondary/20 space-y-1.5">
+              <span className="font-semibold text-foreground text-xs uppercase font-mono">Positional Uncertainty (σ)</span>
+              <p className="text-muted-foreground leading-relaxed">
+                Assumed isotropic Gaussian standard deviation of <strong className="text-foreground">σ = 500 m</strong> (0.5 km) representing standard SGP4 TLE precision limits.
+              </p>
+            </div>
 
-          <div className="p-4 bg-neo-cream border-2 border-black rounded-xl shadow-neo-sm flex flex-col gap-1">
-            <span className="text-[11px] text-black font-black uppercase">Hard-Body Radius (HBR)</span>
-            <p className="text-slate-800">
-              Combined collision cross-section of <strong>HBR = 10 m</strong> (0.010 km) for typical LEO communications satellites.
-            </p>
-          </div>
+            <div className="p-4 rounded-xl border border-border/70 bg-secondary/20 space-y-1.5">
+              <span className="font-semibold text-foreground text-xs uppercase font-mono">Hard-Body Radius (HBR)</span>
+              <p className="text-muted-foreground leading-relaxed">
+                Combined collision cross-section of <strong className="text-foreground">HBR = 10 m</strong> (0.010 km) for typical LEO communications satellites.
+              </p>
+            </div>
 
-          <div className="p-4 bg-neo-cream border-2 border-black rounded-xl shadow-neo-sm flex flex-col gap-1">
-            <span className="text-[11px] text-black font-black uppercase">Impulsive Thruster Burn</span>
-            <p className="text-slate-800">
-              Instantaneous velocity change modeled via Clohessy-Wiltshire relative motion in representative circular LEO orbit (r ≈ 6,787 km).
-            </p>
+            <div className="p-4 rounded-xl border border-border/70 bg-secondary/20 space-y-1.5">
+              <span className="font-semibold text-foreground text-xs uppercase font-mono">Impulsive Thruster Burn</span>
+              <p className="text-muted-foreground leading-relaxed">
+                Instantaneous velocity change modeled via Clohessy-Wiltshire relative motion in representative circular LEO orbit (r ≈ 6,787 km).
+              </p>
+            </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* REST API Reference */}
-      <div className="p-6 rounded-2xl bg-white border-4 border-black shadow-neo flex flex-col gap-4">
-        <div className="flex items-center gap-3 pb-3 border-b-2 border-black">
-          <div className="p-2.5 bg-neo-cyan border-2 border-black rounded-xl shadow-neo-sm">
-            <Server className="w-5 h-5 text-black" />
+      <Card className="border-border/80 bg-card/60 backdrop-blur-md shadow-sm">
+        <CardHeader className="pb-4 border-b border-border/60">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+              <Server className="size-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold tracking-tight text-foreground">
+                FastAPI REST Backend Endpoints
+              </CardTitle>
+              <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                Live REST API specifications running on port 8000
+              </CardDescription>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-black font-sans text-black">
-              FastAPI REST Backend Endpoints
-            </h3>
-            <p className="text-xs text-slate-700 font-bold">
-              Live REST API specifications running on port 8000
-            </p>
-          </div>
-        </div>
+        </CardHeader>
 
-        <div className="overflow-x-auto rounded-xl border-3 border-black shadow-neo-sm bg-white">
-          <table className="w-full text-left font-mono text-xs">
-            <thead className="bg-neo-yellow text-black border-b-2 border-black font-black uppercase">
-              <tr>
-                <th className="py-3 px-4 w-24">Method</th>
-                <th className="py-3 px-4 w-64">Endpoint</th>
-                <th className="py-3 px-4">Description</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y-2 divide-black font-bold">
-              {apiEndpoints.map((ep, idx) => (
-                <tr key={idx} className="hover:bg-neo-cream">
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-black border border-black ${
-                      ep.method === 'GET' ? 'bg-neo-green text-black' : 'bg-neo-pink text-black'
-                    }`}>
-                      {ep.method}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 font-black">{ep.path}</td>
-                  <td className="py-3 px-4 text-slate-800">{ep.desc}</td>
+        <CardContent className="p-6">
+          <div className="overflow-x-auto rounded-xl border border-border/80 bg-background/60">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-secondary/30 text-muted-foreground border-b border-border/80 text-[11px] uppercase font-mono tracking-wider">
+                <tr>
+                  <th className="py-3 px-4 w-24">Method</th>
+                  <th className="py-3 px-4 w-64">Endpoint</th>
+                  <th className="py-3 px-4">Description</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-border/50 font-mono">
+                {apiEndpoints.map((ep, idx) => (
+                  <tr key={idx} className="hover:bg-secondary/20 transition-colors">
+                    <td className="py-3 px-4">
+                      <Badge variant={ep.method === 'GET' ? 'secondary' : 'default'} className="font-mono text-[10px]">
+                        {ep.method}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4 font-semibold text-foreground">{ep.path}</td>
+                    <td className="py-3 px-4 text-muted-foreground font-sans">{ep.desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
