@@ -1,79 +1,61 @@
-import { useInView, useMotionValue, useSpring } from 'motion/react';
-import { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 export default function CountUp({
-  to,
+  to = 0,
   from = 0,
-  direction = 'up',
+  duration = 1.8,
   delay = 0,
-  duration = 2,
   className = '',
-  startWhen = true,
   separator = '',
   prefix = '',
   suffix = '',
   decimals = 0,
-  onStart,
-  onEnd
 }) {
+  const [displayValue, setDisplayValue] = useState(from);
   const ref = useRef(null);
-  const motionValue = useMotionValue(direction === 'down' ? to : from);
 
-  const damping = 20 + 40 * (1 / duration);
-  const stiffness = 100 * (1 / duration);
-
-  const springValue = useSpring(motionValue, {
-    damping,
-    stiffness
-  });
-
-  const isInView = useInView(ref, { once: true, margin: '0px' });
-
-  const formatNumber = useCallback(
-    (num) => {
-      const fixed = Number(num).toFixed(decimals);
-      if (!separator) return fixed;
-      const parts = fixed.split('.');
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
-      return parts.join('.');
-    },
-    [decimals, separator]
-  );
+  const formatNumber = (num) => {
+    const fixed = Number(num).toFixed(decimals);
+    if (!separator) return fixed;
+    const parts = fixed.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+    return parts.join('.');
+  };
 
   useEffect(() => {
-    if (ref.current) {
-      ref.current.textContent = `${prefix}${formatNumber(direction === 'down' ? to : from)}${suffix}`;
-    }
-  }, [from, to, direction, prefix, suffix, formatNumber]);
+    let startTime = null;
+    let animationFrameId = null;
 
-  useEffect(() => {
-    if (isInView && startWhen) {
-      if (typeof onStart === 'function') onStart();
+    const timeout = setTimeout(() => {
+      const startAnim = (timestamp) => {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+        
+        // Smooth cubic ease-out
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = from + (to - from) * easeOut;
 
-      const timeout = setTimeout(() => {
-        motionValue.set(direction === 'down' ? from : to);
-      }, delay * 1000);
+        setDisplayValue(current);
 
-      const durationTimeout = setTimeout(() => {
-        if (typeof onEnd === 'function') onEnd();
-      }, (delay + duration) * 1000);
-
-      return () => {
-        clearTimeout(timeout);
-        clearTimeout(durationTimeout);
+        if (progress < 1) {
+          animationFrameId = requestAnimationFrame(startAnim);
+        } else {
+          setDisplayValue(to);
+        }
       };
-    }
-  }, [isInView, startWhen, motionValue, direction, from, to, delay, duration, onStart, onEnd]);
 
-  useEffect(() => {
-    const unsubscribe = springValue.on('change', (latest) => {
-      if (ref.current) {
-        ref.current.textContent = `${prefix}${formatNumber(latest)}${suffix}`;
-      }
-    });
+      animationFrameId = requestAnimationFrame(startAnim);
+    }, delay * 1000);
 
-    return () => unsubscribe();
-  }, [springValue, prefix, suffix, formatNumber]);
+    return () => {
+      clearTimeout(timeout);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [to, from, duration, delay]);
 
-  return <span className={className} ref={ref} />;
+  return (
+    <span ref={ref} className={className}>
+      {prefix}{formatNumber(displayValue)}{suffix}
+    </span>
+  );
 }

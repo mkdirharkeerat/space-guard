@@ -1,20 +1,29 @@
-import { motion } from 'motion/react';
+import React, { useEffect, useState } from 'react';
 
 export default function FadeIn({
   children,
-  className,
+  className = '',
   delay = 0,
-  duration = 0.4,
-  y = 12,
+  duration = 500,
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 20);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration, delay, ease: [0.25, 0.1, 0.25, 1] }}
-      className={className}
+    <div
+      className={`transition-all ease-out ${className}`}
+      style={{
+        transitionDuration: `${duration}ms`,
+        transitionDelay: `${delay}ms`,
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? 'translateY(0)' : 'translateY(10px)',
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
