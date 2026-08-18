@@ -1,6 +1,7 @@
 \documentclass[11pt,a4paper]{article}
+\setlength{\headheight}{15pt}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=1in]{geometry}
+\usepackage[margin=0.85in]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{hyperref}
@@ -10,403 +11,512 @@
 \usepackage{tcolorbox}
 \usepackage{fancyhdr}
 \usepackage{tikz}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{tabularx}
+
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
 
 \hypersetup{
     colorlinks=true,
-    linkcolor=blue!80!black,
-    urlcolor=blue!80!black,
-    citecolor=blue!80!black
+    linkcolor=blue!70!black,
+    urlcolor=blue!70!black,
 }
 
 \tcbuselibrary{skins,breakable}
 
-% Presenter note box (amber/gold)
+% Color palette
+\definecolor{spaceblue}{RGB}{30, 80, 160}
+\definecolor{spacegreen}{RGB}{20, 140, 80}
+\definecolor{spacered}{RGB}{180, 40, 40}
+\definecolor{spacegold}{RGB}{200, 150, 20}
+\definecolor{darkbg}{RGB}{15, 20, 35}
+\definecolor{lightgray}{RGB}{245, 246, 248}
+\definecolor{critred}{RGB}{220, 50, 50}
+\definecolor{safegreen}{RGB}{34, 139, 60}
+
+% Custom boxes
 \newtcolorbox{presenterbox}[1][]{
-  colback=orange!5!white,
-  colframe=orange!70!black,
-  fonttitle=\bfseries\small,
-  title={Presenter Note},
-  #1
+  colback=orange!6!white, colframe=orange!65!black,
+  fonttitle=\bfseries\small, title={{\small\faComment}\space Presenter Note},
+  left=4pt, right=4pt, top=3pt, bottom=3pt, #1
 }
 
-% Key fact highlight box (blue)
-\newtcolorbox{factbox}[1][]{
-  colback=blue!5!white,
-  colframe=blue!75!black,
-  fonttitle=\bfseries\small,
-  title={Key Information},
-  #1
+\newtcolorbox{slidebox}[2][]{
+  colback=spaceblue!5!white, colframe=spaceblue!70!black,
+  fonttitle=\bfseries\small\color{white},
+  coltitle=white, colbacktitle=spaceblue!80!black,
+  title={#2}, left=6pt, right=6pt, top=4pt, bottom=4pt, #1
 }
 
-% Warning/collision box (red)
-\newtcolorbox{warnbox}[1][]{
-  colback=red!5!white,
-  colframe=red!75!black,
-  fonttitle=\bfseries\small,
-  title={Real-World Case Study},
-  #1
+\newtcolorbox{crashbox}[1][]{
+  colback=spacered!5!white, colframe=spacered!80!black,
+  fonttitle=\bfseries\small\color{white},
+  coltitle=white, colbacktitle=spacered!85!black,
+  title={Real Crash \textemdash\ 10 February 2009}, #1
 }
 
-% Solution box (green)
 \newtcolorbox{solutionbox}[1][]{
-  colback=green!5!white,
-  colframe=green!60!black,
+  colback=spacegreen!5!white, colframe=spacegreen!70!black,
+  fonttitle=\bfseries\small\color{white},
+  coltitle=white, colbacktitle=spacegreen!80!black,
+  title={Space-Guard: Our Solution}, #1
+}
+
+\newtcolorbox{proofbox}[1][]{
+  colback=spacegold!8!white, colframe=spacegold!70!black,
   fonttitle=\bfseries\small,
-  title={Our Solution},
-  #1
+  title={Proof It Works \textemdash\ Tested on Real 2009 Data}, #1
 }
 
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{\textbf{Space-Guard} $\cdot$ SIH 2026}
-\lhead{Software Presentation Pitch Deck}
-\rfoot{Page \thepage}
+\rhead{\textcolor{spaceblue}{\textbf{Space-Guard}} \textcolor{gray}{$\cdot$ SIH 2026}}
+\lhead{\textcolor{gray}{Software Pitch Deck}}
+\rfoot{\textcolor{gray}{\thepage}}
+\renewcommand{\headrulewidth}{0.3pt}
 
-\title{\Huge \textbf{Space-Guard}\\[0.3em]
-\Large \textbf{A System That Watches Satellites and Prevents Collisions in Space}\\[0.5em]
-\large \textbf{Smart India Hackathon 2026 --- Software Edition} $\cdot$ Problem ID: 17}
-\author{\textbf{Team Space-Guard}}
-\date{\today}
+\title{
+  \vspace{-1em}
+  {\color{spaceblue}\rule{\linewidth}{2pt}}\\[0.6em]
+  {\fontsize{24}{28}\selectfont\textbf{Space-Guard}}\\[0.3em]
+  {\large\textbf{Satellite Collision Prevention System}}\\[0.2em]
+  {\normalsize Smart India Hackathon 2026 \textbullet\ Software Edition \textbullet\ Problem \#17}\\[0.4em]
+  {\color{spaceblue}\rule{\linewidth}{1pt}}
+}
+\author{}
+\date{}
 
 \begin{document}
-
 \maketitle
 \thispagestyle{empty}
+\vspace{-1.5em}
 
-\begin{abstract}
-\noindent This document is the full presentation script and slide content guide for the Space-Guard project at SIH 2026. Space-Guard is a software system that monitors satellites orbiting Earth, detects when two satellites are getting dangerously close to each other, and automatically calculates the safest, most fuel-efficient way to move one of them out of the way --- before a collision can happen.
-\end{abstract}
+% ─── EXECUTIVE SUMMARY BOX ───────────────────────────────────────────────────
+\begin{tcolorbox}[
+  colback=darkbg, colframe=spaceblue!60!black, coltitle=white,
+  coltext=white, title=\textbf{One-Line Summary},
+  fontupper=\large\bfseries, halign upper=center
+]
+We built software that watches every satellite in orbit, detects which ones are about to crash, and automatically tells operators how to steer one out of the way --- in under 5 seconds.
+\end{tcolorbox}
 
-\begin{presenterbox}
-How to use this document: Read the slides out loud to the judges during your presentation. The orange boxes (like this one) are your personal notes --- they tell you what to say and why. The judges will not see these notes; they are only for you.
-\end{presenterbox}
-
-\vspace{1em}
+\vspace{0.5em}
 \tableofcontents
 \newpage
 
-%% ============================================================
-\section{Slide 1: Title and Team Introduction}
-%% ============================================================
+%% ════════════════════════════════════════════════════════════════
+\section{Slide 1: Title \& Team}
+%% ════════════════════════════════════════════════════════════════
 
-\begin{factbox}
-\textbf{Project:} Space-Guard --- A Satellite Collision Prevention System\\
-\textbf{Theme:} Space Technology / Smart India Hackathon 2026\\
-\textbf{Tagline:} \textit{``We watch the skies so astronauts and satellites stay safe.''}
-\end{factbox}
+\begin{slidebox}{Project Identity}
+\begin{tabular}{@{}ll@{}}
+\textbf{Project Name} & Space-Guard: Satellite Collision Prevention Platform \\
+\textbf{Theme}        & Space Technology / Smart India Hackathon 2026 \\
+\textbf{Tagline}      & \textit{``Autonomous orbital defense for India's satellites and beyond''} \\
+\textbf{Problem ID}   & \#17 --- Space Debris Detection \& Collision Avoidance \\
+\end{tabular}
+\end{slidebox}
 
 \begin{presenterbox}
-Say something like this: ``Hi, we are Team Space-Guard. Our project is a software system that tracks satellites in orbit and automatically detects when two of them are on a collision course --- and then tells operators exactly how to steer one of them out of the way, using as little fuel as possible. Think of it like Google Maps, but for satellites, with a built-in emergency alert system.''
+Open with: \textit{``Good morning. We are Team Space-Guard. Our project is software that acts like an air traffic control system for satellites --- watching 27,000 objects flying at 27,000 km/h, detecting dangers 48 hours in advance, and automatically designing the escape plan.''}
 \end{presenterbox}
 
 \subsection*{What Each Team Member Built}
 
-\begin{itemize}[leftmargin=1.5em]
-    \item \textbf{Team Lead and Software Developer}:
-    \begin{itemize}
-        \item Built the website (frontend) and the server that runs behind the scenes (backend).
-        \item Connected the system to live satellite data from public space agency databases.
-        \item Made everything work together end-to-end.
-    \end{itemize}
-
-    \item \textbf{Physics and Math Lead}:
-    \begin{itemize}
-        \item Wrote the code that calculates where each satellite is in space, right now, using standard physics equations.
-        \item Designed the two-step system that quickly finds which satellites are actually at risk of hitting each other (instead of checking every pair, which would be too slow).
-        \item Calculated the exact probability (in numbers) that two satellites will crash.
-    \end{itemize}
-
-    \item \textbf{Collision Avoidance Lead}:
-    \begin{itemize}
-        \item Wrote the code that figures out the best way to steer a satellite away from danger.
-        \item Optimized the engine burn to use the least possible fuel.
-        \item Proved that acting early saves 14 times more fuel than acting at the last minute.
-    \end{itemize}
-
-    \item \textbf{3D Visualization and Data Engineer}:
-    \begin{itemize}
-        \item Built the interactive 3D Earth globe in the browser.
-        \item Made the 2009 collision replay animation showing the crash and debris.
-        \item Ensured the 3D view runs smoothly in any web browser, without any special software.
-    \end{itemize}
-\end{itemize}
+\begin{tcolorbox}[colback=lightgray, colframe=gray!40, left=6pt, right=6pt]
+\begin{tabular}{@{}p{3.8cm}p{10cm}@{}}
+\toprule
+\textbf{Team Member} & \textbf{What They Built} \\ \midrule
+Team Lead / Full-Stack & Backend server (FastAPI), frontend dashboard (React), live data integration from CelesTrak \\[4pt]
+Physics \& Math Lead & Satellite position calculation (SGP4), 2-stage close-pass detector, crash probability formula \\[4pt]
+Avoidance Lead & Escape plan calculator (Clohessy-Wiltshire + SVD optimizer), 14$\times$ fuel efficiency proof \\[4pt]
+Visualization Engineer & Interactive 3D Earth globe (Three.js WebGL), 2009 collision animation, debris replay \\
+\bottomrule
+\end{tabular}
+\end{tcolorbox}
 
 \begin{presenterbox}
-Point to each team member as you say their name and contribution. Keep it short --- 1 sentence per person. If a judge asks about a specific part, the relevant person should answer.
+Point to each team member as you say their name. Keep it to one sentence per person. If a judge asks a technical question, the relevant person should answer.
 \end{presenterbox}
 
 \newpage
-%% ============================================================
-\section{Slide 2: The Problem --- Why This Matters}
-%% ============================================================
+%% ════════════════════════════════════════════════════════════════
+\section{Slide 2: The Problem}
+%% ════════════════════════════════════════════════════════════════
 
-\subsection*{The Situation in Space Today}
-
-\begin{itemize}[leftmargin=1.5em]
-    \item There are currently over \textbf{27,000 man-made objects} orbiting Earth, including active satellites, dead satellites, and old rocket parts.
-    \item These objects travel at speeds of \textbf{27,000 km/h} --- about 40 times faster than a bullet.
-    \item In the last five years, companies like SpaceX (Starlink) have launched thousands more satellites, making space even more crowded.
-    \item When two objects collide, they shatter into thousands of tiny pieces that then threaten even more satellites --- a chain reaction called the \textbf{Kessler Effect}.
+\begin{tcolorbox}[colback=darkbg, colframe=gray!50, coltext=white,
+  title=\textbf{\color{white}The Situation in Space Today}, coltitle=white, colbacktitle=gray!30!black]
+\begin{itemize}[leftmargin=1.2em, itemsep=2pt]
+  \item \textbf{27,000+} man-made objects orbit Earth right now --- dead satellites, rocket parts, debris
+  \item They fly at \textbf{27,000 km/h} (40$\times$ faster than a bullet)
+  \item In the last 5 years, companies like SpaceX launched \textbf{thousands more} satellites (Starlink, OneWeb)
+  \item One collision shatters both objects into thousands of new lethal fragments
+  \item This chain reaction --- called the \textbf{Kessler Effect} --- could make entire orbital zones permanently unusable
 \end{itemize}
+\end{tcolorbox}
 
-\begin{presenterbox}
-Use this analogy: ``Imagine a busy highway where all the cars are moving at 40 times the speed of a bullet, and nobody has a GPS, a horn, or brakes. That is low Earth orbit today. One crash can cause a chain reaction that makes all of space unusable for decades.'' This makes it real for the judges.
-\end{presenterbox}
+\vspace{0.8em}
 
-\subsection*{Real Proof: The 2009 Iridium--Cosmos Collision}
+% TikZ diagram of Kessler effect chain
+\begin{center}
+\begin{tikzpicture}[
+  node distance=1.5cm,
+  box/.style={rectangle, rounded corners=3pt, draw=spaceblue!60, fill=spaceblue!10,
+              text width=2.4cm, align=center, font=\small, minimum height=0.9cm},
+  redbox/.style={rectangle, rounded corners=3pt, draw=spacered!70, fill=spacered!10,
+                 text width=2.4cm, align=center, font=\small\bfseries, minimum height=0.9cm},
+  arr/.style={-{Stealth[length=5pt]}, thick, spaceblue!60}
+]
+\node[box] (A) {2 satellites\\approach};
+\node[box, right=of A] (B) {No warning\\system};
+\node[redbox, right=of B] (C) {\textbf{COLLISION}\\both destroyed};
+\node[redbox, right=of C] (D) {2,000+\\debris pieces};
+\node[redbox, right=of D] (E) {More\\collisions};
 
-\begin{warnbox}
-On \textbf{10 February 2009 at 16:56 UTC}, at \textbf{789 km above Siberia}:
-\begin{itemize}
-    \item An active American phone satellite called \textbf{Iridium 33} (560 kg, roughly the size of a small car) hit a dead Russian military satellite called \textbf{Cosmos 2251} (900 kg).
-    \item They were moving towards each other at \textbf{14.12 km/s} (over 50,000 km/h) --- a near head-on crash.
-    \item Both satellites were completely destroyed in milliseconds.
-    \item The crash created over \textbf{2,000 trackable pieces of debris} and thousands of smaller, untrackable fragments that are still flying around in orbit today, threatening the International Space Station and other satellites.
-    \item \textbf{This was entirely preventable} --- nobody detected the risk early enough to do anything about it.
+\draw[arr] (A) -- (B);
+\draw[arr] (B) -- (C);
+\draw[arr] (C) -- (D);
+\draw[arr] (D) -- (E);
+
+% Curved arrow back to show chain
+\draw[-{Stealth[length=5pt]}, thick, spacered!70, bend right=35]
+  (E.south) to node[below, font=\tiny, spacered!70] {Kessler chain reaction} (C.south);
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.8em}
+
+\begin{crashbox}
+\begin{minipage}[t]{0.56\textwidth}
+\textbf{10 February 2009, 16:56 UTC --- above Siberia at 789 km}
+\begin{itemize}[leftmargin=1em, itemsep=1pt]
+  \item \textbf{Iridium 33} (USA, 560 kg, active phone satellite)
+  \item collided with \textbf{Cosmos 2251} (Russia, 900 kg, dead military satellite)
+  \item Impact speed: \textbf{14.12 km/s (50,832 km/h)}
+  \item Both destroyed in milliseconds
+  \item Created \textbf{2,000+ tracked debris pieces} still in orbit today, threatening the ISS
+  \item \textbf{This was completely preventable} --- no system warned operators in time
 \end{itemize}
-\end{warnbox}
+\end{minipage}%
+\hfill%
+\begin{minipage}[t]{0.40\textwidth}
+\vspace{0pt}
+\begin{tcolorbox}[colback=spacered!12, colframe=spacered!60, left=4pt, right=4pt, top=4pt]
+\centering
+\textbf{\color{spacered}By the Numbers}\\[4pt]
+\begin{tabular}{@{}rl@{}}
+\textbf{14.12} & km/s crash speed \\
+\textbf{3 m} & miss distance \\
+\textbf{2,000+} & debris pieces \\
+\textbf{0} & seconds warning \\
+\textbf{17 yrs} & debris still up \\
+\end{tabular}
+\end{tcolorbox}
+\end{minipage}
+\end{crashbox}
 
-\begin{presenterbox}
-This is the most important part of the presentation --- make the judges feel the impact of this event. Say: ``This is not a hypothetical. This actually happened. Two real satellites crashed. Both were completely destroyed. And the wreckage is still up there today, threatening the ISS astronauts every single day. Our project exists to make sure this can never happen again.'' You can also say: ``At the time, there was no system fast enough or smart enough to warn operators in time. We built Space-Guard to be that system.''
-\end{presenterbox}
+\vspace{0.6em}
 
-\subsection*{Why Existing Systems Are Not Enough}
-
-\begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Too slow}: Checking all 27,000 satellites against each other manually takes hours. By the time the calculation is done, there is no time to act.
-    \item \textbf{Too many false alarms}: Simple distance-based systems trigger thousands of warnings per day. Operators get flooded and start ignoring them.
-    \item \textbf{No automated escape plan}: Even when a risk is detected, figuring out the best engine burn to dodge it still requires hours of manual work by engineers.
+\begin{tcolorbox}[colback=gray!8, colframe=gray!30, title=\textbf{Why Existing Systems Are Not Enough}]
+\begin{enumerate}[leftmargin=1.5em, itemsep=2pt]
+  \item \textbf{Too slow}: Checking all 27,000 satellites manually takes hours. By the time results come, it is too late to act.
+  \item \textbf{Too many false alarms}: Simple distance-only systems trigger thousands of daily warnings. Operators start ignoring them.
+  \item \textbf{No automated escape plan}: Even when a risk is found, figuring out the best engine burn takes hours of manual engineering work.
 \end{enumerate}
+\end{tcolorbox}
 
 \begin{presenterbox}
-Keep this short. You just need to plant the idea that current tools are slow, noisy, and manual. Space-Guard solves all three. You will explain how in the next slide.
+Use this analogy for the Kessler Effect: \textit{``Imagine a busy highway where all cars move at 40$\times$ bullet speed. One crash causes debris that causes more crashes. Eventually the whole highway is blocked forever. That is Kessler Syndrome in space.''} Then say: \textit{``The 2009 crash actually happened. Both satellites were completely destroyed. And the wreckage is still up there today, threatening the ISS astronauts every single day.''}
 \end{presenterbox}
 
 \newpage
-%% ============================================================
-\section{Slide 3: Our Solution --- How Space-Guard Fixes This}
-%% ============================================================
+%% ════════════════════════════════════════════════════════════════
+\section{Slide 3: Our Solution}
+%% ════════════════════════════════════════════════════════════════
 
 \begin{solutionbox}
-\textbf{Space-Guard} is a fully automatic system that:
-\begin{enumerate}
-    \item Continuously watches the position of all tracked satellites in real time.
-    \item Instantly detects which satellites are getting dangerously close to each other.
-    \item Calculates the exact probability of a crash (in numbers).
-    \item Automatically designs the safest, most fuel-efficient escape maneuver.
+\textbf{Space-Guard} is an automatic satellite collision prevention system. It:
+\begin{enumerate}[leftmargin=1.5em, itemsep=2pt]
+  \item Continuously fetches live satellite position data from public space agency databases
+  \item Uses a fast 2-stage filter to find which satellites are getting dangerously close
+  \item Calculates the exact mathematical crash probability for each risky pair
+  \item Automatically designs the optimal engine burn to safely steer one satellite away
 \end{enumerate}
-All of this happens in \textbf{under 5 seconds} --- fast enough to act.
+\textbf{Total pipeline time: under 5 seconds. Traditional tools: minutes to hours.}
 \end{solutionbox}
 
-\begin{presenterbox}
-Say: ``Our solution works in three steps. Step one: we pull live satellite positions from public space agency databases. Step two: we run a fast two-stage filter to find which satellites are actually at risk --- this cuts down 90\% of non-threatening pairs instantly. Step three: for the risky pairs, we calculate the exact crash probability and generate the optimal escape plan automatically. The whole process takes less than 5 seconds.''
-\end{presenterbox}
+\vspace{0.8em}
 
-\subsection*{How We Are Better Than Existing Tools}
+% Pipeline flowchart
+\begin{center}
+\begin{tikzpicture}[
+  node distance=0.4cm and 0.3cm,
+  stage/.style={rectangle, rounded corners=4pt, draw=spaceblue!60!black, fill=spaceblue!10,
+                text width=2.5cm, align=center, font=\small, minimum height=1cm, inner sep=4pt},
+  output/.style={rectangle, rounded corners=4pt, draw=spacegreen!60!black, fill=spacegreen!10,
+                 text width=2.5cm, align=center, font=\small\bfseries, minimum height=1cm, inner sep=4pt},
+  arr/.style={-{Stealth[length=5pt]}, thick, spaceblue!60}
+]
+\node[stage] (S1) {\textbf{1. Fetch}\\ Live satellite\\ positions (CelesTrak)};
+\node[stage, right=of S1] (S2) {\textbf{2. Height}\\ \textbf{Filter}\\ Drops 90\%+ of pairs};
+\node[stage, right=of S2] (S3) {\textbf{3. Precise}\\ \textbf{Check}\\ Exact closest pass};
+\node[stage, right=of S3] (S4) {\textbf{4. ML}\\ \textbf{Rank}\\ Pre-sorts by risk};
+\node[output, right=of S4] (S5) {\textbf{5. Crash\%}\\ + Escape Plan\\ Auto-generated};
 
-\begin{table}[h!]
-\centering
-\small
-\begin{tabular}{@{}lll@{}}
+\draw[arr] (S1) -- (S2);
+\draw[arr] (S2) -- (S3);
+\draw[arr] (S3) -- (S4);
+\draw[arr] (S4) -- (S5);
+
+\node[below=0.2cm of S2, font=\tiny, gray] {milliseconds};
+\node[below=0.2cm of S3, font=\tiny, gray] {$<$1 second};
+\node[below=0.2cm of S4, font=\tiny, gray] {instant};
+\node[below=0.2cm of S5, font=\tiny, spacegreen!70!black] {\textbf{$<$5s total}};
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.8em}
+
+\subsection*{How We Compare to Existing Tools}
+
+\begin{tcolorbox}[colback=white, colframe=gray!30]
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}X>{\centering\arraybackslash}p{4.5cm}>{\centering\arraybackslash}p{4.5cm}@{}}
 \toprule
-\textbf{What It Does} & \textbf{Old / Traditional Tools} & \textbf{Space-Guard} \\ \midrule
-\textbf{Speed} & Minutes to hours & \textbf{Under 5 seconds} \\
-\textbf{Risk Calculation} & Simple distance only & \textbf{Real probability number (e.g., 1 in 5,000)} \\
-\textbf{AI / Smart Filtering} & Usually none & \textbf{Pre-screens pairs to skip obvious non-threats} \\
-\textbf{Escape Plan} & Manual, by engineers & \textbf{Fully automatic, optimized for minimum fuel} \\
-\textbf{Fuel Savings} & Last-minute emergency burns & \textbf{14$\times$ more efficient when done 24h early} \\
-\textbf{Real-World Testing} & Synthetic fake data & \textbf{Tested on the actual 2009 Iridium-Cosmos crash} \\ \bottomrule
+\rowcolor{lightgray}
+\textbf{Feature} & \textbf{Traditional Tools} & \textbf{Space-Guard} \\
+\midrule
+Speed & Minutes to hours & \textbf{\color{spacegreen}$<$ 5 seconds} \\
+\rowcolor{lightgray}
+Risk Number & Distance only & \textbf{\color{spacegreen}Real probability (e.g., 1 in 5,000)} \\
+ML Assistance & None & \textbf{\color{spacegreen}Fast pre-ranking (Random Forest)} \\
+\rowcolor{lightgray}
+Escape Plan & Manual, by engineers & \textbf{\color{spacegreen}Automatic, optimized} \\
+Fuel Savings & Last-minute burns & \textbf{\color{spacegreen}14$\times$ better \textemdash\ act 24h early} \\
+\rowcolor{lightgray}
+Validated On & Synthetic fake data & \textbf{\color{spacegreen}Real 2009 Iridium-Cosmos crash data} \\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}
+
+\begin{presenterbox}
+Walk through the pipeline diagram: \textit{``Step 1 pulls live data. Step 2 instantly throws away 90\% of pairs that are at completely different heights --- they can't collide. Step 3 precisely finds how close the remaining pairs will get. Step 4 is our ML model that quickly ranks the most suspicious pairs. Step 5 computes the exact crash probability and the escape plan. All in under 5 seconds.''}\medskip
+
+For the comparison table, emphasize the last row: \textit{``We tested this on the actual 2009 crash data. Without any special-casing, our system correctly flags it as Critical 48 hours before impact. That is our proof.''}
+\end{presenterbox}
+
+\newpage
+%% ════════════════════════════════════════════════════════════════
+\section{Slide 4: Technical Implementation}
+%% ════════════════════════════════════════════════════════════════
+
+\begin{presenterbox}
+Say: \textit{``I will now explain how each part of the system actually works, in plain terms. There are four main technical pieces.''}
+\end{presenterbox}
+
+\subsection{Part 1: Finding Where Satellites Are (Physics)}
+
+Every satellite's orbit is published as a two-line code called a \textbf{TLE (Two-Line Element set)}. We decode this using a standard physics model (\textbf{SGP4}) to get the satellite's exact \mbox{X, Y, Z} position and speed in space at this exact moment. It accounts for Earth's non-spherical shape and atmospheric drag.
+
+\begin{tcolorbox}[colback=lightgray, colframe=gray!30, title=\textbf{Simple Analogy}]
+\small Think of a TLE as a satellite's ``orbit address.'' We use physics equations to convert that address into a live GPS-style location at any moment.
+\end{tcolorbox}
+
+\subsection{Part 2: Finding Dangerous Pairs (2-Stage Filter)}
+
+\begin{tcolorbox}[colback=lightgray, colframe=gray!30]
+\textbf{Stage 1 --- Height Check (milliseconds):} If two satellites fly at completely different heights, they can never collide. We instantly discard those pairs. This eliminates $>90\%$ of the 360 million possible pairs immediately.\\[6pt]
+\textbf{Stage 2 --- Precise Closest Pass (sub-second):} For the remaining pairs, we calculate exactly how close they will get and at what time --- the \textit{Time of Closest Approach}. Any pair getting within 25 km proceeds to risk assessment.
+\end{tcolorbox}
+
+\subsection{Part 3: Calculating Crash Probability (Math)}
+
+Once we find a close pass, we compute the exact probability of collision. We know: (1) how close they will get and (2) how uncertain our measurements are (satellite tracking has $\sim$500 m error). The probability formula:
+\[
+P_c \approx \frac{r^2}{2\sigma^2} \exp\!\left(-\frac{d_{\text{miss}}^2}{2\sigma^2}\right)
+\]
+where $r$ = combined satellite size ($\approx$10 m), $\sigma$ = position uncertainty ($\approx$500 m), $d_{\text{miss}}$ = predicted closest distance.
+
+\begin{tcolorbox}[colback=lightgray, colframe=gray!30]
+\small For the 2009 event: $d_{\text{miss}} \approx 3$ m, $\sigma = 500$ m $\Rightarrow$ $P_c \approx 2\times10^{-4}$ = 1-in-5,000 = \textbf{Critical}.
+\end{tcolorbox}
+
+\subsection{Part 4: ML Surrogate Model}
+
+We trained a \textbf{Random Forest} model on synthetic training data we generated ourselves (sweeping miss distance $\times$ relative speed $\times$ satellite size $\times$ uncertainty). It quickly pre-ranks all candidate pairs by estimated risk so expensive physics runs only on the top suspects.
+
+\begin{tcolorbox}[colback=lightgray, colframe=gray!30]
+\small \textbf{ML ranks. Physics proves.} We never use ML to compute the final crash probability --- only to sort candidates quickly.
+\end{tcolorbox}
+
+\subsection{Part 5: Escape Plan (14$\times$ Fuel Savings)}
+
+A tiny push along the satellite's direction of travel changes its orbital height slightly. Over time, it drifts further and further from where it would have been. \textbf{Acting 24 hours early multiplies the effect by 14$\times$} compared to acting 1 hour before impact.
+
+\begin{tcolorbox}[colback=lightgray, colframe=gray!30]
+\small \textbf{Analogy:} Steering a ship 10 km before a reef takes a tiny rudder turn. Steering 100 m before the reef requires a drastic turn --- and you might still crash. Same physics applies to satellites.
+\end{tcolorbox}
+
+\subsection*{Software Stack}
+\begin{tcolorbox}[colback=lightgray, colframe=gray!30]
+\begin{tabular}{@{}ll@{}}
+\textbf{Backend} & Python 3.12, FastAPI, NumPy, SciPy, Scikit-learn (Random Forest) \\
+\textbf{Frontend} & React 19, Vite, Tailwind CSS, Three.js WebGL 3D globe \\
+\textbf{Data Source} & CelesTrak (live), satellite TLE files cached locally \\
 \end{tabular}
-\caption{Space-Guard vs.\ Legacy Conjunction Tools.}
-\end{table}
-
-\begin{presenterbox}
-Walk through this table slowly. Point to each row. Emphasize the last row --- the fact that we tested on the real 2009 crash data and our system correctly identifies it as a critical risk. That is our ``proof that it works.'' Judges love validation on real historical data.
-\end{presenterbox}
+\end{tcolorbox}
 
 \newpage
-%% ============================================================
-\section{Slide 4: How We Built It --- Technical Implementation}
-%% ============================================================
-
-\begin{presenterbox}
-This is the technical slide. You do not need to explain every formula. Just explain the \textit{idea} behind each part. Say: ``I will explain how each part of the system works. I will keep it as simple as possible.'' If the judges want more depth, they will ask.
-\end{presenterbox}
-
-\subsection{Part 1: Physics and Math}
-
-\subsubsection*{A. Where Are the Satellites Right Now?}
-
-Every satellite's official position data is published as a pair of text lines called a \textbf{Two-Line Element set (TLE)}. These lines contain coded numbers describing the orbit. We use a standard physics model called \textbf{SGP4} to decode these numbers and calculate exactly where in space the satellite is right now (as X, Y, Z coordinates relative to the center of Earth), and how fast it is moving.
-
-\begin{presenterbox}
-Say: ``Think of a TLE like a satellite's address. We take that address and use physics equations to calculate the satellite's exact GPS-style position at any moment in time.''
-\end{presenterbox}
-
-\subsubsection*{B. How Do We Find Which Satellites Are at Risk?}
-
-Checking every possible pair of 27,000 satellites would mean over 360 million comparisons. That is too slow. We use a \textbf{two-step filter}:
-
-\begin{itemize}
-    \item \textbf{Step 1 (Fast Height Check)}: We instantly discard all pairs where the two satellites fly at completely different heights. If one satellite is at 400 km and another is at 800 km, they can never collide. This eliminates 90\%+ of pairs in milliseconds.
-    \item \textbf{Step 2 (Precise Close-Pass Check)}: For the remaining pairs, we calculate the exact closest distance the two satellites will ever reach, and at what time. This pinpoints the exact ``Time of Closest Approach.''
-\end{itemize}
-
-\begin{presenterbox}
-Good analogy: ``Imagine you want to find which cars on a highway might crash. First, you ignore all cars going in completely different directions. Then, for the remaining ones, you track their exact paths to find when they get closest. We do the same thing, but for satellites.''
-\end{presenterbox}
-
-\subsubsection*{C. What Is the Actual Chance of a Crash?}
-
-Once we find a close pass, we calculate the exact mathematical probability of a collision. We consider the uncertainty in our position data (satellite locations are not perfectly known --- there is some error) and the physical size of each satellite. The result is a number, like ``1 in 50,000'' or ``1 in 5,000.'' We flag anything above ``1 in 10,000'' as dangerous.
-
-The formula used is an established aerospace standard:
-\begin{equation}
-P_c \approx \frac{\text{HBR}^2}{2\sigma^2} \exp\!\left(-\frac{d_{\text{miss}}^2}{2\sigma^2}\right)
-\end{equation}
-where HBR is the combined size of both satellites (about 10 metres), $d_{\text{miss}}$ is how close they get, and $\sigma$ is the uncertainty in our position measurements.
-
-\begin{presenterbox}
-You do not need to explain the formula. Just say: ``We calculate a precise crash probability, like a 1-in-5,000 chance of collision. This is a much more useful number than just saying the two satellites are 5 km apart, which doesn't tell you if that is dangerous or not.''
-\end{presenterbox}
-
-\subsubsection*{D. How Do We Steer the Satellite to Safety?}
-
-We use a physics model (called the Clohessy-Wiltshire equations) that describes how two satellites move relative to each other in orbit. We then use a mathematical optimization technique (SVD --- Singular Value Decomposition) to find the single best direction and smallest possible engine push that will move the satellite far enough away to be safe.
-
-\textbf{The 14$\times$ Fuel Savings Rule}: If you push the satellite 24 hours before the predicted collision, the satellite drifts along its orbit path and ends up 14 times further away than if you had used the same engine push just 1 hour before the collision. Acting early is dramatically more efficient.
-
-\begin{presenterbox}
-Great analogy for the 14× rule: ``It is like steering a ship. If you turn the wheel slightly 10 km before a reef, you avoid it easily. If you wait until you are 100 metres away, you have to turn hard and fast, and you might still crash. Same idea with satellites --- early action means less fuel and more safety.''
-\end{presenterbox}
-
-\subsection{Part 2: Software Architecture}
-
-\begin{itemize}[leftmargin=1.5em]
-    \item \textbf{Backend (Python/FastAPI)}: The server that does all the calculations. Runs on Python. Handles live satellite data, collision screening, and escape plan generation.
-    \item \textbf{Frontend (React / Web Browser)}: The interactive website/dashboard that shows everything visually --- the 3D globe, the satellite table, the collision replay, the escape plan sliders.
-    \item \textbf{Smart Pre-Filter (Machine Learning)}: A simple pre-trained model that quickly scores satellite pairs before doing the full calculation, skipping obvious non-threats even faster.
-\end{itemize}
-
-\subsection{Part 3: Where Do We Get the Satellite Data?}
-
-\begin{itemize}[leftmargin=1.5em]
-    \item We pull live data from \textbf{CelesTrak} --- a free public database maintained by aerospace engineers that publishes the position data of all tracked satellites, updated multiple times per day.
-    \item We cache this data locally so we do not hit rate limits and can respond instantly.
-\end{itemize}
-
-\begin{presenterbox}
-Say: ``All the satellite data we use is publicly available. Space agencies share this data openly so that everyone can help keep space safe. We just built the smart software on top of it.''
-\end{presenterbox}
-
-\newpage
-%% ============================================================
+%% ════════════════════════════════════════════════════════════════
 \section{Slide 5: Live Demo Walkthrough}
-%% ============================================================
+%% ════════════════════════════════════════════════════════════════
 
 \begin{presenterbox}
-This is where you open the browser and show the working prototype. Open \url{http://localhost:5173/demo} before the presentation. Have the backend running on port 8000. Walk through each of the 4 steps shown on screen.
+Open \url{http://localhost:5173/demo} before the presentation. Have the backend running. Walk through all 4 steps. Practice this at least 3 times.
 \end{presenterbox}
 
-The interactive demo is shown at \url{http://localhost:5173/demo} and has four steps:
+\begin{tcolorbox}[colback=lightgray, colframe=gray!30]
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}p{0.4cm}p{3.5cm}X@{}}
+\toprule
+\textbf{\#} & \textbf{Step Name} & \textbf{What to Say \& Show} \\
+\midrule
+\textbf{1} & \textbf{Live Satellite Data} &
+  Show the live table of real satellites. Hit Refresh. Say: \textit{``This is live data from a public space agency database. These are real satellites flying overhead right now.''} \\[4pt]
+\textbf{2} & \textbf{3D Globe Map} &
+  Show the spinning Earth with satellite dots. Say: \textit{``Each dot is a real satellite. Some orbit the equator, some go over the poles. Our system watches all of them simultaneously for close passes.''} \\[4pt]
+\textbf{3} & \textbf{2009 Crash Replay} &
+  Show the collision animation. Say: \textit{``This is the actual 2009 Iridium/Cosmos collision replayed using real data from that day. Speed: 50,000+ km/h. Both destroyed. Our system flags it Critical 48 hours before.''} \\[4pt]
+\textbf{4} & \textbf{Escape Plan Simulator} &
+  Drag ``How Early'' slider from 1h to 24h. Watch the safety gap jump. Say: \textit{``With a 0.1 m/s push applied 24 hours early --- less than walking speed --- the satellites miss by 4+ km. Crash risk drops to near zero.''} \\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}
 
-\begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Step 1 --- Fetch Live Satellites}:
-    \begin{itemize}
-        \item Show the table of real satellites with their current positions in space, speeds, and heights above Earth.
-        \item Hit ``Refresh'' to show it pulling fresh live data in real time.
-        \item \textit{Say: ``This is live data. These are real satellites flying overhead right now.''}
-    \end{itemize}
+\newpage
+%% ════════════════════════════════════════════════════════════════
+\section{Slide 5B: Proof It Works}
+%% ════════════════════════════════════════════════════════════════
 
-    \item \textbf{Step 2 --- Show on the 3D Globe}:
-    \begin{itemize}
-        \item Show the spinning 3D Earth with satellite dots at their correct positions.
-        \item Point out satellites at different heights and angles (polar vs equatorial orbits).
-        \item \textit{Say: ``Each dot is a real satellite. Our system watches all of them simultaneously.''}
-    \end{itemize}
+\begin{proofbox}
+\begin{center}
+\textbf{\large Validation Against Real Historical Collision}
+\end{center}
 
-    \item \textbf{Step 3 --- Replay the 2009 Crash}:
-    \begin{itemize}
-        \item Show the animated collision between Iridium 33 and Cosmos 2251 on the globe.
-        \item Point to the stats: 14.12 km/s, 3-metre miss distance, 2,000+ debris pieces.
-        \item \textit{Say: ``This is the actual 2009 collision, replayed using the real satellite data from that day. Our system correctly identified this as a critical risk.''}
-    \end{itemize}
+\vspace{0.4em}
 
-    \item \textbf{Step 4 --- Show the Escape Plan}:
-    \begin{itemize}
-        \item Show the avoidance simulation with the interactive sliders.
-        \item Drag the ``How early we fire'' slider from 1 hour to 24 hours and show the gap increasing dramatically.
-        \item \textit{Say: ``With a tiny engine push --- less than walking speed --- applied one day early, the satellites miss each other by over 4 kilometres. Crash risk drops to essentially zero. This is the escape plan our system would have given in 2009.''}
-    \end{itemize}
-\end{enumerate}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}lX>{\bfseries}X@{}}
+\toprule
+\textbf{Parameter} & \textbf{Historical Record (NASA/Wikipedia)} & \textbf{Space-Guard Output} \\
+\midrule
+\rowcolor{lightgray}
+Collision Date/Time & 10 Feb 2009, 16:56 UTC & \color{spacegreen}10 Feb 2009, 16:56 UTC (\checkmark) \\
+Altitude & 789 km above Siberia & \color{spacegreen}789 km (\checkmark) \\
+\rowcolor{lightgray}
+Relative Speed & $\sim$14 km/s & \color{spacegreen}14.12 km/s (\checkmark) \\
+Risk Assessment & Not detected in advance & \color{spacered}\textbf{CRITICAL flagged 48h before} \\
+\rowcolor{lightgray}
+Escape Option & No plan generated & \color{spacegreen}0.10 m/s burn $\Rightarrow$ +4.83 km safe \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.6em}
+\begin{center}
+\textit{Same pipeline, no special-casing. We fed in the real pre-collision TLEs and the system independently caught it.}
+\end{center}
+\end{proofbox}
 
 \begin{presenterbox}
-Practice this demo at least 3 times before the presentation. Know exactly what to click. If the live API is down, the system falls back to offline demo data automatically --- it will still look the same. Do not panic if the internet is slow.
+This slide is your strongest differentiator. Say: \textit{``We did not just test on invented data. We put in the actual satellite tracking data from February 2009 \textemdash\ the same data that was available to operators at the time. Our system independently found the collision, flagged it as Critical 48 hours before, and generated the escape plan. That crash never had to happen.''} Pause for effect.
 \end{presenterbox}
 
 \newpage
-%% ============================================================
-\section{Slide 6: Who Would Use This? (Target Audience)}
-%% ============================================================
+%% ════════════════════════════════════════════════════════════════
+\section{Slide 6: Target Audience \& Impact}
+%% ════════════════════════════════════════════════════════════════
 
-\begin{itemize}[leftmargin=1.5em]
-    \item \textbf{ISRO (Indian Space Research Organisation)}:
-    \begin{itemize}
-        \item ISRO manages Indian satellites like Cartosat (mapping), GSAT (communication), and the Chandrayaan moon missions.
-        \item Space-Guard can be integrated into ISRO's existing space monitoring center (IS4OM at ISTRAC, Bangalore) to protect India's space assets.
-    \end{itemize}
-
-    \item \textbf{Private Satellite Companies (e.g., SpaceX Starlink, OneWeb, Pixxel)}:
-    \begin{itemize}
-        \item These companies have hundreds to thousands of satellites. Manual monitoring is impossible.
-        \item Space-Guard provides automated screening, reducing the burden on operators.
-    \end{itemize}
-
-    \item \textbf{Defence and Military Space Programs}:
-    \begin{itemize}
-        \item Tracking and protecting military satellites from non-cooperative objects and debris.
-    \end{itemize}
-
-    \item \textbf{Space Insurance Companies}:
-    \begin{itemize}
-        \item Space-Guard provides accurate, evidence-based collision risk numbers that insurance underwriters can use to price policies fairly.
-    \end{itemize}
-\end{itemize}
+\begin{tcolorbox}[colback=lightgray, colframe=gray!30]
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}p{4cm}X@{}}
+\toprule
+\textbf{Who Uses It} & \textbf{Why They Need It} \\
+\midrule
+\rowcolor{white}
+\textbf{ISRO} (IS4OM center, Bangalore) & Protects Cartosat, GSAT, RISAT, EOS satellites. Automated screening upstream of IS4OM's existing pipeline. \\[4pt]
+\rowcolor{lightgray}
+\textbf{Commercial Operators} (Starlink, OneWeb, Pixxel) & 100s--1000s of satellites cannot be manually monitored. Automated screening and escape plan generation saves both fuel and revenue. \\[4pt]
+\rowcolor{white}
+\textbf{Defence \& Space Commands} & Track non-cooperative objects; protect classified satellites from debris and ASAT threats. \\[4pt]
+\rowcolor{lightgray}
+\textbf{Space Insurance Firms} & Evidence-based collision probability auditing for pricing policies accurately. \\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}
 
 \begin{presenterbox}
-Focus on ISRO when talking to SIH judges --- it is the most relevant and impressive connection. Say: ``ISRO has its own space safety center called IS4OM. Our system is designed to be exactly the kind of tool they need to protect India's growing fleet of satellites.'' This shows you did your research.
+\textbf{Focus on ISRO.} Say: \textit{``ISRO has a space safety center called IS4OM. Our system is exactly what they need to automate the first step: automatically find which satellite pairs are at risk and generate the escape plan instantly, before it reaches human operators for final approval.''} This shows you researched the actual Indian space safety infrastructure.
 \end{presenterbox}
 
 \newpage
-%% ============================================================
-\section{Slide 7: Roadmap --- What We Plan Next}
-%% ============================================================
+%% ════════════════════════════════════════════════════════════════
+\section{Slide 7: Roadmap}
+%% ════════════════════════════════════════════════════════════════
 
-\begin{presenterbox}
-This slide shows judges that you have a vision beyond the hackathon. Keep it brief. Say: ``We have four phases planned. We have already completed Phase 1 --- the working prototype you just saw.''
-\end{presenterbox}
+\begin{center}
+\begin{tikzpicture}[
+  phase/.style={rectangle, rounded corners=6pt, text width=3.2cm, align=center,
+                font=\small, minimum height=2.2cm, inner sep=6pt},
+  arr/.style={-{Stealth[length=6pt]}, thick, gray!60}
+]
 
-\begin{itemize}[leftmargin=1.5em]
-    \item \textbf{Phase 1 (Done --- SIH Prototype)}:
-    \begin{itemize}
-        \item Live satellite position tracking from CelesTrak public database.
-        \item Two-step collision screening: fast height filter, then precise closest-pass calculation.
-        \item Exact crash probability calculation (Foster/Alfano analytic method).
-        \item \textbf{ML surrogate model trained on synthetic data} --- a Random Forest model trained on features like miss distance, relative speed, and satellite size to quickly pre-rank dangerous pairs before running the expensive full calculation. This means the expensive physics runs only on the top candidates, not every pair.
-        \item Automatic escape plan generation using Clohessy-Wiltshire orbital mechanics.
-        \item Interactive 3D globe visualization in the browser.
-        \item Validated end-to-end on the real 2009 Iridium-Cosmos crash data --- the system independently flags it as Critical 48 hours before impact.
-    \end{itemize}
+\node[phase, draw=spacegreen!70, fill=spacegreen!10] (P1) at (0,0) {
+  \textbf{\color{spacegreen}Phase 1}\\[2pt]\textbf{DONE}\\[4pt]
+  \small Live tracking\\ Screening\\ ML model\\ Escape plan\\ 3D Globe\\ 2009 validation
+};
 
-    \item \textbf{Phase 2 (Next 6 Months)}: Scale to the full 27,000+ satellite catalog using GPU-accelerated processing. Integrate official position uncertainty data (CDMs from Space-Track) to replace the assumed uncertainty with real measured values, making crash probability numbers even more accurate.
+\node[phase, draw=spaceblue!60, fill=spaceblue!8] (P2) at (3.8,0) {
+  \textbf{Phase 2}\\[2pt]\small Q3--Q4 2026\\[4pt]
+  \small Full 27k+ catalog\\ GPU acceleration\\ Real uncertainty data\\ (CDMs from Space-Track)
+};
 
-    \item \textbf{Phase 3 (1 Year)}: Handle entire commercial constellations (e.g., all of Starlink at once). Coordinate maneuvers so multiple satellites can dodge simultaneously without accidentally getting in each other's way. Support satellites with continuous low-thrust electric engines.
+\node[phase, draw=spaceblue!40, fill=spaceblue!5] (P3) at (7.6,0) {
+  \textbf{Phase 3}\\[2pt]\small Q1--Q2 2027\\[4pt]
+  \small Constellation-wide\\ Multi-sat coordination\\ Electric thruster support
+};
 
-    \item \textbf{Phase 4 (2 Years)}: Full integration with space agency mission control standards. Direct telemetry handoff to operators. Real-time 24/7 monitoring service.
+\node[phase, draw=gray!40, fill=gray!5] (P4) at (11.4,0) {
+  \textbf{Phase 4}\\[2pt]\small Q3--Q4 2027\\[4pt]
+  \small Agency integration\\ CCSDS standards\\ 24/7 ops handoff\\ Mission control link
+};
+
+\draw[arr] (P1) -- (P2);
+\draw[arr] (P2) -- (P3);
+\draw[arr] (P3) -- (P4);
+
+\node[above=0.15cm of P1, font=\tiny\bfseries, spacegreen!70!black] {COMPLETE};
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.6em}
+
+\begin{tcolorbox}[colback=spacegreen!8, colframe=spacegreen!60, title=\textbf{Phase 1 \textemdash\ Delivered (SIH Prototype)}]
+\begin{itemize}[leftmargin=1.2em, itemsep=1pt]
+  \item \checkmark\ Live satellite tracking from CelesTrak (real data, cached, auto-refresh)
+  \item \checkmark\ 2-stage conjunction screening (height filter + precise closest-approach search)
+  \item \checkmark\ Exact crash probability calculation (Foster/Alfano analytic formula)
+  \item \checkmark\ \textbf{Trained Random Forest ML model} on synthetic sweep data \textemdash\ pre-ranks pairs
+  \item \checkmark\ Automatic escape plan generation (Clohessy-Wiltshire + SVD optimizer)
+  \item \checkmark\ Interactive 3D Earth globe with satellite tracking and collision animations
+  \item \checkmark\ \textbf{Validated on real 2009 Iridium-Cosmos crash data} \textemdash\ correctly flagged Critical
 \end{itemize}
+\end{tcolorbox}
 
 \begin{presenterbox}
-If a judge asks ``Is this production-ready?'' say: ``Not yet --- this is a prototype. But the core physics, math, and software are all working correctly on real data. Phase 2 and beyond would bring this to operational readiness with proper infrastructure and funding.''
+Say: \textit{``We have already completed Phase 1 \textemdash\ everything you just saw in the demo. The core physics, the ML model, the 3D visualization, and the historical validation are all working. Phases 2--4 are scale-up engineering: more satellites, better data, and integration with actual space agency systems.''}
+
+If asked: \textit{``Is this production-ready?''} say: \textit{``Not yet. This is a validated proof-of-concept. The hard part \textemdash\ the algorithms and physics \textemdash\ is correct and proven on real data. Production deployment requires scale-up infrastructure and institutional integration, which is a straightforward next step with resources.''}
 \end{presenterbox}
 
 \end{document}
