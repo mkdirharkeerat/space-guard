@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Rocket, Clock, Zap, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Rocket, Clock, Zap, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { sound } from '../utils/audio';
 import { formatDistance, formatVelocity } from '../utils/constants';
 
@@ -36,7 +36,7 @@ export default function ManeuverPlanner({ selectedEvent, onManeuverApplied }) {
       sound.playSuccess();
       if (onManeuverApplied) onManeuverApplied(data);
     } catch (err) {
-      console.warn('Maneuver API offline or error, computing client-side CW approximation:', err);
+      console.warn('Maneuver API offline, using client-side CW approximation:', err);
       const r_target_km = 6787.0;
       const mu = 398600.4418;
       const n_rad_s = Math.sqrt(mu / Math.pow(r_target_km, 3));
@@ -52,7 +52,7 @@ export default function ManeuverPlanner({ selectedEvent, onManeuverApplied }) {
         delta_v_m_s: Number(deltaVBudget),
         baseline_miss_distance_km: initialMissKm,
         projected_miss_distance_km: projected_miss_km,
-        note: `CW model: ΔV = ${deltaVBudget.toFixed(2)} m/s applied ${leadTimeHours}h before TCA → +${shift_km.toFixed(2)} km separation (total projected miss: ${projected_miss_km.toFixed(2)} km). SVD along-track secular growth optimized.`
+        note: `Clohessy-Wiltshire model: ΔV = ${deltaVBudget.toFixed(2)} m/s applied ${leadTimeHours}h before TCA → +${shift_km.toFixed(2)} km separation (total projected miss: ${projected_miss_km.toFixed(2)} km). SVD along-track secular growth optimized.`
       };
       setManeuverResult(fallbackData);
       sound.playSuccess();
@@ -70,38 +70,39 @@ export default function ManeuverPlanner({ selectedEvent, onManeuverApplied }) {
   const isSafe = projectedMiss >= 5.0;
 
   return (
-    <div className="flex flex-col gap-6 p-6 rounded-2xl bg-white border-4 border-black shadow-neo-lg font-mono">
+    <div className="flex flex-col gap-5 p-5 rounded-lg bg-space-900 border border-space-800 font-mono text-space-200">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b-3 border-black">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-space-800">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-neo-cyan border-3 border-black shadow-neo">
-            <Rocket className="w-6 h-6 text-black" />
+          <div className="p-2.5 rounded bg-space-850 border border-space-700 text-telemetry-cyan">
+            <Rocket className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-black tracking-tight font-sans">
+            <h2 className="text-base font-semibold text-white tracking-wide font-sans">
               Clohessy-Wiltshire Avoidance Maneuver Planner
             </h2>
-            <p className="text-xs text-slate-700 font-bold">
+            <p className="text-xs text-space-400">
               Impulsive ΔV burn optimization via Singular Value Decomposition (SVD) of State Transition Matrix Φ_rv
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-neo-yellow border-2 border-black font-black text-xs shadow-neo-sm">
-          <span>Target: <strong className="text-black uppercase">{targetId}</strong></span>
+        <div className="flex items-center gap-2 px-3 py-1 rounded bg-space-950 border border-space-800 text-xs">
+          <span className="text-space-400">Target:</span>
+          <strong className="text-white uppercase">{targetId}</strong>
         </div>
       </div>
 
       {/* Control Sliders Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Burn Lead Time Slider */}
-        <div className="p-5 rounded-xl bg-neo-cream border-3 border-black shadow-neo flex flex-col gap-3">
+        <div className="p-4 rounded-lg bg-space-950/80 border border-space-800 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-black text-black flex items-center gap-2">
-              <Clock className="w-4 h-4" />
+            <label className="text-xs text-space-300 font-medium flex items-center gap-2">
+              <Clock className="w-4 h-4 text-telemetry-cyan" />
               BURN LEAD TIME BEFORE TCA (Δt)
             </label>
-            <span className="px-3 py-1 rounded-lg bg-neo-cyan text-black font-black text-sm border-2 border-black shadow-neo-sm">
+            <span className="px-2.5 py-0.5 rounded bg-space-850 text-telemetry-cyan font-semibold text-xs border border-space-700">
               {leadTimeHours} Hours
             </span>
           </div>
@@ -113,28 +114,28 @@ export default function ManeuverPlanner({ selectedEvent, onManeuverApplied }) {
             step="1"
             value={leadTimeHours}
             onChange={(e) => setLeadTimeHours(Number(e.target.value))}
-            className="w-full h-3 bg-white border-2 border-black rounded-lg appearance-none cursor-pointer accent-black"
+            className="w-full h-1.5 bg-space-800 rounded appearance-none cursor-pointer accent-telemetry-cyan"
           />
 
-          <div className="flex justify-between text-[11px] text-slate-700 font-bold">
+          <div className="flex justify-between text-[10px] text-space-500 font-mono">
             <span>1h (Emergency)</span>
-            <span>24h (Nominal)</span>
+            <span>24h (Standard)</span>
             <span>72h (Strategic)</span>
           </div>
 
-          <div className="text-xs text-black bg-white p-3 rounded-lg border-2 border-black leading-relaxed font-bold shadow-neo-sm">
-            <strong className="text-neo-blue">Orbital Mechanics:</strong> Secular along-track term scales linearly with Δt. A burn 24h prior is <span className="bg-neo-yellow px-1 border border-black rounded">~14× more fuel-efficient</span> than a last-minute 1h burn.
+          <div className="text-[11px] text-space-400 bg-space-900/60 p-2.5 rounded border border-space-800/80 leading-relaxed">
+            <strong className="text-space-200">Orbital Mechanics:</strong> Secular along-track term scales with Δt. A burn 24h prior is <span className="text-telemetry-emerald font-semibold">~14× more fuel-efficient</span> than an emergency 1h burn.
           </div>
         </div>
 
         {/* Delta-V Budget Slider */}
-        <div className="p-5 rounded-xl bg-neo-cream border-3 border-black shadow-neo flex flex-col gap-3">
+        <div className="p-4 rounded-lg bg-space-950/80 border border-space-800 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-black text-black flex items-center gap-2">
-              <Zap className="w-4 h-4 text-black" />
+            <label className="text-xs text-space-300 font-medium flex items-center gap-2">
+              <Zap className="w-4 h-4 text-telemetry-amber" />
               IMPULSIVE ΔV THRUSTER BUDGET
             </label>
-            <span className="px-3 py-1 rounded-lg bg-neo-yellow text-black font-black text-sm border-2 border-black shadow-neo-sm">
+            <span className="px-2.5 py-0.5 rounded bg-space-850 text-telemetry-amber font-semibold text-xs border border-space-700">
               {deltaVBudget.toFixed(2)} m/s
             </span>
           </div>
@@ -146,69 +147,66 @@ export default function ManeuverPlanner({ selectedEvent, onManeuverApplied }) {
             step="0.05"
             value={deltaVBudget}
             onChange={(e) => setDeltaVBudget(Number(e.target.value))}
-            className="w-full h-3 bg-white border-2 border-black rounded-lg appearance-none cursor-pointer accent-black"
+            className="w-full h-1.5 bg-space-800 rounded appearance-none cursor-pointer accent-telemetry-amber"
           />
 
-          <div className="flex justify-between text-[11px] text-slate-700 font-bold">
+          <div className="flex justify-between text-[10px] text-space-500 font-mono">
             <span>0.05 m/s (Micro)</span>
             <span>1.0 m/s (Standard)</span>
-            <span>3.0 m/s (High thrust)</span>
+            <span>3.0 m/s (Maximum)</span>
           </div>
 
-          <div className="text-xs text-black bg-white p-3 rounded-lg border-2 border-black leading-relaxed font-bold shadow-neo-sm">
-            <strong className="text-neo-orange">Propellant Conservation:</strong> Lower ΔV burns preserve hydrazine/xenon reserves, maximizing satellite operational lifespan.
+          <div className="text-[11px] text-space-400 bg-space-900/60 p-2.5 rounded border border-space-800/80 leading-relaxed">
+            <strong className="text-space-200">Propellant Conservation:</strong> Lower ΔV thruster burns preserve satellite station-keeping fuel reserves, maximizing operational lifespan.
           </div>
         </div>
       </div>
 
-      {/* Maneuver Impact & Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Baseline Miss */}
-        <div className="p-4 rounded-xl bg-neo-red text-white border-3 border-black shadow-neo flex flex-col gap-1.5">
-          <span className="text-[11px] font-black uppercase">
+      {/* Maneuver Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="p-3.5 rounded-lg bg-space-950/90 border border-red-500/30 flex flex-col gap-1">
+          <span className="text-[10px] text-red-400 font-medium uppercase">
             Baseline Miss Distance (TCA)
           </span>
-          <span className="text-3xl font-black">
+          <span className="text-xl font-semibold text-red-300">
             {formatDistance(initialMissKm)}
           </span>
-          <span className="text-xs font-bold">
-            Status: CRITICAL COLLISION HAZARD
+          <span className="text-[10px] text-space-500">
+            Status: Collision Threat
           </span>
         </div>
 
-        {/* ΔV Separation Gain */}
-        <div className="p-4 rounded-xl bg-neo-cyan text-black border-3 border-black shadow-neo flex flex-col gap-1.5">
-          <span className="text-[11px] font-black uppercase">
+        <div className="p-3.5 rounded-lg bg-space-950/90 border border-space-800 flex flex-col gap-1">
+          <span className="text-[10px] text-telemetry-cyan font-medium uppercase">
             ΔV Separation Shift
           </span>
-          <span className="text-3xl font-black">
+          <span className="text-xl font-semibold text-telemetry-cyan">
             +{formatDistance(separationGain)}
           </span>
-          <span className="text-xs font-bold">
+          <span className="text-[10px] text-space-500">
             Efficiency: {(separationGain / (deltaVBudget || 1)).toFixed(1)} km per (m/s)
           </span>
         </div>
 
-        {/* Projected Post-Burn Miss */}
-        <div className={`p-4 rounded-xl border-3 border-black shadow-neo flex flex-col gap-1.5 ${
-          isSafe ? 'bg-neo-green text-black' : 'bg-neo-yellow text-black'
+        <div className={`p-3.5 rounded-lg border flex flex-col gap-1 ${
+          isSafe ? 'bg-space-950/90 border-emerald-500/40' : 'bg-space-950/90 border-amber-500/40'
         }`}>
-          <span className="text-[11px] font-black uppercase">
+          <span className={`text-[10px] font-medium uppercase ${isSafe ? 'text-telemetry-emerald' : 'text-amber-400'}`}>
             Projected Post-Burn Miss
           </span>
-          <span className="text-3xl font-black">
+          <span className={`text-xl font-semibold ${isSafe ? 'text-telemetry-emerald' : 'text-amber-400'}`}>
             {formatDistance(projectedMiss)}
           </span>
-          <span className="text-xs font-black flex items-center gap-1.5">
+          <span className="text-[10px] text-space-400 flex items-center gap-1">
             {isSafe ? (
               <>
-                <CheckCircle2 className="w-4 h-4" />
-                <span>SAFE ORBITAL CLEARANCE ASSURED</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-telemetry-emerald" />
+                <span className="text-telemetry-emerald">Safe Orbital Clearance Assured</span>
               </>
             ) : (
               <>
-                <AlertTriangle className="w-4 h-4" />
-                <span>INCREASE LEAD TIME (Δt) OR ΔV</span>
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-amber-400">Increase Lead Time (Δt) or ΔV</span>
               </>
             )}
           </span>
@@ -217,38 +215,38 @@ export default function ManeuverPlanner({ selectedEvent, onManeuverApplied }) {
 
       {/* Burn Vector RTN Frame Decomposition */}
       {maneuverResult && maneuverResult.burn_direction_rtn && (
-        <div className="p-5 rounded-xl bg-neo-cream border-3 border-black shadow-neo flex flex-col gap-3 font-mono">
-          <div className="flex items-center justify-between text-xs text-black">
-            <span className="font-black uppercase tracking-wider">
+        <div className="p-4 rounded-lg bg-space-950/90 border border-space-800 flex flex-col gap-2.5 font-mono">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-white font-medium uppercase tracking-wider">
               Optimal Impulsive Burn Vector (RTN Frame)
             </span>
-            <span className="text-slate-700 text-[11px] font-bold">
+            <span className="text-space-500 text-[10px]">
               SVD Right Singular Vector Vᵀ[0]
             </span>
           </div>
 
           <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="p-3 rounded-xl bg-white border-2 border-black shadow-neo-sm flex flex-col">
-              <span className="text-[11px] text-slate-600 font-bold">Radial (R)</span>
-              <span className="text-base font-black text-black">
+            <div className="p-2.5 rounded bg-space-900 border border-space-800 flex flex-col">
+              <span className="text-[10px] text-space-500">Radial (R)</span>
+              <span className="text-sm font-semibold text-white">
                 {(maneuverResult.burn_direction_rtn[0] || 0).toFixed(4)}
               </span>
             </div>
-            <div className="p-3 rounded-xl bg-neo-green border-2 border-black shadow-neo-sm flex flex-col">
-              <span className="text-[11px] text-black font-black">Along-Track (T)</span>
-              <span className="text-base font-black text-black">
+            <div className="p-2.5 rounded bg-space-900 border border-space-800 flex flex-col">
+              <span className="text-[10px] text-telemetry-emerald">Along-Track (T)</span>
+              <span className="text-sm font-semibold text-telemetry-emerald">
                 {(maneuverResult.burn_direction_rtn[1] || 0).toFixed(4)}
               </span>
             </div>
-            <div className="p-3 rounded-xl bg-white border-2 border-black shadow-neo-sm flex flex-col">
-              <span className="text-[11px] text-slate-600 font-bold">Cross-Track (N)</span>
-              <span className="text-base font-black text-black">
+            <div className="p-2.5 rounded bg-space-900 border border-space-800 flex flex-col">
+              <span className="text-[10px] text-space-500">Cross-Track (N)</span>
+              <span className="text-sm font-semibold text-white">
                 {(maneuverResult.burn_direction_rtn[2] || 0).toFixed(4)}
               </span>
             </div>
           </div>
 
-          <p className="text-xs text-slate-800 font-bold leading-relaxed pt-1">
+          <p className="text-[11px] text-space-400 leading-relaxed pt-1">
             {maneuverResult.note}
           </p>
         </div>

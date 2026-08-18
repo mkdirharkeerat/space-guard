@@ -45,18 +45,18 @@ export default function CatalogExplorer({ onSelectObject }) {
   );
 
   return (
-    <div className="flex flex-col gap-5 p-6 rounded-2xl bg-white border-4 border-black shadow-neo-lg font-mono">
+    <div className="flex flex-col gap-4 p-5 rounded-lg bg-space-900 border border-space-800 font-mono text-space-200">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b-3 border-black">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-space-800">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-[#B8EAFF] border-3 border-black shadow-neo">
-            <Satellite className="w-6 h-6 text-black" />
+          <div className="p-2.5 rounded bg-space-850 border border-space-700 text-telemetry-cyan">
+            <Satellite className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-black tracking-tight font-sans">
-              Live Propagated Satellite Ephemeris
+            <h2 className="text-base font-semibold text-white tracking-wide font-sans">
+              Live Satellite Ephemeris Catalog
             </h2>
-            <p className="text-xs text-slate-700 font-bold">
+            <p className="text-xs text-space-400">
               Real-time SGP4 GCRS/ECI coordinates propagated from CelesTrak active TLEs
             </p>
           </div>
@@ -64,14 +64,14 @@ export default function CatalogExplorer({ onSelectObject }) {
 
         <div className="flex items-center gap-3">
           {dataAsOf && (
-            <span className="text-xs text-slate-800 font-bold hidden md:inline-block">
+            <span className="text-[11px] text-space-500 hidden md:inline-block">
               Updated: {new Date(dataAsOf).toLocaleTimeString()} UTC
             </span>
           )}
           <button
             onClick={fetchObjects}
             disabled={loading}
-            className="px-4 py-2 rounded-xl bg-neo-yellow text-black font-black border-2 border-black text-xs hover:bg-yellow-300 shadow-neo-sm active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded bg-space-850 text-space-300 hover:text-white border border-space-700 text-xs transition-colors flex items-center gap-1.5"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>REFRESH</span>
@@ -81,30 +81,30 @@ export default function CatalogExplorer({ onSelectObject }) {
 
       {/* Search Input Bar */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-space-500" />
         <input
           type="text"
-          placeholder="Search by satellite name (STARLINK, ISS, IRIDIUM) or NORAD ID..."
+          placeholder="Search by satellite name (e.g. STARLINK, ISS, IRIDIUM) or NORAD ID..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 bg-neo-cream border-3 border-black rounded-xl text-xs font-bold text-black placeholder-slate-500 focus:outline-none focus:bg-white shadow-neo-sm"
+          className="w-full pl-10 pr-4 py-2 bg-space-950 border border-space-700 rounded text-xs text-white placeholder-space-500 focus:outline-none focus:border-space-500"
         />
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border-3 border-black shadow-neo bg-white">
+      <div className="overflow-x-auto rounded border border-space-800 bg-space-950/60">
         <table className="w-full text-left font-mono text-xs">
-          <thead className="bg-neo-yellow text-black border-b-3 border-black text-xs font-black uppercase">
+          <thead className="bg-space-850 text-space-400 border-b border-space-800 text-[11px] uppercase tracking-wider">
             <tr>
-              <th className="py-3.5 px-4">NORAD ID</th>
-              <th className="py-3.5 px-4">Satellite / Object</th>
-              <th className="py-3.5 px-4">Position [X, Y, Z] (km)</th>
-              <th className="py-3.5 px-4">Velocity [Vx, Vy, Vz]</th>
-              <th className="py-3.5 px-4">Altitude</th>
-              <th className="py-3.5 px-4 text-right">Action</th>
+              <th className="py-2.5 px-3.5">NORAD ID</th>
+              <th className="py-2.5 px-3.5">Satellite / Object</th>
+              <th className="py-2.5 px-3.5">Position [X, Y, Z] (km)</th>
+              <th className="py-2.5 px-3.5">Velocity [Vx, Vy, Vz]</th>
+              <th className="py-2.5 px-3.5">Altitude</th>
+              <th className="py-2.5 px-3.5 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y-2 divide-black">
+          <tbody className="divide-y divide-space-800/60">
             {filtered.map((sat) => {
               const pos = sat.position_km || [0, 0, 0];
               const vel = sat.velocity_km_s || [0, 0, 0];
@@ -113,31 +113,31 @@ export default function CatalogExplorer({ onSelectObject }) {
               const vMag = Math.sqrt(vel[0] * vel[0] + vel[1] * vel[1] + vel[2] * vel[2]);
 
               return (
-                <tr key={sat.norad_id} className="hover:bg-neo-cream transition-colors font-bold">
-                  <td className="py-3.5 px-4 font-black">
+                <tr key={sat.norad_id} className="hover:bg-space-850/60 transition-colors">
+                  <td className="py-2.5 px-3.5 font-semibold text-telemetry-cyan">
                     #{sat.norad_id}
                   </td>
-                  <td className="py-3.5 px-4 font-black text-black">
+                  <td className="py-2.5 px-3.5 font-semibold text-white">
                     {sat.name}
                   </td>
-                  <td className="py-3.5 px-4 text-slate-800 text-[11px]">
+                  <td className="py-2.5 px-3.5 text-space-400 text-[11px]">
                     [{pos.map(p => Number(p).toFixed(0)).join(', ')}]
                   </td>
-                  <td className="py-3.5 px-4 text-slate-800 text-[11px]">
+                  <td className="py-2.5 px-3.5 text-space-400 text-[11px]">
                     {vMag.toFixed(2)} km/s
                   </td>
-                  <td className="py-3.5 px-4 font-black">
+                  <td className="py-2.5 px-3.5 font-medium text-telemetry-emerald">
                     ~{altKm.toFixed(0)} km
                   </td>
-                  <td className="py-3.5 px-4 text-right">
+                  <td className="py-2.5 px-3.5 text-right">
                     <button
                       onClick={() => {
                         sound.playClick();
                         if (onSelectObject) onSelectObject(sat);
                       }}
-                      className="px-3 py-1 rounded-lg bg-neo-green text-black border-2 border-black font-black text-xs hover:bg-emerald-400 shadow-neo-sm"
+                      className="px-2.5 py-0.5 rounded bg-space-800 hover:bg-space-700 text-space-300 hover:text-white border border-space-700 text-[11px] transition-colors"
                     >
-                      3D View
+                      3D Track
                     </button>
                   </td>
                 </tr>

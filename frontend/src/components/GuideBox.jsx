@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { HelpCircle, ChevronDown, ChevronUp, Lightbulb } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { sound } from '../utils/audio';
 
-export default function GuideBox({ title, badge = "USER GUIDE", steps = [], note, defaultOpen = true }) {
+export default function GuideBox({ title, badge = "OPERATIONAL GUIDE", steps = [], note, defaultOpen = true }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const toggle = () => {
@@ -11,40 +11,38 @@ export default function GuideBox({ title, badge = "USER GUIDE", steps = [], note
   };
 
   return (
-    <div className="rounded-2xl bg-neo-cream border-3 border-black shadow-neo overflow-hidden font-mono text-black transition-all">
+    <div className="rounded-lg bg-space-900/90 border border-space-700/80 overflow-hidden font-mono text-space-200 transition-all">
       <div 
         onClick={toggle}
-        className="flex items-center justify-between p-4 bg-neo-yellow border-b-2 border-black cursor-pointer hover:bg-yellow-300 transition-colors select-none"
+        className="flex items-center justify-between px-4 py-3 bg-space-850 border-b border-space-700/60 cursor-pointer hover:bg-space-800 transition-colors select-none"
       >
         <div className="flex items-center gap-2.5">
-          <div className="p-1.5 bg-black text-neo-yellow rounded border border-black">
-            <Lightbulb className="w-4 h-4" />
-          </div>
+          <Info className="w-4 h-4 text-telemetry-emerald" />
           <div className="flex items-center gap-2">
-            <span className="font-black text-sm uppercase tracking-tight">{title}</span>
-            <span className="px-2 py-0.5 rounded text-[10px] font-black bg-black text-white">
+            <span className="font-semibold text-xs text-white uppercase tracking-wider">{title}</span>
+            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-space-700 text-space-300 border border-space-600">
               {badge}
             </span>
           </div>
         </div>
-        <button className="p-1 bg-white border border-black rounded shadow-neo-sm">
+        <button className="p-1 text-space-400 hover:text-white">
           {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
       </div>
 
       {isOpen && (
-        <div className="p-4 sm:p-5 flex flex-col gap-3 text-xs">
+        <div className="p-4 flex flex-col gap-3 text-xs">
           {steps.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {steps.map((step, idx) => (
-                <div key={idx} className="p-3 bg-white border-2 border-black rounded-xl shadow-neo-sm flex flex-col gap-1.5">
+                <div key={idx} className="p-3 bg-space-950/60 border border-space-800 rounded-md flex flex-col gap-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-neo-green text-black border border-black font-black text-xs flex items-center justify-center">
+                    <span className="w-4 h-4 rounded text-space-300 bg-space-800 font-mono text-[10px] flex items-center justify-center border border-space-700 font-semibold">
                       {idx + 1}
                     </span>
-                    <strong className="text-black font-black uppercase text-[11px]">{step.title}</strong>
+                    <strong className="text-white font-medium uppercase text-[11px] tracking-wide">{step.title}</strong>
                   </div>
-                  <p className="text-slate-700 font-bold leading-relaxed text-[11px]">
+                  <p className="text-space-400 leading-relaxed text-[11px]">
                     {step.description}
                   </p>
                 </div>
@@ -53,11 +51,11 @@ export default function GuideBox({ title, badge = "USER GUIDE", steps = [], note
           )}
 
           {note && (
-            <div className="p-3 bg-white border-2 border-black rounded-xl text-[11px] font-bold text-slate-800 flex items-start gap-2 shadow-neo-sm">
-              <span className="px-1.5 py-0.5 bg-neo-pink text-black border border-black rounded text-[9px] font-black uppercase whitespace-nowrap">
-                PRO TIP
+            <div className="p-2.5 bg-space-850/80 border border-space-700/50 rounded text-[11px] text-space-300 flex items-start gap-2">
+              <span className="px-1.5 py-0.5 bg-telemetry-emerald/20 text-telemetry-emerald border border-telemetry-emerald/30 rounded text-[9px] font-semibold uppercase tracking-wider whitespace-nowrap">
+                TECHNICAL NOTE
               </span>
-              <span>{note}</span>
+              <span className="leading-relaxed">{note}</span>
             </div>
           )}
         </div>

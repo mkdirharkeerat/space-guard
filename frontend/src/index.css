@@ -4,142 +4,59 @@
 
 @layer base {
   :root {
-    --neo-bg: #FAF8F5;
-    --neo-black: #000000;
-    --neo-yellow: #FFE600;
-    --neo-green: #00FF66;
-    --neo-pink: #FF4D8D;
-    --neo-cyan: #00E5FF;
-    --neo-red: #FF3333;
+    --bg-main: #050811;
+    --card-bg: #090F1E;
+    --border-color: rgba(255, 255, 255, 0.08);
   }
 
   body {
-    background-color: #FAF8F5;
-    color: #000000;
+    background-color: #050811;
+    color: #E2E8F0;
     font-family: 'IBM Plex Mono', monospace;
     overflow-x: hidden;
+    letter-spacing: -0.01em;
   }
 }
 
-/* Neo-Brutalist Grid Background */
-.neo-grid-bg {
-  background-color: #FAF8F5;
+/* Subtle Technical Grid Background */
+.aerospace-grid {
+  background-color: #050811;
   background-image: 
-    linear-gradient(#E5DFD5 1.5px, transparent 1.5px),
-    linear-gradient(90deg, #E5DFD5 1.5px, transparent 1.5px);
-  background-size: 32px 32px;
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
-/* Custom Scrollbars */
+/* Professional Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF8F5;
-  border-left: 2px solid #000000;
+  background: #050811;
 }
 ::-webkit-scrollbar-thumb {
-  background: #FFE600;
-  border: 2px solid #000000;
-  border-radius: 4px;
+  background: #1E293B;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00FF66;
+  background: #334155;
 }
 
-/* Neo-Brutalist Utility Classes */
-.neo-box {
-  background-color: #FFFFFF;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px 0px #000000;
-  border-radius: 12px;
-}
-
-.neo-box-lg {
-  background-color: #FFFFFF;
-  border: 3px solid #000000;
-  box-shadow: 6px 6px 0px 0px #000000;
-  border-radius: 14px;
-}
-
-.neo-box-yellow {
-  background-color: #FFE600;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px 0px #000000;
-  border-radius: 12px;
-}
-
-.neo-box-green {
-  background-color: #00FF66;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px 0px #000000;
-  border-radius: 12px;
-}
-
-.neo-box-cyan {
-  background-color: #00E5FF;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px 0px #000000;
-  border-radius: 12px;
-}
-
-.neo-box-red {
-  background-color: #FF4D4D;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px 0px #000000;
-  border-radius: 12px;
-}
-
-.neo-box-pink {
-  background-color: #FF4D8D;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px 0px #000000;
-  border-radius: 12px;
-}
-
-/* Neo Interactive Button */
-.neo-btn {
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px 0px #000000;
-  font-weight: 700;
+/* High Precision Telemetry Cards */
+.telemetry-card {
+  background: rgba(9, 15, 30, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.neo-btn:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px #000000;
-}
-.neo-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px 0px #000000;
 }
 
-/* Neo Badge / Sticker */
-.neo-badge {
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0px 0px #000000;
-  font-weight: 700;
-  border-radius: 6px;
+.telemetry-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
-/* Hazard Stripe Pattern */
-.hazard-stripes {
-  background: repeating-linear-gradient(
-    -45deg,
-    #FFE600,
-    #FFE600 12px,
-    #000000 12px,
-    #000000 24px
-  );
-}
-
-.hazard-stripes-red {
-  background: repeating-linear-gradient(
-    -45deg,
-    #FF3333,
-    #FF3333 12px,
-    #000000 12px,
-    #000000 24px
-  );
+.telemetry-card-active {
+  background: rgba(11, 20, 40, 0.95);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.08);
 }

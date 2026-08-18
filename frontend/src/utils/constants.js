@@ -1,41 +1,37 @@
-// Space-Guard Constants & Helper Functions (Neo-Brutalist Theme)
+// Space-Guard Constants & Helper Functions (Aerospace Defense Grade)
 
 export const RISK_TIERS = {
   CRITICAL: {
     name: 'Critical',
     threshold: 'Pc > 1.0e-4',
-    color: '#FF3333',
-    bgClass: 'bg-neo-red text-white border-2 border-black',
-    badgeClass: 'bg-neo-red text-white font-black border-2 border-black shadow-neo-sm uppercase',
-    boxClass: 'neo-box-red',
-    pillClass: 'bg-[#FF3333] text-white border-2 border-black font-black shadow-neo-sm',
+    color: '#EF4444',
+    bgClass: 'bg-red-500/10 text-red-400 border border-red-500/30',
+    badgeClass: 'bg-red-500/20 text-red-300 border border-red-500/40 font-mono font-semibold tracking-wider uppercase',
+    pillClass: 'bg-red-500/20 text-red-300 border border-red-500/40 font-mono font-semibold',
   },
   HIGH: {
     name: 'High',
     threshold: '1.0e-5 < Pc ≤ 1.0e-4',
-    color: '#FF6B00',
-    bgClass: 'bg-neo-orange text-white border-2 border-black',
-    badgeClass: 'bg-neo-orange text-white font-black border-2 border-black shadow-neo-sm uppercase',
-    boxClass: 'bg-neo-orange text-white border-3 border-black shadow-neo',
-    pillClass: 'bg-[#FF6B00] text-white border-2 border-black font-black shadow-neo-sm',
+    color: '#F97316',
+    bgClass: 'bg-orange-500/10 text-orange-400 border border-orange-500/30',
+    badgeClass: 'bg-orange-500/20 text-orange-300 border border-orange-500/40 font-mono font-semibold tracking-wider uppercase',
+    pillClass: 'bg-orange-500/20 text-orange-300 border border-orange-500/40 font-mono font-semibold',
   },
   MODERATE: {
     name: 'Moderate',
     threshold: '1.0e-6 < Pc ≤ 1.0e-5',
-    color: '#FFE600',
-    bgClass: 'bg-neo-yellow text-black border-2 border-black',
-    badgeClass: 'bg-neo-yellow text-black font-black border-2 border-black shadow-neo-sm uppercase',
-    boxClass: 'neo-box-yellow',
-    pillClass: 'bg-[#FFE600] text-black border-2 border-black font-black shadow-neo-sm',
+    color: '#F59E0B',
+    bgClass: 'bg-amber-500/10 text-amber-400 border border-amber-500/30',
+    badgeClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold tracking-wider uppercase',
+    pillClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-semibold',
   },
   LOW: {
     name: 'Low',
     threshold: 'Pc ≤ 1.0e-6',
-    color: '#00FF66',
-    bgClass: 'bg-neo-green text-black border-2 border-black',
-    badgeClass: 'bg-neo-green text-black font-black border-2 border-black shadow-neo-sm uppercase',
-    boxClass: 'neo-box-green',
-    pillClass: 'bg-[#00FF66] text-black border-2 border-black font-black shadow-neo-sm',
+    color: '#10B981',
+    bgClass: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30',
+    badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-semibold tracking-wider uppercase',
+    pillClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-semibold',
   }
 };
 
