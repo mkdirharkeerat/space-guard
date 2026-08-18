@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { NavLink, Link } from 'react-router-dom';
 import { 
   Globe2, 
   Radar, 
@@ -11,15 +12,16 @@ import {
   VolumeX, 
   Radio,
   Clock,
-  Activity,
-  Zap,
-  Flame
+  Home,
+  Menu,
+  X
 } from 'lucide-react';
 import { sound } from '../utils/audio';
 
-export default function Navbar({ activeTab, setActiveTab, backendStatus, dataAsOf }) {
+export default function Navbar({ backendStatus, dataAsOf }) {
   const [utcTime, setUtcTime] = useState('');
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -39,24 +41,25 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, dataAsO
   };
 
   const navItems = [
-    { id: 'globe', label: '3D Globe', icon: Globe2, color: 'bg-neo-yellow' },
-    { id: 'scan', label: 'Conjunction Screen', icon: Radar, color: 'bg-neo-green' },
-    { id: 'maneuver', label: 'CW Maneuver', icon: Rocket, color: 'bg-neo-cyan' },
-    { id: 'historical', label: '2009 Collision Replay', icon: History, color: 'bg-neo-pink' },
-    { id: 'bplane', label: 'B-Plane', icon: Target, color: 'bg-neo-orange' },
-    { id: 'catalog', label: 'Live Catalog', icon: Satellite, color: 'bg-[#B8EAFF]' },
-    { id: 'math', label: 'Math & Specs', icon: BookOpen, color: 'bg-[#E2D4F0]' },
+    { to: '/', label: 'Home', icon: Home, color: 'bg-white' },
+    { to: '/globe', label: '3D Radar', icon: Globe2, color: 'bg-neo-yellow' },
+    { to: '/screening', label: 'Screening', icon: Radar, color: 'bg-neo-green' },
+    { to: '/maneuver', label: 'CW Maneuver', icon: Rocket, color: 'bg-neo-cyan' },
+    { to: '/historical', label: '2009 Collision', icon: History, color: 'bg-neo-pink' },
+    { to: '/bplane', label: 'B-Plane', icon: Target, color: 'bg-neo-orange' },
+    { to: '/catalog', label: 'Catalog', icon: Satellite, color: 'bg-[#B8EAFF]' },
+    { to: '/docs', label: 'Docs & Math', icon: BookOpen, color: 'bg-[#E2D4F0]' },
   ];
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b-4 border-black shadow-neo">
       {/* Top Retro Marquee Ticker */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-1.5 bg-neo-yellow border-b-2 border-black text-xs font-mono font-bold text-black overflow-hidden">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-1 bg-neo-yellow border-b-2 border-black text-xs font-mono font-bold text-black overflow-hidden">
         <div className="flex items-center gap-3">
           <span className="px-2 py-0.5 bg-black text-neo-yellow font-black uppercase text-[10px] tracking-wider rounded">
             LIVE TELEMETRY
           </span>
-          <span className="truncate">
+          <span className="truncate text-[11px]">
             🛰️ SPACE-GUARD · SGP4 CELESTRAK PROPAGATION · FOSTER/ALFANO ANALYTIC Pc ENGINE
           </span>
         </div>
@@ -71,7 +74,7 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, dataAsO
             backendStatus ? 'bg-neo-green text-black' : 'bg-neo-red text-white'
           }`}>
             <span className="w-2 h-2 rounded-full bg-black"></span>
-            <span>{backendStatus ? 'API ONLINE (v2.1.0)' : 'API DISCONNECTED'}</span>
+            <span>{backendStatus ? 'API ONLINE (v2.1.0)' : 'API STANDBY'}</span>
           </div>
         </div>
       </div>
@@ -79,8 +82,12 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, dataAsO
       {/* Main Navigation Bar */}
       <div className="flex items-center justify-between px-4 sm:px-6 h-16">
         {/* Brand Wordmark */}
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-neo-green border-3 border-black shadow-neo-sm">
+        <Link 
+          to="/" 
+          onClick={() => sound.playClick()}
+          className="flex items-center gap-3 group"
+        >
+          <div className="p-2 rounded-lg bg-neo-green border-3 border-black shadow-neo-sm group-hover:bg-emerald-400 transition-colors">
             <Radio className="w-5 h-5 text-black animate-pulse" />
           </div>
           <div>
@@ -96,39 +103,38 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, dataAsO
               ORBITAL COLLISION DEFENSE PLATFORM
             </span>
           </div>
-        </div>
+        </Link>
 
-        {/* Tab Buttons Navigation */}
-        <nav className="hidden xl:flex items-center gap-2">
+        {/* Desktop Tab Navigation */}
+        <nav className="hidden lg:flex items-center gap-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.id;
             return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  sound.playClick();
-                  setActiveTab(item.id);
-                }}
-                className={`px-3.5 py-2 text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 rounded-lg border-3 border-black ${
-                  isActive
-                    ? `${item.color} text-black shadow-neo translate-x-[-1px] translate-y-[-1px]`
-                    : 'bg-white text-black hover:bg-neo-cream shadow-neo-sm active:translate-x-0.5 active:translate-y-0.5'
-                }`}
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => sound.playClick()}
+                className={({ isActive }) =>
+                  `px-3 py-1.5 text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 rounded-lg border-2 border-black ${
+                    isActive
+                      ? `${item.color} text-black shadow-neo-sm font-black translate-x-[-1px] translate-y-[-1px]`
+                      : 'bg-white text-black hover:bg-neo-cream shadow-none'
+                  }`
+                }
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-3.5 h-3.5" />
                 <span>{item.label}</span>
-              </button>
+              </NavLink>
             );
           })}
         </nav>
 
-        {/* Sound Toggle & Action */}
+        {/* Sound Toggle & Mobile Menu Button */}
         <div className="flex items-center gap-2">
           <button
             onClick={toggleSound}
             title={soundEnabled ? 'Mute Audio' : 'Unmute Audio'}
-            className={`px-3 py-2 rounded-lg border-3 border-black text-xs font-mono font-black transition-all flex items-center gap-1.5 shadow-neo-sm ${
+            className={`px-3 py-1.5 rounded-lg border-2 border-black text-xs font-mono font-black transition-all flex items-center gap-1.5 shadow-neo-sm ${
               soundEnabled
                 ? 'bg-neo-cyan text-black hover:bg-cyan-300'
                 : 'bg-slate-200 text-slate-600'
@@ -137,33 +143,44 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, dataAsO
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             <span className="hidden md:inline">{soundEnabled ? 'SFX ON' : 'MUTED'}</span>
           </button>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 rounded-lg border-2 border-black bg-neo-yellow shadow-neo-sm"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Horizontal Navigation Tabs */}
-      <div className="xl:hidden flex items-center gap-2 overflow-x-auto px-4 py-2 bg-neo-cream border-t-2 border-black">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => {
-                sound.playClick();
-                setActiveTab(item.id);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-black uppercase whitespace-nowrap flex items-center gap-1.5 border-2 border-black transition-all ${
-                isActive
-                  ? `${item.color} text-black shadow-neo-sm`
-                  : 'bg-white text-black'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Mobile Drawer Navigation */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden flex flex-col gap-2 p-4 bg-neo-cream border-t-2 border-black">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => {
+                  sound.playClick();
+                  setMobileMenuOpen(false);
+                }}
+                className={({ isActive }) =>
+                  `px-4 py-2 rounded-lg text-xs font-mono font-black uppercase flex items-center gap-2 border-2 border-black transition-all ${
+                    isActive
+                      ? `${item.color} text-black shadow-neo-sm`
+                      : 'bg-white text-black'
+                  }`
+                }
+              >
+                <Icon className="w-4 h-4" />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </div>
+      )}
     </header>
   );
 }

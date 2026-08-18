@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Globe3D from './components/Globe3D';
-import ScanDashboard from './components/ScanDashboard';
-import ManeuverPlanner from './components/ManeuverPlanner';
-import HistoricalValidation from './components/HistoricalValidation';
-import BPlaneVisualizer from './components/BPlaneVisualizer';
-import CatalogExplorer from './components/CatalogExplorer';
-import MathExplainer from './components/MathExplainer';
+import Footer from './components/Footer';
+import HomePage from './pages/HomePage';
+import GlobePage from './pages/GlobePage';
+import ScreeningPage from './pages/ScreeningPage';
+import ManeuverPage from './pages/ManeuverPage';
+import HistoricalPage from './pages/HistoricalPage';
+import BPlanePage from './pages/BPlanePage';
+import CatalogPage from './pages/CatalogPage';
+import DocsPage from './pages/DocsPage';
 import { sound } from './utils/audio';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('globe');
   const [backendStatus, setBackendStatus] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scanData, setScanData] = useState(null);
@@ -111,125 +113,94 @@ export default function App() {
     triggerScan();
   }, []);
 
-  const handleOpenManeuver = (event) => {
-    setSelectedEvent(event);
-    setActiveTab('maneuver');
-  };
-
-  const handleOpenBPlane = (event) => {
-    setSelectedEvent(event);
-    setActiveTab('bplane');
-  };
-
   return (
-    <div className="min-h-screen neo-grid-bg text-black flex flex-col selection:bg-neo-yellow selection:text-black">
-      {/* Neo-Brutalist Navbar */}
-      <Navbar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        backendStatus={backendStatus}
-        dataAsOf={scanData?.data_as_of}
-      />
+    <Router>
+      <div className="min-h-screen neo-grid-bg text-black flex flex-col selection:bg-neo-yellow selection:text-black">
+        {/* Navigation Bar */}
+        <Navbar 
+          backendStatus={backendStatus} 
+          dataAsOf={scanData?.data_as_of} 
+        />
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
-        {/* Globe View Tab */}
-        {activeTab === 'globe' && (
-          <div className="flex flex-col gap-6">
-            <Globe3D 
-              selectedEvent={selectedEvent} 
-              activeEvents={scanData?.events || []} 
-              objects={objects} 
+        {/* Multi-Page Routes */}
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <HomePage 
+                  backendStatus={backendStatus}
+                  onTriggerScan={triggerScan}
+                  scanData={scanData}
+                />
+              } 
             />
-            <ScanDashboard 
-              scanData={scanData}
-              onTriggerScan={triggerScan}
-              isScanning={isScanning}
-              selectedEvent={selectedEvent}
-              onSelectEvent={setSelectedEvent}
-              onOpenManeuver={handleOpenManeuver}
-              onOpenBPlane={handleOpenBPlane}
+            <Route 
+              path="/globe" 
+              element={
+                <GlobePage 
+                  scanData={scanData}
+                  objects={objects}
+                  selectedEvent={selectedEvent}
+                  onSelectEvent={setSelectedEvent}
+                />
+              } 
             />
-          </div>
-        )}
-
-        {/* Screening Tab */}
-        {activeTab === 'scan' && (
-          <div>
-            <ScanDashboard 
-              scanData={scanData}
-              onTriggerScan={triggerScan}
-              isScanning={isScanning}
-              selectedEvent={selectedEvent}
-              onSelectEvent={setSelectedEvent}
-              onOpenManeuver={handleOpenManeuver}
-              onOpenBPlane={handleOpenBPlane}
+            <Route 
+              path="/screening" 
+              element={
+                <ScreeningPage 
+                  scanData={scanData}
+                  onTriggerScan={triggerScan}
+                  isScanning={isScanning}
+                  selectedEvent={selectedEvent}
+                  onSelectEvent={setSelectedEvent}
+                />
+              } 
             />
-          </div>
-        )}
-
-        {/* CW Maneuver Planner Tab */}
-        {activeTab === 'maneuver' && (
-          <div>
-            <ManeuverPlanner 
-              selectedEvent={selectedEvent}
-              onManeuverApplied={() => {}}
+            <Route 
+              path="/maneuver" 
+              element={
+                <ManeuverPage 
+                  selectedEvent={selectedEvent} 
+                />
+              } 
             />
-          </div>
-        )}
-
-        {/* Historical Validation Tab */}
-        {activeTab === 'historical' && (
-          <div>
-            <HistoricalValidation 
-              onSelectEvent={(ev) => {
-                setSelectedEvent(ev);
-                setActiveTab('globe');
-              }}
+            <Route 
+              path="/historical" 
+              element={
+                <HistoricalPage 
+                  onSelectEvent={setSelectedEvent} 
+                />
+              } 
             />
-          </div>
-        )}
-
-        {/* B-Plane Tab */}
-        {activeTab === 'bplane' && (
-          <div>
-            <BPlaneVisualizer selectedEvent={selectedEvent} />
-          </div>
-        )}
-
-        {/* Catalog Tab */}
-        {activeTab === 'catalog' && (
-          <div>
-            <CatalogExplorer 
-              onSelectObject={(obj) => {
-                setActiveTab('globe');
-              }}
+            <Route 
+              path="/bplane" 
+              element={
+                <BPlanePage 
+                  selectedEvent={selectedEvent} 
+                />
+              } 
             />
-          </div>
-        )}
+            <Route 
+              path="/catalog" 
+              element={
+                <CatalogPage 
+                  onSelectObject={setSelectedEvent} 
+                />
+              } 
+            />
+            <Route 
+              path="/docs" 
+              element={<DocsPage />} 
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
 
-        {/* Math Tab */}
-        {activeTab === 'math' && (
-          <div>
-            <MathExplainer />
-          </div>
-        )}
-      </main>
-
-      {/* Neo-Brutalist Footer */}
-      <footer className="w-full border-t-4 border-black bg-white py-5 px-6 text-center text-xs font-mono font-black text-black">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 bg-neo-green text-black border-2 border-black rounded shadow-neo-sm">
-              SPACE-GUARD v2.1.0
-            </span>
-            <span>SMART INDIA HACKATHON 2026 · PROBLEM STATEMENT #17</span>
-          </div>
-          <span className="bg-neo-yellow px-2 py-1 border-2 border-black rounded shadow-neo-sm">
-            FOSTER/ALFANO ANALYTIC Pc + CLOHESSY-WILTSHIRE SVD PLANNER
-          </span>
-        </div>
-      </footer>
-    </div>
+        {/* Global Footer */}
+        <Footer />
+      </div>
+    </Router>
   );
 }
