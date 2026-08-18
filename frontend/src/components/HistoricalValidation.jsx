@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { History, Play, CheckCircle, Activity, Award, Shield } from 'lucide-react';
+import { History, Play, CheckCircle, Activity, Award, Flame, Zap } from 'lucide-react';
+import Globe3D from './Globe3D';
 import { sound } from '../utils/audio';
 import { formatScientific, formatDistance, formatVelocity } from '../utils/constants';
 
 export default function HistoricalValidation({ onSelectEvent }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [simulatedAvoidance, setSimulatedAvoidance] = useState(false);
+  const [simMode, setSimMode] = useState('collision_2009'); // 'collision_2009' or 'avoidance_2009'
 
   const fetchHistoricalData = async () => {
     setLoading(true);
@@ -43,9 +44,14 @@ export default function HistoricalValidation({ onSelectEvent }) {
     fetchHistoricalData();
   }, []);
 
+  const handleSimulateCollision = () => {
+    sound.playClick();
+    setSimMode('collision_2009');
+  };
+
   const handleSimulateAvoidance = () => {
     sound.playSuccess();
-    setSimulatedAvoidance(true);
+    setSimMode('avoidance_2009');
   };
 
   return (
@@ -59,7 +65,7 @@ export default function HistoricalValidation({ onSelectEvent }) {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-semibold text-white tracking-wide font-sans">
-                Real-World Collision Replay & Validation
+                Real-World Collision Replay & Avoidance Lab
               </h2>
               <span className="px-2 py-0.5 rounded text-[10px] bg-red-500/20 text-red-300 border border-red-500/40 font-semibold">
                 2009 BENCHMARK
@@ -83,18 +89,49 @@ export default function HistoricalValidation({ onSelectEvent }) {
         </div>
       </div>
 
-      {/* Context Card */}
-      <div className="p-4 rounded bg-space-950/80 border border-space-800 text-xs leading-relaxed text-space-300 flex flex-col gap-2">
-        <span className="text-red-400 font-semibold uppercase text-[11px] tracking-wide">
-          Case Summary: First Hypervelocity Satellite Collision
-        </span>
-        <p>
-          On February 10, 2009, <strong className="text-white">Iridium 33</strong> (active commercial comms satellite) and{' '}
-          <strong className="text-white">Cosmos 2251</strong> (derelict military satellite) collided at <strong className="text-red-400">14.1 km/s relative speed</strong>, generating thousands of cataloged debris fragments.
-        </p>
-        <p className="text-space-400">
-          Space-Guard ingests pre-collision TLEs (epoch 09041) into the exact same SGP4 + Analytic Gaussian Pc pipeline to verify the system independently triggers a <strong>Critical Alert 48 hours prior</strong>.
-        </p>
+      {/* Interactive 3D Globe Simulation */}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-space-400 uppercase font-semibold">Simulation Mode:</span>
+            <button
+              onClick={handleSimulateCollision}
+              className={`px-3 py-1.5 rounded text-xs font-semibold uppercase flex items-center gap-1.5 border transition-all ${
+                simMode === 'collision_2009'
+                  ? 'bg-red-500 text-white border-red-400'
+                  : 'bg-space-950 text-space-400 border-space-800 hover:text-white'
+              }`}
+            >
+              <Flame className="w-3.5 h-3.5" />
+              <span>1. 2009 Catastrophic Collision</span>
+            </button>
+
+            <button
+              onClick={handleSimulateAvoidance}
+              className={`px-3 py-1.5 rounded text-xs font-semibold uppercase flex items-center gap-1.5 border transition-all ${
+                simMode === 'avoidance_2009'
+                  ? 'bg-telemetry-cyan text-black border-telemetry-cyan font-bold'
+                  : 'bg-space-950 text-space-400 border-space-800 hover:text-white'
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>2. Space-Guard Avoidance Maneuver (+4.83 km)</span>
+            </button>
+          </div>
+        </div>
+
+        <Globe3D 
+          initialMode={simMode}
+          activeEvents={[{
+            target_id: 'IRIDIUM 33',
+            chaser_id: 'COSMOS 2251',
+            miss_distance_km: 0.003,
+            pc: 0.0002,
+            risk_tier: 'Critical',
+            tca_utc: '2009-02-10 16:56:00 UTC'
+          }]}
+          onModeChange={setSimMode}
+        />
       </div>
 
       {/* Metrics Grid */}
@@ -124,62 +161,35 @@ export default function HistoricalValidation({ onSelectEvent }) {
         </div>
 
         <div className="p-3.5 rounded bg-space-950/90 border border-space-800 flex flex-col">
-          <span className="text-[10px] text-space-400 font-medium uppercase">Predicted TCA</span>
-          <span className="text-sm font-semibold text-white mt-1 truncate">
-            {data?.tca_utc || '2009-02-10 16:56:00'}
+          <span className="text-[10px] text-space-400 font-medium uppercase">Avoidance Result</span>
+          <span className="text-xl font-semibold text-telemetry-emerald mt-1">
+            +4.83 km
           </span>
-          <span className="text-[10px] text-space-500 mt-0.5">Matches Historical Time</span>
+          <span className="text-[10px] text-telemetry-emerald mt-0.5">Safe Clearance (ΔV = 0.10 m/s)</span>
         </div>
       </div>
 
-      {/* Avoidance Counterfactual */}
+      {/* Avoidance Counterfactual Details */}
       <div className="p-4 rounded bg-space-950/80 border border-space-800 flex flex-col gap-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-telemetry-emerald" />
-            <h3 className="text-xs font-semibold text-white uppercase tracking-wider">
-              Counterfactual Avoidance Demonstration (CW Model)
-            </h3>
-          </div>
-          <button
-            onClick={handleSimulateAvoidance}
-            className="px-4 py-1.5 rounded bg-telemetry-emerald text-black font-semibold text-xs hover:bg-emerald-400 transition-colors flex items-center gap-1.5 self-start sm:self-auto"
-          >
-            <Play className="w-3.5 h-3.5 fill-black" />
-            <span>EXECUTE AVOIDANCE REPLAY</span>
-          </button>
+        <div className="flex items-center gap-2">
+          <Award className="w-4 h-4 text-telemetry-emerald" />
+          <h3 className="text-xs font-semibold text-white uppercase tracking-wider">
+            Counterfactual Avoidance Demonstration (CW Model)
+          </h3>
         </div>
 
-        {simulatedAvoidance ? (
-          <div className="p-3 rounded bg-space-900 border border-telemetry-emerald/40 flex flex-col gap-1.5">
-            <div className="flex items-center gap-1.5 text-telemetry-emerald font-semibold text-xs">
-              <CheckCircle className="w-4 h-4" />
-              <span>AVOIDANCE MANEUVER VERIFIED: COLLISION PREVENTED</span>
-            </div>
-            <p className="text-xs text-space-300 leading-relaxed">
-              Applying a small <strong className="text-white">ΔV = 0.10 m/s</strong> thruster impulse on Iridium 33{' '}
-              <strong className="text-telemetry-cyan">24 hours prior to TCA</strong> expands along-track miss distance to{' '}
-              <strong className="text-telemetry-emerald">+4.83 km</strong>, reducing collision probability from{' '}
-              <strong className="text-red-400">2.0 × 10⁻⁴ (Critical)</strong> to <strong className="text-telemetry-emerald">4.2 × 10⁻⁷ (Safe)</strong>.
-            </p>
+        <div className="p-3 rounded bg-space-900 border border-telemetry-emerald/40 flex flex-col gap-1.5">
+          <div className="flex items-center gap-1.5 text-telemetry-emerald font-semibold text-xs">
+            <CheckCircle className="w-4 h-4" />
+            <span>AVOIDANCE MANEUVER VERIFIED: COLLISION PREVENTED</span>
           </div>
-        ) : (
-          <p className="text-xs text-space-400">
-            Click the button above to simulate how Space-Guard's Clohessy-Wiltshire planner would have successfully navigated Iridium 33 to safe clearance.
+          <p className="text-xs text-space-300 leading-relaxed">
+            Applying a small <strong className="text-white">ΔV = 0.10 m/s</strong> thruster impulse on Iridium 33{' '}
+            <strong className="text-telemetry-cyan">24 hours prior to TCA</strong> expands along-track miss distance to{' '}
+            <strong className="text-telemetry-emerald">+4.83 km</strong>, reducing collision probability from{' '}
+            <strong className="text-red-400">2.0 × 10⁻⁴ (Critical)</strong> to <strong className="text-telemetry-emerald">4.2 × 10⁻⁷ (Safe)</strong>.
           </p>
-        )}
-      </div>
-
-      {/* Assumptions Footer */}
-      <div className="p-3 rounded bg-space-950/40 border border-space-800/80 text-[11px] text-space-400 flex flex-col gap-1">
-        <span className="text-space-300 font-semibold uppercase text-[10px]">
-          Engineering Assumptions (§12 Compliance):
-        </span>
-        <ul className="list-disc list-inside space-y-0.5 text-space-400">
-          <li><strong>Positional Uncertainty (σ):</strong> Assumed 500 m isotropic standard deviation.</li>
-          <li><strong>Hard-Body Radius (HBR):</strong> 10 m combined collision cross-section.</li>
-          <li><strong>Ephemeris:</strong> SGP4 propagated close to TLE epoch to minimize drift error.</li>
-        </ul>
+        </div>
       </div>
     </div>
   );

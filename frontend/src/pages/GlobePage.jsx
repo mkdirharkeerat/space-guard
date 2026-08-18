@@ -1,27 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Globe3D from '../components/Globe3D';
 import GuideBox from '../components/GuideBox';
-import { Target, Zap, Clock, ArrowRight } from 'lucide-react';
+import { Target, Zap, Clock, Flame, ShieldAlert, ArrowRight } from 'lucide-react';
 import { sound } from '../utils/audio';
 import { formatDistance, formatScientific, getTierData } from '../utils/constants';
 
 export default function GlobePage({ scanData, objects = [], selectedEvent, onSelectEvent }) {
   const events = scanData?.events || [];
   const activeEvent = selectedEvent || (events.length > 0 ? events[0] : null);
+  const [activeGlobeMode, setActiveGlobeMode] = useState('live');
 
   const guideSteps = [
     {
-      title: 'Navigate 3D Orbit Viewport',
-      description: 'Left-click and drag to rotate the orbital plane. Use mouse wheel or pinch gesture to zoom in/out.',
+      title: 'Interactive 3D Radar Modes',
+      description: 'Switch between Live Catalog Radar, 1. Simulate 2009 Collision (impact shockwave + debris cloud), and 2. Simulate Escape Maneuver (+4.83 km safe passage).',
     },
     {
-      title: 'Inspect Conjunction Nodes',
-      description: 'Pulsing colored beacons mark predicted encounter points (Red for Critical, Amber for Moderate, Cyan/Green for Nominal).',
+      title: 'Timeline Scrubbing & Speed',
+      description: 'In simulation modes, use the bottom scrub bar or Play/Pause buttons to advance time from T-24h to TCA encounter at 1x, 5x, or 15x speeds.',
     },
     {
-      title: 'Target Lock-On & Maneuver',
-      description: 'Select an event from the panel below to isolate orbital tracks and launch the Clohessy-Wiltshire maneuver simulator.',
+      title: 'Physical 3D Satellite Models',
+      description: 'Target and Chaser satellites orbit in 3D with metallic solar panel wings, illustrating orbital plane intersections and impulsive maneuvers.',
     },
   ];
 
@@ -29,18 +30,67 @@ export default function GlobePage({ scanData, objects = [], selectedEvent, onSel
     <div className="flex flex-col gap-5 font-mono text-space-200">
       {/* User Guide */}
       <GuideBox
-        title="3D Orbital Radar & Telemetry Station · Operational Guide"
-        badge="VISUAL TELEMETRY"
+        title="3D Orbital Radar & Simulation Station · Operational Guide"
+        badge="VISUAL TELEMETRY & SIMULATION"
         steps={guideSteps}
-        note="Orbit paths are inclined per satellite TLE elements (e.g. Iridium 33 at ~86.4° polar orbit, Cosmos 2251 at ~74°)."
+        note="Use the top buttons on the 3D globe to switch between Live Telemetry, Historical Collision Reenactment, and Escape Maneuver Planning."
       />
 
-      {/* Main 3D Globe Visualizer */}
+      {/* Main 3D Globe with Interactive Simulations */}
       <Globe3D 
         selectedEvent={activeEvent}
         activeEvents={events}
         objects={objects}
+        initialMode={activeGlobeMode}
+        onModeChange={setActiveGlobeMode}
       />
+
+      {/* Mode Information & Quick Triggers */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-4 rounded-lg bg-space-900 border border-red-500/30 flex flex-col justify-between gap-3">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2 text-red-400 font-semibold text-xs">
+              <Flame className="w-4 h-4" />
+              <span>1. 2009 Iridium 33 / Cosmos 2251 Collision Replay</span>
+            </div>
+            <p className="text-xs text-space-400 leading-relaxed">
+              Reenacts the 10 Feb 2009 hypervelocity impact over Siberia (14.1 km/s relative speed), demonstrating the catastrophic destruction of both spacecraft and the resulting expanding debris cloud.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              sound.playClick();
+              setActiveGlobeMode('collision_2009');
+            }}
+            className="px-3.5 py-2 rounded bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 self-start"
+          >
+            <Flame className="w-3.5 h-3.5" />
+            <span>Load 2009 Collision on Globe</span>
+          </button>
+        </div>
+
+        <div className="p-4 rounded-lg bg-space-900 border border-telemetry-cyan/30 flex flex-col justify-between gap-3">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2 text-telemetry-cyan font-semibold text-xs">
+              <Zap className="w-4 h-4" />
+              <span>2. Space-Guard CW Avoidance Maneuver Simulation</span>
+            </div>
+            <p className="text-xs text-space-400 leading-relaxed">
+              Simulates an impulsive ΔV = 0.10 m/s thruster burn on Iridium 33 executed 24 hours prior, steering it along a green avoidance trajectory to achieve +4.83 km safe clearance.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              sound.playSuccess();
+              setActiveGlobeMode('avoidance_2009');
+            }}
+            className="px-3.5 py-2 rounded bg-telemetry-cyan/20 hover:bg-telemetry-cyan/30 text-telemetry-cyan border border-telemetry-cyan/40 text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 self-start"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Load Avoidance Maneuver on Globe</span>
+          </button>
+        </div>
+      </div>
 
       {/* Conjunction Encounter Selector & Inspector Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -66,6 +116,7 @@ export default function GlobePage({ scanData, objects = [], selectedEvent, onSel
                   onClick={() => {
                     sound.playClick();
                     onSelectEvent(ev);
+                    setActiveGlobeMode('live');
                   }}
                   className={`p-3 rounded cursor-pointer border transition-all flex items-center justify-between gap-3 ${
                     isSelected
