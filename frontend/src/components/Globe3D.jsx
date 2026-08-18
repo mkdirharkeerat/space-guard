@@ -145,18 +145,29 @@ export default function Globe3D({
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // 3. Renderer setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3;
-    
-    while (containerRef.current.firstChild) {
-      containerRef.current.removeChild(containerRef.current.firstChild);
+    // 3. Renderer setup with safe WebGL fallback
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: false,
+        powerPreference: 'high-performance',
+        failIfMajorPerformanceCaveat: false 
+      });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.3;
+      
+      while (containerRef.current.firstChild) {
+        containerRef.current.removeChild(containerRef.current.firstChild);
+      }
+      containerRef.current.appendChild(renderer.domElement);
+      rendererRef.current = renderer;
+    } catch (err) {
+      console.warn('WebGL Renderer not available, enabling 2D telemetry mode:', err);
+      return;
     }
-    containerRef.current.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
 
     // 4. Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);

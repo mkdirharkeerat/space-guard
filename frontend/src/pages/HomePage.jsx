@@ -58,6 +58,7 @@ export default function HomePage({ backendStatus, scanData }) {
     {
       to: '/bplane',
       title: 'B-Plane Geometry',
+      icon: Target,
       tag: '2D GAUSSIAN',
       desc: 'Encounter cross-section with 1σ, 2σ, 3σ Gaussian uncertainty contours and 10m hard-body radius.',
     },
