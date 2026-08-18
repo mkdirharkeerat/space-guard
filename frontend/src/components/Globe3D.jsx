@@ -3,6 +3,68 @@ import * as THREE from 'three';
 import { RotateCcw, Crosshair, Radio, ShieldAlert } from 'lucide-react';
 import { sound } from '../utils/audio';
 
+// Helper: Generate circular glow sprite texture for smooth radar blips
+function createGlowSpriteTexture(colorHex = '#10B981') {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+
+  const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, '#FFFFFF');
+  gradient.addColorStop(0.3, colorHex);
+  gradient.addColorStop(0.7, 'rgba(16, 185, 129, 0.4)');
+  gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 64, 64);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+// Helper: Create a real 3D Satellite Mesh (Bus + Solar Wings)
+function createSatelliteModel(bodyColorHex = 0xffd700, wingColorHex = 0x0284c7) {
+  const group = new THREE.Group();
+
+  // Central Satellite Body (Cube)
+  const bodyGeom = new THREE.BoxGeometry(0.18, 0.18, 0.24);
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: bodyColorHex,
+    metalness: 0.8,
+    roughness: 0.2,
+  });
+  const body = new THREE.Mesh(bodyGeom, bodyMat);
+  group.add(body);
+
+  // Solar Panel Arrays (Left and Right Wings)
+  const wingGeom = new THREE.BoxGeometry(0.45, 0.02, 0.16);
+  const wingMat = new THREE.MeshStandardMaterial({
+    color: wingColorHex,
+    metalness: 0.6,
+    roughness: 0.3,
+  });
+
+  const leftWing = new THREE.Mesh(wingGeom, wingMat);
+  leftWing.position.set(-0.35, 0, 0);
+  group.add(leftWing);
+
+  const rightWing = new THREE.Mesh(wingGeom, wingMat);
+  rightWing.position.set(0.35, 0, 0);
+  group.add(rightWing);
+
+  // Antenna Dish
+  const dishGeom = new THREE.ConeGeometry(0.08, 0.1, 16);
+  const dishMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.9, roughness: 0.1 });
+  const dish = new THREE.Mesh(dishGeom, dishMat);
+  dish.rotation.x = Math.PI;
+  dish.position.set(0, 0.14, 0);
+  group.add(dish);
+
+  return group;
+}
+
 export default function Globe3D({ selectedEvent, activeEvents = [], objects = [] }) {
   const containerRef = useRef(null);
   const rendererRef = useRef(null);
@@ -52,7 +114,7 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.3;
     
     while (containerRef.current.firstChild) {
       containerRef.current.removeChild(containerRef.current.firstChild);
@@ -60,69 +122,100 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     containerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // 4. Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    // 4. Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.0);
-    dirLight1.position.set(20, 15, 20);
-    scene.add(dirLight1);
+    const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    sunLight.position.set(20, 15, 20);
+    scene.add(sunLight);
 
-    const dirLight2 = new THREE.DirectionalLight(0x06b6d4, 1.2);
-    dirLight2.position.set(-20, -10, -20);
-    scene.add(dirLight2);
+    const rimLight = new THREE.DirectionalLight(0x06b6d4, 1.2);
+    rimLight.position.set(-20, -10, -20);
+    scene.add(rimLight);
 
-    // 5. Earth Parent Group
+    // 5. Earth Group
     const earthParent = new THREE.Group();
     scene.add(earthParent);
     earthGroupRef.current = earthParent;
 
     const earthRadius = 6.378;
 
-    // 5a. Procedural Vector Earth Texture (Realistic deep ocean & continent points)
+    // 5a. Realistic High-Contrast Vector Earth Texture
     const canvas = document.createElement('canvas');
     canvas.width = 2048;
     canvas.height = 1024;
     const ctx = canvas.getContext('2d');
 
     // Deep ocean base
-    ctx.fillStyle = '#0a1428';
+    ctx.fillStyle = '#081122';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Grid lines (subtle lat/long)
-    ctx.strokeStyle = '#122347';
+    // Subtle coordinate graticules
+    ctx.strokeStyle = 'rgba(6, 182, 212, 0.15)';
     ctx.lineWidth = 1.5;
-    for (let x = 0; x <= canvas.width; x += 64) {
+    for (let x = 0; x <= canvas.width; x += 128) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, canvas.height);
       ctx.stroke();
     }
-    for (let y = 0; y <= canvas.height; y += 64) {
+    for (let y = 0; y <= canvas.height; y += 128) {
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(canvas.width, y);
       ctx.stroke();
     }
 
-    // Continents (Emerald phosphor particles)
+    // Smooth Continents Drawing
     ctx.fillStyle = '#10B981';
-    const drawContinentCluster = (centerX, centerY, widthRadius, heightRadius, count = 300) => {
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const dist = Math.sqrt(Math.random());
-        const x = centerX + Math.cos(angle) * dist * widthRadius + (Math.random() - 0.5) * 20;
-        const y = centerY + Math.sin(angle) * dist * heightRadius + (Math.random() - 0.5) * 20;
-        const size = Math.random() * 3 + 1.5;
-        ctx.fillRect(x, y, size, size);
-      }
+    ctx.strokeStyle = '#059669';
+    ctx.lineWidth = 2;
+
+    const drawSmoothLandmass = (paths) => {
+      paths.forEach(p => {
+        ctx.beginPath();
+        p.forEach((pt, i) => {
+          if (i === 0) ctx.moveTo(pt[0], pt[1]);
+          else ctx.lineTo(pt[0], pt[1]);
+        });
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      });
     };
 
-    drawContinentCluster(500, 320, 240, 180, 450);  // N. America
-    drawContinentCluster(700, 680, 160, 220, 380);  // S. America
-    drawContinentCluster(1250, 320, 380, 200, 700); // Eurasia
-    drawContinentCluster(1180, 580, 200, 220, 450); // Africa
-    drawContinentCluster(1720, 720, 160, 130, 280); // Australia
+    // Realistic vector silhouettes for continents
+    const landmasses = [
+      // North America
+      [[350, 180], [600, 160], [700, 260], [650, 420], [550, 480], [450, 450], [380, 320]],
+      // South America
+      [[580, 500], [720, 540], [780, 680], [700, 850], [620, 850], [560, 680]],
+      // Europe
+      [[1050, 180], [1280, 160], [1320, 320], [1150, 380], [1020, 340]],
+      // Asia
+      [[1280, 160], [1750, 180], [1820, 380], [1650, 500], [1400, 480], [1320, 320]],
+      // Africa
+      [[1020, 400], [1280, 400], [1340, 600], [1250, 820], [1100, 820], [980, 550]],
+      // Australia
+      [[1550, 620], [1780, 620], [1820, 780], [1600, 820], [1520, 720]],
+    ];
+    drawSmoothLandmass(landmasses);
+
+    // Island clusters & coastlines
+    for (let i = 0; i < 400; i++) {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height;
+      if (
+        (x > 350 && x < 700 && y > 150 && y < 450) ||
+        (x > 1050 && x < 1800 && y > 150 && y < 500) ||
+        (x > 980 && x < 1350 && y > 400 && y < 820)
+      ) {
+        ctx.beginPath();
+        ctx.arc(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40, Math.random() * 4 + 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
 
     const earthTexture = new THREE.CanvasTexture(canvas);
     earthTexture.needsUpdate = true;
@@ -131,31 +224,31 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     const earthGeom = new THREE.SphereGeometry(earthRadius, 64, 64);
     const earthMat = new THREE.MeshStandardMaterial({
       map: earthTexture,
-      roughness: 0.6,
+      roughness: 0.5,
       metalness: 0.1,
       emissive: new THREE.Color(0x040e1f),
-      emissiveIntensity: 0.4,
+      emissiveIntensity: 0.35,
     });
     const earthMesh = new THREE.Mesh(earthGeom, earthMat);
     earthParent.add(earthMesh);
 
     // Lat/Long Wireframe Overlay
-    const wireGeom = new THREE.SphereGeometry(earthRadius * 1.004, 32, 24);
+    const wireGeom = new THREE.SphereGeometry(earthRadius * 1.003, 36, 24);
     const wireMat = new THREE.MeshBasicMaterial({
       color: 0x06b6d4,
       wireframe: true,
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.12,
     });
     const wireMesh = new THREE.Mesh(wireGeom, wireMat);
     earthParent.add(wireMesh);
 
-    // Atmospheric Shell
+    // Atmospheric Glow Shell
     const atmosGeom = new THREE.SphereGeometry(earthRadius * 1.035, 32, 32);
     const atmosMat = new THREE.MeshBasicMaterial({
       color: 0x00ff88,
       transparent: true,
-      opacity: 0.1,
+      opacity: 0.08,
       side: THREE.BackSide,
     });
     const atmosMesh = new THREE.Mesh(atmosGeom, atmosMat);
@@ -174,7 +267,7 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     earthParent.add(conjunctionGroup);
     conjunctionGroupRef.current = conjunctionGroup;
 
-    // Background Starfield
+    // Starfield Background
     const starsCount = 900;
     const starGeometry = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starsCount * 3);
@@ -218,6 +311,7 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     const animate = () => {
       animFrameIdRef.current = requestAnimationFrame(animate);
       const delta = clock.getDelta();
+      const time = clock.getElapsedTime();
 
       if (autoRotate && !isDraggingRef.current) {
         targetRotationRef.current.y += delta * 0.08;
@@ -231,10 +325,23 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
         earthParent.rotation.x = currentRotationRef.current.x;
       }
 
+      // Animate 3D satellites along their orbits
+      if (satellitesGroup) {
+        satellitesGroup.children.forEach(sat => {
+          if (sat.userData?.orbitRadius) {
+            const angle = time * sat.userData.speed + sat.userData.initialAngle;
+            const r = sat.userData.orbitRadius;
+            sat.position.set(r * Math.cos(angle), 0, r * Math.sin(angle));
+            sat.rotation.y = -angle;
+          }
+        });
+      }
+
+      // Pulsate encounter nodes
       if (conjunctionGroup) {
         conjunctionGroup.children.forEach(child => {
           if (child.userData?.isBeacon) {
-            const scale = 1 + 0.3 * Math.sin(clock.getElapsedTime() * 5);
+            const scale = 1 + 0.3 * Math.sin(time * 5);
             child.scale.set(scale, scale, scale);
           }
         });
@@ -292,7 +399,7 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
     };
   }, []);
 
-  // Update Orbits and Markers
+  // Update 3D Satellites, Orbits, and Encounter Nodes
   useEffect(() => {
     if (!orbitsGroupRef.current || !conjunctionGroupRef.current || !satellitesGroupRef.current) return;
 
@@ -329,6 +436,7 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
       return line;
     };
 
+    // Render active conjunctions and realistic 3D satellites
     activeEvents.forEach((ev, idx) => {
       const isSelected = selectedEvent && selectedEvent.target_id === ev.target_id && selectedEvent.chaser_id === ev.chaser_id;
       const isCritical = (ev.risk_tier || '').toLowerCase().includes('crit') || ev.pc > 1e-4;
@@ -338,59 +446,82 @@ export default function Globe3D({ selectedEvent, activeEvents = [], objects = []
       const incB = 74.0;
 
       if (isSelected || idx < 4) {
+        // Orbit A (Target)
         const orbitA = createOrbitRing(altKm, incA, idx * 30, isCritical ? 0x10b981 : 0x06b6d4);
         orbitsGroupRef.current.add(orbitA);
 
+        // Orbit B (Chaser)
         const orbitB = createOrbitRing(altKm, incB, idx * 30 + 45, isCritical ? 0xef4444 : 0xf59e0b);
         orbitsGroupRef.current.add(orbitB);
 
+        // Physical 3D Target Satellite Model
+        const targetSat = createSatelliteModel(0xffd700, 0x0284c7);
+        targetSat.userData = { orbitRadius: altKm * scaleFactor, speed: 0.3, initialAngle: idx * 0.8 };
+        targetSat.rotation.z = incA * (Math.PI / 180);
+        satellitesGroupRef.current.add(targetSat);
+
+        // Physical 3D Chaser Satellite Model
+        const chaserSat = createSatelliteModel(0xef4444, 0x334155);
+        chaserSat.userData = { orbitRadius: altKm * scaleFactor, speed: -0.28, initialAngle: idx * 0.8 + 1.2 };
+        chaserSat.rotation.z = incB * (Math.PI / 180);
+        satellitesGroupRef.current.add(chaserSat);
+
+        // Encounter Point
         const encDist = altKm * scaleFactor;
         const encX = encDist * Math.cos(idx * 0.8);
         const encY = encDist * Math.sin(incA * Math.PI / 180) * 0.7;
         const encZ = encDist * Math.sin(idx * 0.8);
 
-        const beaconGeom = new THREE.SphereGeometry(0.3, 16, 16);
-        const beaconMat = new THREE.MeshBasicMaterial({
-          color: isCritical ? 0xef4444 : 0xf59e0b,
-          wireframe: true,
-        });
-        const beaconMesh = new THREE.Mesh(beaconGeom, beaconMat);
-        beaconMesh.position.set(encX, encY, encZ);
-        beaconMesh.userData = { isBeacon: true, event: ev };
-        conjunctionGroupRef.current.add(beaconMesh);
-
-        const coreGeom = new THREE.SphereGeometry(0.14, 16, 16);
+        // Glowing Encounter Sphere
+        const coreGeom = new THREE.SphereGeometry(0.18, 16, 16);
         const coreMat = new THREE.MeshBasicMaterial({
-          color: isCritical ? 0xffffff : 0xfde047,
+          color: isCritical ? 0xef4444 : 0xf59e0b,
         });
         const coreMesh = new THREE.Mesh(coreGeom, coreMat);
         coreMesh.position.set(encX, encY, encZ);
+        coreMesh.userData = { isBeacon: true, event: ev };
         conjunctionGroupRef.current.add(coreMesh);
+
+        // Concentric Radar Rings
+        const ringGeom = new THREE.RingGeometry(0.24, 0.32, 32);
+        const ringMat = new THREE.MeshBasicMaterial({
+          color: isCritical ? 0xef4444 : 0xf59e0b,
+          transparent: true,
+          opacity: 0.6,
+          side: THREE.DoubleSide,
+        });
+        const ringMesh = new THREE.Mesh(ringGeom, ringMat);
+        ringMesh.position.set(encX, encY, encZ);
+        ringMesh.lookAt(0, 0, 0);
+        conjunctionGroupRef.current.add(ringMesh);
       }
     });
 
+    // Background Catalog Satellites (Circular Glow Point Sprites, NOT square pixels)
     if (objects.length > 0) {
       const satPositions = [];
-      const satColors = [];
 
       objects.forEach(obj => {
         if (obj.position_km && obj.position_km.length === 3) {
           const [x, y, z] = obj.position_km;
           satPositions.push(x * scaleFactor, z * scaleFactor, -y * scaleFactor);
-          satColors.push(0.06, 0.72, 0.5);
         }
       });
 
       if (satPositions.length > 0) {
         const satGeom = new THREE.BufferGeometry();
         satGeom.setAttribute('position', new THREE.Float32BufferAttribute(satPositions, 3));
-        satGeom.setAttribute('color', new THREE.Float32BufferAttribute(satColors, 3));
+
+        const glowTexture = createGlowSpriteTexture('#06B6D4');
         const satMat = new THREE.PointsMaterial({
-          size: 2.2,
-          vertexColors: true,
+          size: 1.6,
+          map: glowTexture,
           transparent: true,
-          opacity: 0.85,
+          opacity: 0.9,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
         });
+
         const satPoints = new THREE.Points(satGeom, satMat);
         satellitesGroupRef.current.add(satPoints);
       }
