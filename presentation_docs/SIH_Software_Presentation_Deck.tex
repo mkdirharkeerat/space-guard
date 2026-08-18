@@ -389,13 +389,18 @@ This slide shows judges that you have a vision beyond the hackathon. Keep it bri
 \begin{itemize}[leftmargin=1.5em]
     \item \textbf{Phase 1 (Done --- SIH Prototype)}:
     \begin{itemize}
-        \item Working software: live satellite tracking, collision detection, probability calculation, escape plan generation, 3D visualization.
-        \item Validated on real 2009 Iridium-Cosmos crash data.
+        \item Live satellite position tracking from CelesTrak public database.
+        \item Two-step collision screening: fast height filter, then precise closest-pass calculation.
+        \item Exact crash probability calculation (Foster/Alfano analytic method).
+        \item \textbf{ML surrogate model trained on synthetic data} --- a Random Forest model trained on features like miss distance, relative speed, and satellite size to quickly pre-rank dangerous pairs before running the expensive full calculation. This means the expensive physics runs only on the top candidates, not every pair.
+        \item Automatic escape plan generation using Clohessy-Wiltshire orbital mechanics.
+        \item Interactive 3D globe visualization in the browser.
+        \item Validated end-to-end on the real 2009 Iridium-Cosmos crash data --- the system independently flags it as Critical 48 hours before impact.
     \end{itemize}
 
-    \item \textbf{Phase 2 (Next 6 Months)}: Expand to the full catalog of 27,000+ satellites with GPU-accelerated processing, and integrate official error/uncertainty data from Space-Track CDMs (Conjunction Data Messages).
+    \item \textbf{Phase 2 (Next 6 Months)}: Scale to the full 27,000+ satellite catalog using GPU-accelerated processing. Integrate official position uncertainty data (CDMs from Space-Track) to replace the assumed uncertainty with real measured values, making crash probability numbers even more accurate.
 
-    \item \textbf{Phase 3 (1 Year)}: Handle entire commercial constellations (e.g., all of Starlink at once). Support satellites that use continuous low-thrust electric engines instead of single explosive burns.
+    \item \textbf{Phase 3 (1 Year)}: Handle entire commercial constellations (e.g., all of Starlink at once). Coordinate maneuvers so multiple satellites can dodge simultaneously without accidentally getting in each other's way. Support satellites with continuous low-thrust electric engines.
 
     \item \textbf{Phase 4 (2 Years)}: Full integration with space agency mission control standards. Direct telemetry handoff to operators. Real-time 24/7 monitoring service.
 \end{itemize}

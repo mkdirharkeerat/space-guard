@@ -52,7 +52,7 @@
 \rfoot{Page \thepage}
 
 \title{\Huge \textbf{Space-Guard: Judge Q\&A Cheat Sheet}\\[0.4em]
-\Large \textbf{15 Questions Judges Will Ask --- And How to Answer Them}\\[0.5em]
+\Large \textbf{16 Questions Judges Will Ask --- And How to Answer Them}\\[0.5em]
 \large \textbf{Smart India Hackathon 2026 --- Software Edition}}
 \author{\textbf{Team Space-Guard}}
 \date{\today}
@@ -63,12 +63,12 @@
 \thispagestyle{empty}
 
 \begin{tcolorbox}[colback=green!5!white,colframe=green!60!black,title=\textbf{How to Use This Guide}]
-This document has 15 questions that judges are very likely to ask you. Each question has:
+This document has 16 questions that judges are very likely to ask you. Each question has:
 \begin{itemize}
     \item A simple, clear answer you can say out loud.
     \item A tip on how to say it confidently.
 \end{itemize}
-Read through this the night before. You do not need to memorize exact words --- just understand the idea, and say it in your own natural way. If you do not know an answer, it is okay to say: ``That is a great point. In the current version we handle it this way... and in Phase 2 we plan to address that fully.''
+Read through this the night before. You do not need to memorize exact words --- just understand the idea, and say it in your own natural way. If you do not know an answer, it is okay to say: ``That is a great point. In the current version we handle it this way\ldots and in Phase 2 we plan to address that fully.''
 \end{tcolorbox}
 
 \vspace{1em}
@@ -170,7 +170,7 @@ Use the phrase ``actual probability number'' rather than ``Pc'' when speaking. S
 \end{questionbox}
 
 \begin{answerbox}
-Every satellite's orbit is officially tracked and published as a ``Two-Line Element set'' --- basically two lines of coded text that describe the satellite's orbit. Space agencies like the US Space Force (USSPACECOM) generate these from radar tracking data and publish them freely.
+Every satellite's orbit is officially tracked and published as a ``Two-Line Element set'' --- basically two lines of coded text that describe the satellite's orbit. Space agencies like the US Space Force generate these from radar tracking data and publish them freely.
 
 CelesTrak is a well-respected public database run by Dr.\ T.S. Kelso, a well-known aerospace engineer, that mirrors and organizes this official tracking data. It is the same data used by universities, research institutions, and commercial operators worldwide.
 
@@ -214,15 +214,15 @@ A good way to explain this: ``Think of it like a GPS. GPS satellites broadcast t
 \begin{answerbox}
 We use a two-step filter:
 
-\textbf{Step 1 (Height check):} Satellites can only collide if they fly at a similar height. We instantly discard all pairs where the two satellites orbit at very different heights. For example, a satellite at 400 km cannot hit one at 800 km --- they are in completely different orbital lanes. This eliminates over 90\% of pairs in milliseconds.
+\textbf{Step 1 (Height check):} Satellites can only collide if they fly at a similar height. We instantly discard all pairs where the two satellites orbit at very different heights. This eliminates over 90\% of pairs in milliseconds.
 
-\textbf{Step 2 (Precise check):} For the small number of pairs that pass the height filter, we calculate exactly how close the two satellites will get over the next 72 hours, and at what time. If that closest distance is below a safe threshold, we compute the full collision probability.
+\textbf{Step 2 (Precise check):} For the small number of pairs that pass the height filter, we calculate exactly how close the two satellites will get over the next 72 hours, and at what time.
 
-This reduces 360 million comparisons down to a few hundred that actually need careful analysis.
+We also have an \textbf{ML pre-filter} (explained in Q10) that quickly ranks the remaining pairs by estimated risk before running the full calculation, so the expensive physics only runs on the top suspects.
 \end{answerbox}
 
 \begin{tipbox}
-Great analogy: ``It is like sorting mail. First you sort by city (fast, eliminates most). Then you sort by street (more detail, fewer items). Then you find the exact house. We sort satellites by height first, then by exact path.''
+Good analogy: ``It is like sorting mail. First by city (fast, eliminates most). Then by street (more detail). Then find the exact house. We sort satellites by height first, then by exact path, then by ML score.''
 \end{tipbox}
 
 \newpage
@@ -233,17 +233,17 @@ Great analogy: ``It is like sorting mail. First you sort by city (fast, eliminat
 \end{questionbox}
 
 \begin{answerbox}
-We know two things: (1) how close the satellites will get (their predicted closest distance), and (2) how uncertain our position measurements are (satellite tracking has small errors).
+We know two things: how close the satellites will get, and how uncertain our position measurements are (satellite tracking has small errors of a few hundred metres).
 
-We model these uncertainties as a ``bell curve'' spread around the predicted position. If the two satellites are predicted to pass very close together AND our measurement uncertainty is large, the chance of an actual collision is higher. If they are predicted to pass far apart, the chance is very low.
+We model these uncertainties as a ``bell curve'' spread around the predicted position. If the two satellites are predicted to pass very close together AND our measurement uncertainty is large, the chance of an actual collision is higher.
 
-The formula combines these factors into a single probability number. It is an established aerospace standard formula (called the Foster/Alfano method), and it computes in microseconds.
+The formula combines these factors into a single probability number. It is an established aerospace standard formula, and it computes in microseconds.
 
-For the 2009 event, the two satellites were predicted to pass within 3 metres of each other, with measurement uncertainties of about 500 metres. That combination gives a 1-in-5,000 crash probability --- which our system correctly flags as Critical.
+For the 2009 event, the two satellites were predicted to pass within 3 metres of each other, with measurement uncertainties of about 500 metres. That gives a 1-in-5,000 crash probability --- which our system correctly flags as Critical.
 \end{answerbox}
 
 \begin{tipbox}
-If a judge asks you to write the formula on a whiteboard, you can write: $P_c \approx \frac{r^2}{2\sigma^2} e^{-d^2/(2\sigma^2)}$ where $r$ is the satellite size, $d$ is the closest distance, and $\sigma$ is the measurement uncertainty. But keep it simple and explain each variable.
+If a judge asks you to write the formula: $P_c \approx \frac{r^2}{2\sigma^2} e^{-d^2/(2\sigma^2)}$ where $r$ is the satellite size, $d$ is the closest distance, and $\sigma$ is the measurement uncertainty. Keep it simple and explain each variable.
 \end{tipbox}
 
 \vspace{1em}
@@ -254,13 +254,11 @@ If a judge asks you to write the formula on a whiteboard, you can write: $P_c \a
 \end{questionbox}
 
 \begin{answerbox}
-When you push a satellite slightly in the direction it is already flying (along its orbit), you change its orbital height very slightly. A higher orbit moves slightly slower. Over time, this means the satellite gradually falls behind --- it drifts along its path relative to where it would have been.
+When you push a satellite slightly in the direction it is already flying, you change its orbital height very slightly. A higher orbit moves slightly slower. Over time, this means the satellite gradually falls behind --- it drifts along its path relative to where it would have been.
 
 Here is the key: this drift keeps building up over time. After 24 hours, the satellite has drifted 14 times further away compared to if you had applied the same push just 1 hour before the collision.
 
-It is like steering a ship. A tiny rudder adjustment 10 km before a reef sends you safely around it. The same tiny adjustment 100 metres from the reef is not enough to avoid it.
-
-So the exact same fuel, applied much earlier, gives 14 times more safety distance.
+It is like steering a ship. A tiny rudder adjustment 10 km before a reef sends you safely around it. The same tiny adjustment 100 metres from the reef is not enough. Same idea with satellites --- early action means less fuel and more safety.
 \end{answerbox}
 
 \begin{tipbox}
@@ -269,28 +267,36 @@ In the demo, drag the ``how early we fire'' slider from 1 hour to 24 hours and s
 
 \newpage
 %% ============================================================
-\section{Questions About the Software}
+\section{Questions About the ML Model}
 %% ============================================================
 
-\subsection*{Q10: Why did you not use AI / Deep Learning for everything?}
+\subsection*{Q10: You mentioned Machine Learning. What exactly does the ML model do? Did you actually train it?}
 
 \begin{questionbox}
-``Why did you not just train a neural network or AI model to predict collisions directly?''
+``There is ML in your comparison table. What does it actually do? Did you really train a model?''
 \end{questionbox}
 
 \begin{answerbox}
-Because in safety-critical aerospace systems, you need to be able to explain and verify every decision. If a neural network tells an operator ``move your satellite'' but cannot explain exactly why, operators cannot trust it. If the AI is wrong, a satellite gets destroyed.
+Yes --- we actually trained a machine learning model. Here is exactly what it does and how:
 
-Our physics equations, on the other hand, are deterministic --- they always give the same answer for the same input, and every number can be checked and verified. The physics calculations are also faster than a neural network forward pass, so there is no speed advantage to AI here.
+\textbf{The problem it solves:} After our height filter, we still have hundreds of satellite pairs to check carefully. Running the full crash probability calculation on every single one is slow.
 
-We do use a simple machine learning model (Random Forest), but only to quickly pre-sort which pairs are worth checking in detail. The actual crash probability and escape plan are always calculated using verified physics equations.
+\textbf{What the model does:} Our \textbf{Random Forest model} takes cheap-to-calculate features for each pair --- things like: how close they will get, how fast they are moving toward each other, how big each satellite is, and what height they orbit at --- and produces a quick risk ranking. We then only run the expensive full crash probability calculation on the top-ranked pairs (the most suspicious ones). This makes the whole pipeline much faster without losing accuracy on real threats.
+
+\textbf{How we trained it:} We generated our own synthetic training data. We swept through thousands of combinations of close-pass distance, relative speed, and satellite size, computed the correct crash probability for each combination using our physics formula, and trained the Random Forest on those pairs. This is the same ``surrogate model'' approach used in real aerospace conjunction screening pipelines.
+
+\textbf{Why not use AI for the final probability?} Because crash probability must be a verifiable mathematical number. If an AI guesses wrong and a satellite gets destroyed, that is catastrophic. We use ML only to rank candidates fast --- the final probability always comes from the verified physics formula.
 \end{answerbox}
 
 \begin{tipbox}
-This is a strong answer. Say: ``We use AI where it helps (fast pre-sorting), and we use physics where correctness is critical (the actual numbers). We do not use AI as a black box for safety decisions.'' Judges will appreciate this reasoning.
+This is a question you should answer with full confidence --- you actually built and trained this. Say: ``Yes, we trained a Random Forest on synthetic training data we generated ourselves. It pre-ranks satellite pairs by estimated risk so the expensive physics calculation only runs on the most suspicious ones. The ML ranks --- the physics proves.'' Judges will be impressed that you actually trained a model rather than just claiming AI.
 \end{tipbox}
 
-\vspace{1em}
+\newpage
+%% ============================================================
+\section{Questions About the Software}
+%% ============================================================
+
 \subsection*{Q11: How fast is your system?}
 
 \begin{questionbox}
@@ -299,8 +305,9 @@ This is a strong answer. Say: ``We use AI where it helps (fast pre-sorting), and
 
 \begin{answerbox}
 \begin{itemize}
-    \item \textbf{Step 1 (height filter)}: Under 5 milliseconds for 1,000 satellites.
-    \item \textbf{Step 2 (precise closest distance)}: Run only on the small subset that passes the height filter. Takes a fraction of a second per pair.
+    \item \textbf{Height filter (Step 1)}: Under 5 milliseconds for 1,000 satellites.
+    \item \textbf{Precise closest-distance check}: Runs only on the small subset that passes the height filter. Fraction of a second per pair.
+    \item \textbf{ML pre-ranking}: Instant --- the model scores all pairs in milliseconds.
     \item \textbf{Crash probability calculation}: Under 10 microseconds per pair. Essentially instant.
     \item \textbf{Escape plan calculation}: Under 50 microseconds per event. Essentially instant.
     \item \textbf{Full pipeline for 100 satellites}: Well under 5 seconds end-to-end.
@@ -309,10 +316,10 @@ Compare this to legacy systems that can take minutes to hours for the same catal
 \end{answerbox}
 
 \begin{tipbox}
-You can demonstrate this live. In the demo, click ``Refresh'' on Step 1. The data appears in 1--2 seconds (including network time to fetch from the API). The physics calculation itself is sub-second. This is the real-time demo.
+You can demonstrate this live. In the demo, click ``Refresh'' on Step 1. The data appears in 1--2 seconds (including network time). The physics calculation itself is sub-second. This is your real-time demo proof.
 \end{tipbox}
 
-\newpage
+\vspace{1em}
 \subsection*{Q12: How do you prove the demo is actually live, not pre-recorded?}
 
 \begin{questionbox}
@@ -322,17 +329,17 @@ You can demonstrate this live. In the demo, click ``Refresh'' on Step 1. The dat
 \begin{answerbox}
 There are three things you can do to verify it is live:
 \begin{enumerate}
-    \item \textbf{Hit Refresh in Step 1}: The satellite position coordinates will update to the current UTC time. The positions change continuously because the satellites are actually moving.
+    \item \textbf{Hit Refresh in Step 1}: The satellite position coordinates update to the current UTC time. The positions change continuously because the satellites are actually moving.
     \item \textbf{Drag the sliders in Step 4}: The safety gap number updates in real time as you move the sliders. This is a live calculation, not a lookup table.
     \item \textbf{Ask us to show the terminal}: The backend server is running locally. You can see the API calls happening in real time in the terminal window.
 \end{enumerate}
 \end{answerbox}
 
 \begin{tipbox}
-Before the presentation, have a terminal window open with the backend logs visible. If a judge asks this question, offer to show the terminal. Live log output is very convincing proof that the system is actually calculating something.
+Before the presentation, have a terminal window open with the backend logs visible. If a judge asks this question, offer to show the terminal. Live log output is very convincing proof that the system is actually calculating.
 \end{tipbox}
 
-\vspace{1em}
+\newpage
 \subsection*{Q13: What happens when two active satellites are both trying to dodge each other at the same time?}
 
 \begin{questionbox}
@@ -340,9 +347,9 @@ Before the presentation, have a terminal window open with the backend logs visib
 \end{questionbox}
 
 \begin{answerbox}
-In practice, most close passes involve one active satellite and one piece of dead debris or a derelict satellite that cannot maneuver at all (like Cosmos 2251 in 2009). So usually only one satellite moves.
+In practice, most close passes involve one active satellite and one piece of dead debris that cannot maneuver at all (like Cosmos 2251 in 2009). So usually only one satellite moves.
 
-When both are active (like Starlink vs OneWeb), real-world operators follow international coordination protocols to decide which satellite moves and in which direction.
+When both are active, real-world operators follow international coordination protocols to decide which satellite moves and in which direction.
 
 In our current prototype, we generate an escape plan for one satellite at a time. In our Phase 3 roadmap, we plan to add multi-satellite coordination --- where the system simulates all planned maneuvers together to make sure none of them create new accidental close passes.
 \end{answerbox}
@@ -365,20 +372,37 @@ It is totally fine to say ``our current version handles one satellite maneuver a
 \begin{answerbox}
 Not as-is --- this is a research prototype. For real operational use, we would need:
 \begin{itemize}
-    \item \textbf{Access to better data}: Full satellite position uncertainty data (covariance matrices from Space-Track CDMs), not just public TLE files.
+    \item \textbf{Access to better data}: Full satellite position uncertainty data (covariance matrices from Space-Track CDMs), not just public TLE files. This would make crash probability numbers more accurate.
     \item \textbf{Full catalog scaling}: GPU-accelerated processing to handle all 27,000+ satellites (not just our demo set of 100).
     \item \textbf{Security and reliability}: Real-time monitoring runs 24/7, requires backup servers, proper authentication, and uptime guarantees.
     \item \textbf{Integration}: Direct interface to satellite operators' mission control systems.
 \end{itemize}
-The core physics, math, and algorithms are sound and validated on real data. The jump to operational deployment is a matter of engineering scale-up and institutional integration --- both of which are achievable.
+The core physics, math, ML model, and algorithms are all working correctly on real data. The jump to operational deployment is engineering scale-up --- achievable with resources.
 \end{answerbox}
 
 \begin{tipbox}
-Say: ``This is a validated proof-of-concept. The hard part --- the physics and algorithms --- is working correctly on real historical data. The remaining steps are engineering scale-up, which is straightforward with resources. We have a clear Phase 2 and Phase 3 plan for this.''
+Say: ``This is a validated proof-of-concept. The hard part --- the physics, the ML, and the algorithms --- is working correctly on real historical data. The remaining steps are scale-up engineering, which is straightforward with resources.''
 \end{tipbox}
 
 \vspace{1em}
-\subsection*{Q15: What is Kessler Syndrome and how does Space-Guard help prevent it?}
+\subsection*{Q15: How does Space-Guard connect to ISRO's work?}
+
+\begin{questionbox}
+``How does this align with what ISRO is already doing in space safety?''
+\end{questionbox}
+
+\begin{answerbox}
+ISRO has a dedicated space safety center called \textbf{IS4OM} (ISRO System for Safe and Sustainable Space Operations Management) at ISTRAC, Bengaluru. It is run by a dedicated directorate (DSSAM) and tracks threats to Indian satellites like Cartosat, GSAT, RISAT, and EOS.
+
+Space-Guard is exactly the kind of automated rapid-screening and maneuver planning tool that IS4OM needs. Our system could sit upstream of IS4OM --- automatically filtering routine low-risk events and flagging only the real threats with instant escape plans, reducing the workload on ISRO operators dramatically.
+\end{answerbox}
+
+\begin{tipbox}
+Focus on ISRO when talking to SIH judges --- it is the most relevant connection. Say: ``ISRO has IS4OM. Our system is designed to be exactly the kind of automated front-end tool they need.'' This shows you did your research.
+\end{tipbox}
+
+\newpage
+\subsection*{Q16: What is Kessler Syndrome and how does Space-Guard help prevent it?}
 
 \begin{questionbox}
 ``What is Kessler Syndrome? Is it actually a realistic threat?''
@@ -395,7 +419,7 @@ Space-Guard helps prevent this by catching dangerous close passes early and auto
 \end{answerbox}
 
 \begin{tipbox}
-This is a great question to answer because it puts the big picture of Space-Guard in perspective. Say it seriously: ``Kessler Syndrome is one of the most serious long-term threats to humanity's access to space. Every prevented collision matters. Space-Guard is one piece of the solution.''
+Say it seriously: ``Kessler Syndrome is one of the most serious long-term threats to humanity's access to space. Every prevented collision matters. Space-Guard is one piece of the solution.''
 \end{tipbox}
 
 \end{document}
