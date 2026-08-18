@@ -1,3 +1,5 @@
-\contentsline {section}{\numberline {1}Astrodynamics \& Physics Questions}{2}{section.1}%
-\contentsline {section}{\numberline {2}Computer Science \& Software Questions}{5}{section.2}%
-\contentsline {section}{\numberline {3}Validation, Industry, \& Operations Questions}{6}{section.3}%
+\contentsline {section}{\numberline {1}Questions About the Problem}{2}{section.1}%
+\contentsline {section}{\numberline {2}Questions About Our Solution}{4}{section.2}%
+\contentsline {section}{\numberline {3}Questions About Physics and Math}{7}{section.3}%
+\contentsline {section}{\numberline {4}Questions About the Software}{10}{section.4}%
+\contentsline {section}{\numberline {5}Questions About Impact and Future}{13}{section.5}%

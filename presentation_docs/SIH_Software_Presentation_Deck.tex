@@ -18,15 +18,53 @@
     citecolor=blue!80!black
 }
 
+\tcbuselibrary{skins,breakable}
+
+% Presenter note box (amber/gold)
+\newtcolorbox{presenterbox}[1][]{
+  colback=orange!5!white,
+  colframe=orange!70!black,
+  fonttitle=\bfseries\small,
+  title={Presenter Note},
+  #1
+}
+
+% Key fact highlight box (blue)
+\newtcolorbox{factbox}[1][]{
+  colback=blue!5!white,
+  colframe=blue!75!black,
+  fonttitle=\bfseries\small,
+  title={Key Information},
+  #1
+}
+
+% Warning/collision box (red)
+\newtcolorbox{warnbox}[1][]{
+  colback=red!5!white,
+  colframe=red!75!black,
+  fonttitle=\bfseries\small,
+  title={Real-World Case Study},
+  #1
+}
+
+% Solution box (green)
+\newtcolorbox{solutionbox}[1][]{
+  colback=green!5!white,
+  colframe=green!60!black,
+  fonttitle=\bfseries\small,
+  title={Our Solution},
+  #1
+}
+
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{\textbf{Space-Guard} · SIH 2026}
+\rhead{\textbf{Space-Guard} $\cdot$ SIH 2026}
 \lhead{Software Presentation Pitch Deck}
 \rfoot{Page \thepage}
 
 \title{\Huge \textbf{Space-Guard}\\[0.3em]
-\Large \textbf{Autonomous Real-Time Orbital Conjunction Screening \& Collision Avoidance}\\[0.5em]
-\large \textbf{Smart India Hackathon 2026 — Software Edition} · Problem ID: 17}
+\Large \textbf{A System That Watches Satellites and Prevents Collisions in Space}\\[0.5em]
+\large \textbf{Smart India Hackathon 2026 --- Software Edition} $\cdot$ Problem ID: 17}
 \author{\textbf{Team Space-Guard}}
 \date{\today}
 
@@ -36,218 +74,334 @@
 \thispagestyle{empty}
 
 \begin{abstract}
-\noindent This document provides the complete slide-by-slide presentation script, slide visual structures, mathematical and computer science implementation breakdown, team roles, target audience analysis, and tentative development roadmap for the \textbf{Space-Guard} platform at the Smart India Hackathon (SIH) 2026. Space-Guard is a deterministic, physics-first orbital conjunction assessment and collision avoidance engine designed for operational spacecraft and mega-constellations.
+\noindent This document is the full presentation script and slide content guide for the Space-Guard project at SIH 2026. Space-Guard is a software system that monitors satellites orbiting Earth, detects when two satellites are getting dangerously close to each other, and automatically calculates the safest, most fuel-efficient way to move one of them out of the way --- before a collision can happen.
 \end{abstract}
+
+\begin{presenterbox}
+How to use this document: Read the slides out loud to the judges during your presentation. The orange boxes (like this one) are your personal notes --- they tell you what to say and why. The judges will not see these notes; they are only for you.
+\end{presenterbox}
 
 \vspace{1em}
 \tableofcontents
 \newpage
 
-\section{Slide 1: Title \& Team Overview}
+%% ============================================================
+\section{Slide 1: Title and Team Introduction}
+%% ============================================================
 
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Slide 1 — Header \& Team Information}]
-\textbf{Project Name}: Space-Guard: Autonomous Orbital Conjunction Assessment \& Avoidance \\
-\textbf{Theme}: Space Technology / Smart India Hackathon 2026 \\
-\textbf{Tagline}: \textit{Deterministic Physics-First Orbital Defense for Spacecraft \& Constellations}
-\end{tcolorbox}
+\begin{factbox}
+\textbf{Project:} Space-Guard --- A Satellite Collision Prevention System\\
+\textbf{Theme:} Space Technology / Smart India Hackathon 2026\\
+\textbf{Tagline:} \textit{``We watch the skies so astronauts and satellites stay safe.''}
+\end{factbox}
 
-\subsection*{Team Member Contributions}
+\begin{presenterbox}
+Say something like this: ``Hi, we are Team Space-Guard. Our project is a software system that tracks satellites in orbit and automatically detects when two of them are on a collision course --- and then tells operators exactly how to steer one of them out of the way, using as little fuel as possible. Think of it like Google Maps, but for satellites, with a built-in emergency alert system.''
+\end{presenterbox}
+
+\subsection*{What Each Team Member Built}
+
 \begin{itemize}[leftmargin=1.5em]
-    \item \textbf{Team Lead \& Full-Stack Software Architect}:
+    \item \textbf{Team Lead and Software Developer}:
     \begin{itemize}
-        \item Engineered the asynchronous FastAPI REST microservices architecture and modular routing layer.
-        \item Designed the React 19 single-page application and unified modern component system.
-        \item Integrated CelesTrak active TLE ingestion caching pipelines with sub-second response times.
+        \item Built the website (frontend) and the server that runs behind the scenes (backend).
+        \item Connected the system to live satellite data from public space agency databases.
+        \item Made everything work together end-to-end.
     \end{itemize}
-    \item \textbf{Orbital Mechanics \& Astrodynamics Lead}:
+
+    \item \textbf{Physics and Math Lead}:
     \begin{itemize}
-        \item Derived and implemented the SGP4 analytical propagation routines in Geocentric Celestial Reference System (GCRS/ECI).
-        \item Formulated the two-stage screening architecture: $O(N^2)$ apogee/perigee altitude filter and Golden-Section scalar minimization for exact Time of Closest Approach (TCA).
-        \item Integrated the Foster/Alfano 2D Gaussian collision probability ($P_c$) analytical formulation.
+        \item Wrote the code that calculates where each satellite is in space, right now, using standard physics equations.
+        \item Designed the two-step system that quickly finds which satellites are actually at risk of hitting each other (instead of checking every pair, which would be too slow).
+        \item Calculated the exact probability (in numbers) that two satellites will crash.
     \end{itemize}
-    \item \textbf{Control \& Maneuver Planner Lead}:
+
+    \item \textbf{Collision Avoidance Lead}:
     \begin{itemize}
-        \item Implemented the Clohessy-Wiltshire (CW / Hill's) linearized relative state transition matrices ($\Phi_{rr}, \Phi_{rv}$).
-        \item Developed the Singular Value Decomposition (SVD) optimizer for maximal along-track separation per unit $\Delta V$.
-        \item Formulated the 14$\times$ early secular drift fuel efficiency scaling model.
+        \item Wrote the code that figures out the best way to steer a satellite away from danger.
+        \item Optimized the engine burn to use the least possible fuel.
+        \item Proved that acting early saves 14 times more fuel than acting at the last minute.
     \end{itemize}
-    \item \textbf{Data \& 3D Visualization Engineer}:
+
+    \item \textbf{3D Visualization and Data Engineer}:
     \begin{itemize}
-        \item Developed the Three.js WebGL orbital radar engine with accurate inclination ($i$), RAAN ($\Omega$), and true Earth scale.
-        \item Designed the interactive 2009 collision replay with dynamic debris fragment kinematics.
-        \item Optimized 60 FPS WebGL rendering with asynchronous worker thread decoupling.
+        \item Built the interactive 3D Earth globe in the browser.
+        \item Made the 2009 collision replay animation showing the crash and debris.
+        \item Ensured the 3D view runs smoothly in any web browser, without any special software.
     \end{itemize}
 \end{itemize}
+
+\begin{presenterbox}
+Point to each team member as you say their name and contribution. Keep it short --- 1 sentence per person. If a judge asks about a specific part, the relevant person should answer.
+\end{presenterbox}
 
 \newpage
-\section{Slide 2: Problem Statement — The Low Earth Orbit Crisis}
+%% ============================================================
+\section{Slide 2: The Problem --- Why This Matters}
+%% ============================================================
 
-\subsection*{The Modern Orbital Environment}
+\subsection*{The Situation in Space Today}
+
 \begin{itemize}[leftmargin=1.5em]
-    \item Over \textbf{27,000+} cataloged artificial objects larger than 10~cm orbit Earth at velocities exceeding \textbf{7.5~km/s (27,000~km/h)}.
-    \item With commercial mega-constellations (Starlink, OneWeb, Project Kuiper), satellite density in Low Earth Orbit (LEO) has surged by over \textbf{400\%} in five years.
+    \item There are currently over \textbf{27,000 man-made objects} orbiting Earth, including active satellites, dead satellites, and old rocket parts.
+    \item These objects travel at speeds of \textbf{27,000 km/h} --- about 40 times faster than a bullet.
+    \item In the last five years, companies like SpaceX (Starlink) have launched thousands more satellites, making space even more crowded.
+    \item When two objects collide, they shatter into thousands of tiny pieces that then threaten even more satellites --- a chain reaction called the \textbf{Kessler Effect}.
 \end{itemize}
 
-\subsection*{Real-World Case Study: The 10 February 2009 Collision}
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black,title=\textbf{Historical Ground Truth Benchmark}]
-On \textbf{10 February 2009 at 16:56 UTC}, at an altitude of \textbf{789~km above the Taymyr Peninsula, Siberia}:
+\begin{presenterbox}
+Use this analogy: ``Imagine a busy highway where all the cars are moving at 40 times the speed of a bullet, and nobody has a GPS, a horn, or brakes. That is low Earth orbit today. One crash can cause a chain reaction that makes all of space unusable for decades.'' This makes it real for the judges.
+\end{presenterbox}
+
+\subsection*{Real Proof: The 2009 Iridium--Cosmos Collision}
+
+\begin{warnbox}
+On \textbf{10 February 2009 at 16:56 UTC}, at \textbf{789 km above Siberia}:
 \begin{itemize}
-    \item \textbf{Iridium 33} (an active 560~kg commercial communications satellite) collided with
-    \item \textbf{Cosmos 2251} (a derelict 900~kg Russian military satellite)
-    \item \textbf{Relative Collision Velocity}: \textbf{14.12~km/s (50,832~km/h)} — a near head-on intersection.
-    \item \textbf{Consequence}: Both spacecraft were obliterated in milliseconds, generating over \textbf{2,000 trackable debris fragments} and thousands of untrackable lethal shards that continue to threaten the ISS and operational satellites today (Kessler Syndrome).
+    \item An active American phone satellite called \textbf{Iridium 33} (560 kg, roughly the size of a small car) hit a dead Russian military satellite called \textbf{Cosmos 2251} (900 kg).
+    \item They were moving towards each other at \textbf{14.12 km/s} (over 50,000 km/h) --- a near head-on crash.
+    \item Both satellites were completely destroyed in milliseconds.
+    \item The crash created over \textbf{2,000 trackable pieces of debris} and thousands of smaller, untrackable fragments that are still flying around in orbit today, threatening the International Space Station and other satellites.
+    \item \textbf{This was entirely preventable} --- nobody detected the risk early enough to do anything about it.
 \end{itemize}
-\end{tcolorbox}
+\end{warnbox}
 
-\subsection*{Why Existing Screening Approaches Fail}
+\begin{presenterbox}
+This is the most important part of the presentation --- make the judges feel the impact of this event. Say: ``This is not a hypothetical. This actually happened. Two real satellites crashed. Both were completely destroyed. And the wreckage is still up there today, threatening the ISS astronauts every single day. Our project exists to make sure this can never happen again.'' You can also say: ``At the time, there was no system fast enough or smart enough to warn operators in time. We built Space-Guard to be that system.''
+\end{presenterbox}
+
+\subsection*{Why Existing Systems Are Not Enough}
+
 \begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Computational Bottleneck}: Direct pairwise checking of $N$ satellites requires $O(N^2)$ calculations, causing severe latency in operational pipelines.
-    \item \textbf{False-Alarm Fatigue}: Naive distance-only screening produces thousands of daily warnings without realistic collision probabilities ($P_c$), overwhelming operators.
-    \item \textbf{Manual Maneuver Delays}: Human-in-the-loop maneuver calculation takes hours when critical orbital decisions must be executed in minutes.
+    \item \textbf{Too slow}: Checking all 27,000 satellites against each other manually takes hours. By the time the calculation is done, there is no time to act.
+    \item \textbf{Too many false alarms}: Simple distance-based systems trigger thousands of warnings per day. Operators get flooded and start ignoring them.
+    \item \textbf{No automated escape plan}: Even when a risk is detected, figuring out the best engine burn to dodge it still requires hours of manual work by engineers.
 \end{enumerate}
+
+\begin{presenterbox}
+Keep this short. You just need to plant the idea that current tools are slow, noisy, and manual. Space-Guard solves all three. You will explain how in the next slide.
+\end{presenterbox}
 
 \newpage
-\section{Slide 3: Solution Statement — How Space-Guard is Better}
+%% ============================================================
+\section{Slide 3: Our Solution --- How Space-Guard Fixes This}
+%% ============================================================
 
-\begin{tcolorbox}[colback=green!5!white,colframe=green!60!black,title=\textbf{High-Level Solution (Non-Technical \& Accessible)}]
-\textbf{Space-Guard} is an autonomous, real-time orbital collision assessment and avoidance platform that watches the sky, detects close passes days in advance, and prescribes the most fuel-efficient escape burn.
-\end{tcolorbox}
-
-\subsection*{How It Works in Three Clear Steps}
-\begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Continuous Orbital Ingestion}: Ingests live satellite tracking coordinates directly from global radar networks (CelesTrak / Space-Track).
-    \item \textbf{High-Speed Deterministic Screening}: Evaluates orbital trajectories through a fast two-stage mathematical filter, computing exact collision probability ($P_c$) in under 10~$\mu$s.
-    \item \textbf{Optimal Avoidance Execution}: Calculates the exact thruster pulse ($\Delta V$) required to steer the spacecraft away, using \textbf{14 times less fuel} by executing burns early.
+\begin{solutionbox}
+\textbf{Space-Guard} is a fully automatic system that:
+\begin{enumerate}
+    \item Continuously watches the position of all tracked satellites in real time.
+    \item Instantly detects which satellites are getting dangerously close to each other.
+    \item Calculates the exact probability of a crash (in numbers).
+    \item Automatically designs the safest, most fuel-efficient escape maneuver.
 \end{enumerate}
+All of this happens in \textbf{under 5 seconds} --- fast enough to act.
+\end{solutionbox}
 
-\subsection*{Competitive Comparison Table}
+\begin{presenterbox}
+Say: ``Our solution works in three steps. Step one: we pull live satellite positions from public space agency databases. Step two: we run a fast two-stage filter to find which satellites are actually at risk --- this cuts down 90\% of non-threatening pairs instantly. Step three: for the risky pairs, we calculate the exact crash probability and generate the optimal escape plan automatically. The whole process takes less than 5 seconds.''
+\end{presenterbox}
+
+\subsection*{How We Are Better Than Existing Tools}
+
 \begin{table}[h!]
 \centering
 \small
 \begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{Feature / Capability} & \textbf{Traditional Legacy Tools} & \textbf{Space-Guard Platform} \\ \midrule
-\textbf{Screening Latency} & Minutes to hours & \textbf{$<$ 5 seconds} (Two-stage filter) \\
-\textbf{Collision Model} & Geometric distance only & \textbf{Analytic 2D Gaussian $P_c$} ($<$10~$\mu$s) \\
-\textbf{AI Role} & Often none or black-box & \textbf{Acceleration surrogate} (No hallucinations) \\
-\textbf{Maneuver Optimization} & Manual trial-and-error & \textbf{Automated SVD CW Planner} \\
-\textbf{Fuel Scaling} & Late emergency burns & \textbf{14$\times$ Early Secular Along-Track Drift} \\
-\textbf{Real-World Validation} & Synthetic data only & \textbf{Verified on 2009 Iridium-Cosmos TLEs} \\ \bottomrule
+\textbf{What It Does} & \textbf{Old / Traditional Tools} & \textbf{Space-Guard} \\ \midrule
+\textbf{Speed} & Minutes to hours & \textbf{Under 5 seconds} \\
+\textbf{Risk Calculation} & Simple distance only & \textbf{Real probability number (e.g., 1 in 5,000)} \\
+\textbf{AI / Smart Filtering} & Usually none & \textbf{Pre-screens pairs to skip obvious non-threats} \\
+\textbf{Escape Plan} & Manual, by engineers & \textbf{Fully automatic, optimized for minimum fuel} \\
+\textbf{Fuel Savings} & Last-minute emergency burns & \textbf{14$\times$ more efficient when done 24h early} \\
+\textbf{Real-World Testing} & Synthetic fake data & \textbf{Tested on the actual 2009 Iridium-Cosmos crash} \\ \bottomrule
 \end{tabular}
-\caption{Comparison between Legacy Conjunction Tools and Space-Guard.}
+\caption{Space-Guard vs.\ Legacy Conjunction Tools.}
 \end{table}
 
+\begin{presenterbox}
+Walk through this table slowly. Point to each row. Emphasize the last row --- the fact that we tested on the real 2009 crash data and our system correctly identifies it as a critical risk. That is our ``proof that it works.'' Judges love validation on real historical data.
+\end{presenterbox}
+
 \newpage
-\section{Slide 4: Implementation — Physics, Math \& Computer Science}
+%% ============================================================
+\section{Slide 4: How We Built It --- Technical Implementation}
+%% ============================================================
 
-\subsection{1. Physics and Mathematics}
+\begin{presenterbox}
+This is the technical slide. You do not need to explain every formula. Just explain the \textit{idea} behind each part. Say: ``I will explain how each part of the system works. I will keep it as simple as possible.'' If the judges want more depth, they will ask.
+\end{presenterbox}
 
-\subsubsection*{A. SGP4 Orbital Propagation}
-Converts Two-Line Element (TLE) mean Keplerian orbital elements ($a, e, i, \Omega, \omega, M$) into instantaneous Cartesian state vectors $[\mathbf{r}, \mathbf{v}]$ in the Geocentric Celestial Reference System (GCRS/ECI non-rotating frame). SGP4 models non-spherical Earth gravitational harmonics ($J_2, J_3, J_4$) and atmospheric drag ($B^*$).
+\subsection{Part 1: Physics and Math}
 
-\subsubsection*{B. Two-Stage Conjunction Screening}
+\subsubsection*{A. Where Are the Satellites Right Now?}
+
+Every satellite's official position data is published as a pair of text lines called a \textbf{Two-Line Element set (TLE)}. These lines contain coded numbers describing the orbit. We use a standard physics model called \textbf{SGP4} to decode these numbers and calculate exactly where in space the satellite is right now (as X, Y, Z coordinates relative to the center of Earth), and how fast it is moving.
+
+\begin{presenterbox}
+Say: ``Think of a TLE like a satellite's address. We take that address and use physics equations to calculate the satellite's exact GPS-style position at any moment in time.''
+\end{presenterbox}
+
+\subsubsection*{B. How Do We Find Which Satellites Are at Risk?}
+
+Checking every possible pair of 27,000 satellites would mean over 360 million comparisons. That is too slow. We use a \textbf{two-step filter}:
+
 \begin{itemize}
-    \item \textbf{Stage 1 (Coarse Filter)}: Filters all candidate pairs by checking overlap of apogee and perigee altitudes with a safety buffer:
-    $$r_{\text{perigee}, i} - 50\text{ km} \le r_{\text{apogee}, j} \quad \text{and} \quad r_{\text{perigee}, j} - 50\text{ km} \le r_{\text{apogee}, i}$$
-    This discards $>90\%$ of non-threatening pairs in milliseconds.
-    \item \textbf{Stage 2 (Fine TCA Search)}: Applies \texttt{scipy.optimize.minimize\_scalar} (Golden-Section / Brent minimization) to the scalar relative distance function:
-    $$f(t) = \|\mathbf{r}_i(t) - \mathbf{r}_j(t)\|$$
-    pinpointing the exact Time of Closest Approach ($t_{\text{TCA}}$).
+    \item \textbf{Step 1 (Fast Height Check)}: We instantly discard all pairs where the two satellites fly at completely different heights. If one satellite is at 400 km and another is at 800 km, they can never collide. This eliminates 90\%+ of pairs in milliseconds.
+    \item \textbf{Step 2 (Precise Close-Pass Check)}: For the remaining pairs, we calculate the exact closest distance the two satellites will ever reach, and at what time. This pinpoints the exact ``Time of Closest Approach.''
 \end{itemize}
 
-\subsubsection*{C. Foster/Alfano 2D Gaussian Probability ($P_c$)}
-In the encounter B-plane normal to relative velocity $\mathbf{v}_{\text{rel}}$, the collision integral evaluates the 2D Gaussian probability density over the hard-body circle of combined radius $\text{HBR} = 10\text{ m}$:
+\begin{presenterbox}
+Good analogy: ``Imagine you want to find which cars on a highway might crash. First, you ignore all cars going in completely different directions. Then, for the remaining ones, you track their exact paths to find when they get closest. We do the same thing, but for satellites.''
+\end{presenterbox}
+
+\subsubsection*{C. What Is the Actual Chance of a Crash?}
+
+Once we find a close pass, we calculate the exact mathematical probability of a collision. We consider the uncertainty in our position data (satellite locations are not perfectly known --- there is some error) and the physical size of each satellite. The result is a number, like ``1 in 50,000'' or ``1 in 5,000.'' We flag anything above ``1 in 10,000'' as dangerous.
+
+The formula used is an established aerospace standard:
 \begin{equation}
-P_c \approx \frac{\text{HBR}^2}{2\sigma^2} \exp\left(-\frac{d_{\text{miss}}^2}{2\sigma^2}\right)
+P_c \approx \frac{\text{HBR}^2}{2\sigma^2} \exp\!\left(-\frac{d_{\text{miss}}^2}{2\sigma^2}\right)
 \end{equation}
-Because $\text{HBR} \ll \sigma$ ($\sigma = 500\text{ m}$ assumed isotropic TLE uncertainty), probability density is uniform across the disk, yielding exact analytical computation in $<10\ \mu\text{s}$.
+where HBR is the combined size of both satellites (about 10 metres), $d_{\text{miss}}$ is how close they get, and $\sigma$ is the uncertainty in our position measurements.
 
-\subsubsection*{D. Clohessy-Wiltshire (CW) Maneuver Optimization}
-Linearized relative motion in near-circular orbit ($e < 0.01$) is governed by the state transition matrix:
-$$\mathbf{r}(\Delta t) = \Phi_{rr}(\Delta t)\mathbf{r}_0 + \Phi_{rv}(\Delta t)(\mathbf{v}_0 + \Delta\mathbf{v})$$
-The optimal burn direction is the right singular vector $\mathbf{v}_1$ from the Singular Value Decomposition of $\Phi_{rv}$:
-$$\Phi_{rv}(\Delta t) = U \Sigma V^T \implies \Delta\mathbf{v}_{\text{opt}} = \Delta V \cdot V_{[:, 0]}$$
-Along-track displacement accumulates via the secular term $\Delta y \approx -3 n \Delta t \Delta v_y$, providing \textbf{14$\times$ more separation} at $\Delta t = 24\text{h}$ than at $\Delta t = 1\text{h}$.
+\begin{presenterbox}
+You do not need to explain the formula. Just say: ``We calculate a precise crash probability, like a 1-in-5,000 chance of collision. This is a much more useful number than just saying the two satellites are 5 km apart, which doesn't tell you if that is dangerous or not.''
+\end{presenterbox}
 
-\subsection{2. Computer Science Architecture}
-\begin{itemize}
-    \item \textbf{Backend Microservices}: Asynchronous Python 3.12+ FastAPI server utilizing vectorized NumPy arrays and SciPy numerical optimizers.
-    \item \textbf{Frontend Telemetry Workstation}: React 19 with Vite, Tailwind CSS, and Three.js WebGL canvas rendering 60 FPS 3D orbital dynamics.
-    \item \textbf{Surrogate Acceleration Layer}: Pre-trained Random Forest classifier acting as an acceleration surrogate to pre-score pairs before deep propagation.
+\subsubsection*{D. How Do We Steer the Satellite to Safety?}
+
+We use a physics model (called the Clohessy-Wiltshire equations) that describes how two satellites move relative to each other in orbit. We then use a mathematical optimization technique (SVD --- Singular Value Decomposition) to find the single best direction and smallest possible engine push that will move the satellite far enough away to be safe.
+
+\textbf{The 14$\times$ Fuel Savings Rule}: If you push the satellite 24 hours before the predicted collision, the satellite drifts along its orbit path and ends up 14 times further away than if you had used the same engine push just 1 hour before the collision. Acting early is dramatically more efficient.
+
+\begin{presenterbox}
+Great analogy for the 14× rule: ``It is like steering a ship. If you turn the wheel slightly 10 km before a reef, you avoid it easily. If you wait until you are 100 metres away, you have to turn hard and fast, and you might still crash. Same idea with satellites --- early action means less fuel and more safety.''
+\end{presenterbox}
+
+\subsection{Part 2: Software Architecture}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Backend (Python/FastAPI)}: The server that does all the calculations. Runs on Python. Handles live satellite data, collision screening, and escape plan generation.
+    \item \textbf{Frontend (React / Web Browser)}: The interactive website/dashboard that shows everything visually --- the 3D globe, the satellite table, the collision replay, the escape plan sliders.
+    \item \textbf{Smart Pre-Filter (Machine Learning)}: A simple pre-trained model that quickly scores satellite pairs before doing the full calculation, skipping obvious non-threats even faster.
 \end{itemize}
 
-\subsection{3. Satellite Data Acquisition Pipeline}
-\begin{itemize}
-    \item Direct automated fetch from \textbf{CelesTrak / Space-Track} active satellite catalogs.
-    \item Local persistent cache with automated Time-To-Live (TTL) expiration to minimize external API rate limits.
+\subsection{Part 3: Where Do We Get the Satellite Data?}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item We pull live data from \textbf{CelesTrak} --- a free public database maintained by aerospace engineers that publishes the position data of all tracked satellites, updated multiple times per day.
+    \item We cache this data locally so we do not hit rate limits and can respond instantly.
 \end{itemize}
+
+\begin{presenterbox}
+Say: ``All the satellite data we use is publicly available. Space agencies share this data openly so that everyone can help keep space safe. We just built the smart software on top of it.''
+\end{presenterbox}
 
 \newpage
-\section{Slide 5: Live Prototype Walkthrough Plan}
+%% ============================================================
+\section{Slide 5: Live Demo Walkthrough}
+%% ============================================================
 
-The interactive prototype is demonstrated at \url{http://localhost:5173/demo} across four streamlined stages:
+\begin{presenterbox}
+This is where you open the browser and show the working prototype. Open \url{http://localhost:5173/demo} before the presentation. Have the backend running on port 8000. Walk through each of the 4 steps shown on screen.
+\end{presenterbox}
+
+The interactive demo is shown at \url{http://localhost:5173/demo} and has four steps:
 
 \begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Stage 1: Live SGP4 Ephemeris Ingestion}:
+    \item \textbf{Step 1 --- Fetch Live Satellites}:
     \begin{itemize}
-        \item Ingests live satellite catalog from CelesTrak.
-        \item Displays real-time Cartesian GCRS coordinates $[X, Y, Z]$, velocities, and altitudes.
+        \item Show the table of real satellites with their current positions in space, speeds, and heights above Earth.
+        \item Hit ``Refresh'' to show it pulling fresh live data in real time.
+        \item \textit{Say: ``This is live data. These are real satellites flying overhead right now.''}
     \end{itemize}
-    \item \textbf{Stage 2: Physics-Based 3D Mapping}:
+
+    \item \textbf{Step 2 --- Show on the 3D Globe}:
     \begin{itemize}
-        \item Visualizes real active satellites with accurate orbital inclination and nodal nodes on a 3D Earth globe.
-        \item Demonstrates coarse altitude band filtering in 3D space.
+        \item Show the spinning 3D Earth with satellite dots at their correct positions.
+        \item Point out satellites at different heights and angles (polar vs equatorial orbits).
+        \item \textit{Say: ``Each dot is a real satellite. Our system watches all of them simultaneously.''}
     \end{itemize}
-    \item \textbf{Stage 3: 2009 Collision Reenactment}:
+
+    \item \textbf{Step 3 --- Replay the 2009 Crash}:
     \begin{itemize}
-        \item Replays the Iridium 33 vs Cosmos 2251 collision using real pre-collision TLEs (epoch 09041).
-        \item Shows the head-on closing rate of 14.12~km/s, physical impact, and debris dispersion.
+        \item Show the animated collision between Iridium 33 and Cosmos 2251 on the globe.
+        \item Point to the stats: 14.12 km/s, 3-metre miss distance, 2,000+ debris pieces.
+        \item \textit{Say: ``This is the actual 2009 collision, replayed using the real satellite data from that day. Our system correctly identified this as a critical risk.''}
     \end{itemize}
-    \item \textbf{Stage 4: Avoidance Maneuver Verification}:
+
+    \item \textbf{Step 4 --- Show the Escape Plan}:
     \begin{itemize}
-        \item Interactive sliders demonstrating how an impulsive $0.10\text{ m/s}$ burn applied 24 hours prior achieves $+4.83\text{ km}$ safe clearance, reducing $P_c$ from $2.0 \times 10^{-4}$ down to $<10^{-6}$.
+        \item Show the avoidance simulation with the interactive sliders.
+        \item Drag the ``How early we fire'' slider from 1 hour to 24 hours and show the gap increasing dramatically.
+        \item \textit{Say: ``With a tiny engine push --- less than walking speed --- applied one day early, the satellites miss each other by over 4 kilometres. Crash risk drops to essentially zero. This is the escape plan our system would have given in 2009.''}
     \end{itemize}
 \end{enumerate}
 
-\newpage
-\section{Slide 6: Target Audience \& Societal Impact}
-
-\begin{itemize}[leftmargin=1.5em]
-    \item \textbf{1. National Space Agencies (e.g., ISRO, NASA, ESA)}:
-    \begin{itemize}
-        \item Directly augments ISRO's \textbf{IS4OM} (System for Safe and Sustainable Space Operations Management) at ISTRAC Bangalore.
-        \item Provides rapid preliminary triage for national assets (Cartosat, GSAT, RISAT, Chandrayaan/Aditya orbital paths).
-    \end{itemize}
-    \item \textbf{2. Commercial Satellite Operators (e.g., Starlink, OneWeb, Pixxel, Skyroot)}:
-        \item Automated constellation screening and fuel-optimal avoidance to prolong spacecraft lifetime and preserve revenue.
-    \item \textbf{3. Defence \& Space Force Commands}:
-        \item Autonomous surveillance of non-cooperative orbital objects and anti-satellite (ASAT) debris threats.
-    \item \textbf{4. Space Insurance Underwriters}:
-        \item Quantitative risk assessment and empirical collision probability auditing.
-\end{itemize}
+\begin{presenterbox}
+Practice this demo at least 3 times before the presentation. Know exactly what to click. If the live API is down, the system falls back to offline demo data automatically --- it will still look the same. Do not panic if the internet is slow.
+\end{presenterbox}
 
 \newpage
-\section{Slide 7: Development Roadmap}
+%% ============================================================
+\section{Slide 6: Who Would Use This? (Target Audience)}
+%% ============================================================
 
 \begin{itemize}[leftmargin=1.5em]
-    \item \textbf{Phase 1: SIH Working Prototype (Current Completed Baseline)}:
+    \item \textbf{ISRO (Indian Space Research Organisation)}:
     \begin{itemize}
-        \item SGP4 propagation engine, two-stage screening filter, Foster/Alfano $P_c$ model, CW maneuver optimizer, and 3D WebGL radar.
+        \item ISRO manages Indian satellites like Cartosat (mapping), GSAT (communication), and the Chandrayaan moon missions.
+        \item Space-Guard can be integrated into ISRO's existing space monitoring center (IS4OM at ISTRAC, Bangalore) to protect India's space assets.
     \end{itemize}
-    \item \textbf{Phase 2: Full Catalog \& Conjunction Data Messages (Q3–Q4 2026)}:
+
+    \item \textbf{Private Satellite Companies (e.g., SpaceX Starlink, OneWeb, Pixxel)}:
     \begin{itemize}
-        \item Ingestion of Space-Track Conjunction Data Messages (CDMs) with full $3\times 3$ error covariance matrices.
-        \item GPU-accelerated propagation scaling to the complete 27,000+ object catalog.
+        \item These companies have hundreds to thousands of satellites. Manual monitoring is impossible.
+        \item Space-Guard provides automated screening, reducing the burden on operators.
     \end{itemize}
-    \item \textbf{Phase 3: Multi-Satellite Constellation Autonomy (Q1–Q2 2027)}:
+
+    \item \textbf{Defence and Military Space Programs}:
     \begin{itemize}
-        \item Multi-agent avoidance de-confliction (ensuring maneuvers do not create secondary conjunctions).
-        \item Support for continuous low-thrust electric / ion propulsion trajectories.
+        \item Tracking and protecting military satellites from non-cooperative objects and debris.
     \end{itemize}
-    \item \textbf{Phase 4: Space Agency Protocol Integration (Q3–Q4 2027)}:
+
+    \item \textbf{Space Insurance Companies}:
     \begin{itemize}
-        \item Integration with CCSDS standards and direct telemetry handoff to mission operations centers.
+        \item Space-Guard provides accurate, evidence-based collision risk numbers that insurance underwriters can use to price policies fairly.
     \end{itemize}
 \end{itemize}
+
+\begin{presenterbox}
+Focus on ISRO when talking to SIH judges --- it is the most relevant and impressive connection. Say: ``ISRO has its own space safety center called IS4OM. Our system is designed to be exactly the kind of tool they need to protect India's growing fleet of satellites.'' This shows you did your research.
+\end{presenterbox}
+
+\newpage
+%% ============================================================
+\section{Slide 7: Roadmap --- What We Plan Next}
+%% ============================================================
+
+\begin{presenterbox}
+This slide shows judges that you have a vision beyond the hackathon. Keep it brief. Say: ``We have four phases planned. We have already completed Phase 1 --- the working prototype you just saw.''
+\end{presenterbox}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Phase 1 (Done --- SIH Prototype)}:
+    \begin{itemize}
+        \item Working software: live satellite tracking, collision detection, probability calculation, escape plan generation, 3D visualization.
+        \item Validated on real 2009 Iridium-Cosmos crash data.
+    \end{itemize}
+
+    \item \textbf{Phase 2 (Next 6 Months)}: Expand to the full catalog of 27,000+ satellites with GPU-accelerated processing, and integrate official error/uncertainty data from Space-Track CDMs (Conjunction Data Messages).
+
+    \item \textbf{Phase 3 (1 Year)}: Handle entire commercial constellations (e.g., all of Starlink at once). Support satellites that use continuous low-thrust electric engines instead of single explosive burns.
+
+    \item \textbf{Phase 4 (2 Years)}: Full integration with space agency mission control standards. Direct telemetry handoff to operators. Real-time 24/7 monitoring service.
+\end{itemize}
+
+\begin{presenterbox}
+If a judge asks ``Is this production-ready?'' say: ``Not yet --- this is a prototype. But the core physics, math, and software are all working correctly on real data. Phase 2 and beyond would bring this to operational readiness with proper infrastructure and funding.''
+\end{presenterbox}
 
 \end{document}

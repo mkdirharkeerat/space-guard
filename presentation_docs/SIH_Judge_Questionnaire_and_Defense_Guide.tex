@@ -16,15 +16,44 @@
     citecolor=blue!80!black
 }
 
+\tcbuselibrary{skins,breakable}
+
+% Question box
+\newtcolorbox{questionbox}[1][]{
+  colback=gray!5!white,
+  colframe=gray!60!black,
+  fonttitle=\bfseries\small,
+  title={Judge Question},
+  #1
+}
+
+% Answer box
+\newtcolorbox{answerbox}[1][]{
+  colback=blue!5!white,
+  colframe=blue!75!black,
+  fonttitle=\bfseries\small,
+  title={Your Answer},
+  #1
+}
+
+% Tip box (amber)
+\newtcolorbox{tipbox}[1][]{
+  colback=orange!5!white,
+  colframe=orange!70!black,
+  fonttitle=\bfseries\small,
+  title={Tip for Presenting This},
+  #1
+}
+
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{\textbf{Space-Guard} · Judge Defense Guide}
+\rhead{\textbf{Space-Guard} $\cdot$ Judge Questions Guide}
 \lhead{Smart India Hackathon 2026}
 \rfoot{Page \thepage}
 
-\title{\Huge \textbf{Space-Guard: Technical Defense Manual}\\[0.4em]
-\Large \textbf{Comprehensive Judge Questionnaire \& Mathematical Defense Guide}\\[0.5em]
-\large \textbf{Smart India Hackathon 2026 — Software Edition}}
+\title{\Huge \textbf{Space-Guard: Judge Q\&A Cheat Sheet}\\[0.4em]
+\Large \textbf{15 Questions Judges Will Ask --- And How to Answer Them}\\[0.5em]
+\large \textbf{Smart India Hackathon 2026 --- Software Edition}}
 \author{\textbf{Team Space-Guard}}
 \date{\today}
 
@@ -33,195 +62,340 @@
 \maketitle
 \thispagestyle{empty}
 
-\begin{abstract}
-\noindent This document serves as the exhaustive technical defense manual for the \textbf{Space-Guard} autonomous conjunction assessment platform. It compiles the top 15 most rigorous and probable technical questions that evaluators, domain experts, and ISRO/academic judges may ask during the 10--15 minute presentation, along with exact, peer-reviewed astrodynamic answers and mathematical justifications.
-\end{abstract}
+\begin{tcolorbox}[colback=green!5!white,colframe=green!60!black,title=\textbf{How to Use This Guide}]
+This document has 15 questions that judges are very likely to ask you. Each question has:
+\begin{itemize}
+    \item A simple, clear answer you can say out loud.
+    \item A tip on how to say it confidently.
+\end{itemize}
+Read through this the night before. You do not need to memorize exact words --- just understand the idea, and say it in your own natural way. If you do not know an answer, it is okay to say: ``That is a great point. In the current version we handle it this way... and in Phase 2 we plan to address that fully.''
+\end{tcolorbox}
 
 \vspace{1em}
 \tableofcontents
 \newpage
 
-\section{Astrodynamics \& Physics Questions}
+%% ============================================================
+\section{Questions About the Problem}
+%% ============================================================
 
-\subsection*{Q1: Why did you use SGP4 rather than high-order numerical integrators like Runge-Kutta 4/5 or Cowell's method?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: SGP4 (Simplified General Perturbations 4) is the analytical propagation algorithm designed specifically to ingest Two-Line Element (TLE) sets. TLE orbital parameters are not osculating Cartesian vectors; they are \textit{mean} orbital elements produced by USSPACECOM's numerical filter.
-\begin{itemize}[leftmargin=1.5em]
-    \item SGP4 intrinsically accounts for the exact perturbation models used to fit the TLE: non-spherical Earth gravitational harmonics ($J_2, J_3, J_4$), lunar-solar gravitational third-body perturbations, and atmospheric drag modeled via the $B^*$ ballistic coefficient.
-    \item Numerical integrators like Runge-Kutta require true osculating state vectors and high-degree geopotential models (e.g., EGM96 or EGM2008), which are unavailable in open TLE catalogs.
-    \item Propagating SGP4 takes $<1$~millisecond per satellite, making it the globally accepted standard for preliminary catalog screening.
-\end{itemize}
-\end{tcolorbox}
+\subsection*{Q1: Is this problem real? Have satellites actually collided?}
 
-\vspace{1em}
-\subsection*{Q2: What is the Foster/Alfano 2D Gaussian approximation and why is it mathematically valid here?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: In orbital mechanics, close encounters between Low Earth Orbit satellites occur at hypervelocity closing rates ($v_{\text{rel}} \approx 10\text{--}15\text{ km/s}$). The duration of the close encounter is on the order of milliseconds.
-\begin{itemize}[leftmargin=1.5em]
-    \item Under these conditions, the relative trajectory can be treated as rectilinear (straight-line) with static positional uncertainty during the encounter.
-    \item In the encounter plane (B-plane) perpendicular to $\mathbf{v}_{\text{rel}}$, the 3D collision integral reduces to a 2D Gaussian integral over a circular collision disk of Hard-Body Radius $\text{HBR}$:
-    $$P_c = \frac{1}{2\pi \sigma^2} \iint_{\text{Disk}} \exp\left(-\frac{x^2 + y^2}{2\sigma^2}\right) dx\, dy$$
-    \item Because the spacecraft physical dimensions ($\text{HBR} \approx 10\text{ m}$) are significantly smaller than the positional covariance ($\sigma \approx 500\text{ m}$), the probability density function is practically uniform across the disk. Multiplying the central density by the disk area ($\pi \text{HBR}^2$) yields the analytic closed-form:
-    $$P_c \approx \frac{\text{HBR}^2}{2\sigma^2} \exp\left(-\frac{d_{\text{miss}}^2}{2\sigma^2}\right)$$
-    \item This computes in under $10\ \mu\text{s}$ per pair, with $<0.1\%$ error relative to numerical 2D integration.
-\end{itemize}
-\end{tcolorbox}
+\begin{questionbox}
+``Has there actually been a real satellite collision? Or is this just a theoretical problem you invented?''
+\end{questionbox}
+
+\begin{answerbox}
+Yes, absolutely. The most famous example is the \textbf{2009 Iridium--Cosmos collision}. On 10 February 2009, an active American phone satellite called Iridium 33 crashed directly into a dead Russian military satellite called Cosmos 2251, at 789 km above Siberia.
+
+They hit each other at over 50,000 km/h. Both satellites were completely destroyed in milliseconds. The crash created over 2,000 tracked pieces of debris that are still in orbit today, threatening the International Space Station and every other satellite at that height.
+
+This was the first-ever accidental collision between two satellites. And no system warned operators in time to prevent it. Space-Guard is designed to be that warning system.
+\end{answerbox}
+
+\begin{tipbox}
+This is your strongest answer --- deliver it with confidence. You know this story very well. Make eye contact, slow down your speech, and let the facts land. The numbers are very striking: 50,000 km/h, both satellites destroyed, debris still there today. Say them clearly.
+\end{tipbox}
 
 \newpage
-\subsection*{Q3: Are your positional uncertainty $\sigma = 500\text{ m}$ and Hard-Body Radius $\text{HBR} = 10\text{ m}$ hardcoded assumptions?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: They are explicitly stated engineering assumptions (§12 Intellectual Honesty), adhering to NASA/ESA Conjunction Assessment Best Practices (CARA).
-\begin{itemize}[leftmargin=1.5em]
-    \item Public TLEs do not contain full $3\times 3$ error covariance matrices due to national security and radar sensor calibration secrecy.
-    \item Standard astrodynamic literature establishes that an uncalibrated SGP4 TLE in LEO has an isotropic 1$\sigma$ positional uncertainty of approximately $300\text{--}800\text{ m}$. Thus, $\sigma = 500\text{ m}$ is the standard operational baseline.
-    \item $\text{HBR} = 10\text{ m}$ represents the combined collision cross-section of two large communication satellites (e.g., Iridium bus of 4~m and Cosmos bus of 6~m).
-    \item When operational Conjunction Data Messages (CDMs) with full $3\times 3$ covariance matrices are available, our code directly replaces $\sigma^2$ with the projected covariance eigenvalues ($\sigma_x, \sigma_y$).
-\end{itemize}
-\end{tcolorbox}
+\subsection*{Q2: Why doesn't ISRO or NASA already have this kind of system?}
 
-\vspace{1em}
-\subsection*{Q4: What are the Clohessy-Wiltshire (CW) equations and under what conditions do they break down?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: The Clohessy-Wiltshire (CW / Hill's) equations model the linearized relative motion of a chaser satellite with respect to a target in a circular or near-circular orbit in the Radial-Along-Track-Cross-Track (RTN) frame.
-\begin{itemize}[leftmargin=1.5em]
-    \item \textbf{Validity Conditions}: The CW equations are valid when:
-    \begin{enumerate}
-        \item Target orbit eccentricity is near zero ($e < 0.01$).
-        \item Relative separation distance is much smaller than the orbital radius ($d \ll r_{\text{orbit}}$, typically $<50\text{ km}$).
-        \item Maneuver duration is within a few orbital revolutions ($\Delta t \le 72\text{ hours}$).
-    \end{enumerate}
-    \item \textbf{Breakdown}: CW breaks down for highly eccentric orbits ($e > 0.05$, where the Tschauner-Hempel equations are required) or when non-linear gravitational perturbations ($J_2$ differential nodal regression) dominate over long propagation spans (>7 days). For LEO 24--72 hour impulsive avoidance planning, CW is highly accurate and computationally efficient.
+\begin{questionbox}
+``If this problem is so serious, why don't existing space agencies already solve it?''
+\end{questionbox}
+
+\begin{answerbox}
+They do have systems --- but they are slow, expensive, and manual. NASA has the ``CARA'' team. ISRO has ``IS4OM.'' But these systems have limitations:
+\begin{itemize}
+    \item They take minutes to hours to process the full catalog.
+    \item They produce thousands of warnings per day, most of them false alarms, which operators start to ignore.
+    \item When a real threat is found, engineers still calculate the escape plan manually, which takes more time.
 \end{itemize}
-\end{tcolorbox}
+Space-Guard is not replacing these organizations. It is a tool that can plug into their pipelines to make the screening step faster, the risk number more precise, and the escape plan automatic --- all in under 5 seconds.
+\end{answerbox}
+
+\begin{tipbox}
+Do not say ``NASA does not have this.'' That sounds arrogant and is not true. Say we are \textit{faster, smarter, and automatic} compared to current tools. Show respect for existing work, while clearly explaining what gap we fill.
+\end{tipbox}
 
 \newpage
-\subsection*{Q5: Why is an early avoidance burn 14$\times$ more fuel-efficient than an emergency burn?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: In the CW relative state transition matrix $\Phi_{rv}(\Delta t)$, the along-track position displacement $\Delta y(\Delta t)$ resulting from an along-track velocity impulse $\Delta v_y$ is given by:
-$$\Delta y(\Delta t) = \frac{4\sin(n\Delta t) - 3n\Delta t}{n} \Delta v_y$$
-\begin{itemize}[leftmargin=1.5em]
-    \item For lead times $\Delta t$ spanning multiple orbital periods, the term $-3n\Delta t$ is a \textbf{secular term} that grows linearly with time.
-    \item A velocity change $\Delta v_y = 0.10\text{ m/s}$ slightly alters the orbital semi-major axis $a$, modifying the orbital period $T$. Over 24 hours (approx. 15 LEO orbits), the difference in orbital period accumulates a continuous along-track drift.
-    \item Evaluating the ratio of displacement for $\Delta t = 24\text{ hours}$ versus $\Delta t = 1\text{ hour}$:
-    $$\frac{|\Delta y(24\text{h})|}{|\Delta y(1\text{h})|} \approx \frac{3n(24\times 3600)}{3n(3600) + \text{periodic terms}} \approx 14.2$$
-    \item Therefore, an avoidance maneuver executed 24 hours prior achieves \textbf{14.2 times more separation} per unit of fuel expended.
-\end{itemize}
-\end{tcolorbox}
+%% ============================================================
+\section{Questions About Our Solution}
+%% ============================================================
+
+\subsection*{Q3: How accurate is your system? Can we trust it?}
+
+\begin{questionbox}
+``How do you know your calculations are correct? Did you test this against real data?''
+\end{questionbox}
+
+\begin{answerbox}
+Yes. We tested our system against the actual 2009 Iridium--Cosmos collision using real satellite tracking data from that time period.
+
+Without telling the system what to look for, it automatically identified the close pass, calculated a collision time of 16:56 UTC on 10 February 2009 (which exactly matches the historical event), calculated the collision happened at 789 km over Siberia (exact match), and assigned it a ``Critical'' risk rating 48 hours in advance.
+
+This is our proof that the physics and math in our system are correct. We are not making anything up --- we matched the real event.
+\end{answerbox}
+
+\begin{tipbox}
+This is your killer proof point. Say: ``We did not just test on fake data. We ran our system on the actual 2009 satellite data and it correctly identified the crash that really happened.'' If you have the demo open, click to Step 3 and show the collision animation to back this up visually.
+\end{tipbox}
 
 \vspace{1em}
-\subsection*{Q6: How does Singular Value Decomposition (SVD) optimize the thruster burn vector?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: The displacement at TCA caused by an impulsive velocity vector $\Delta\mathbf{v} \in \mathbb{R}^3$ is $\Delta\mathbf{r} = \Phi_{rv}(\Delta t) \Delta\mathbf{v}$.
-\begin{itemize}[leftmargin=1.5em]
-    \item We want to find the unit burn direction $\hat{\mathbf{u}} = \Delta\mathbf{v} / \|\Delta\mathbf{v}\|$ that maximizes the Euclidean separation $\|\Delta\mathbf{r}\|$.
-    \item By taking the SVD of the $3\times 3$ matrix $\Phi_{rv} = U \Sigma V^T$, where $\sigma_1 \ge \sigma_2 \ge \sigma_3 > 0$:
-    $$\max_{\|\hat{\mathbf{u}}\|=1} \|\Phi_{rv}\hat{\mathbf{u}}\| = \sigma_1$$
-    \item The optimal burn direction is precisely the right singular vector $\mathbf{v}_1$ (the first column of $V$). In LEO dynamics, $\mathbf{v}_1$ aligns almost entirely along the Along-Track (T) axis ($\approx 99.8\%$), proving analytically that along-track thrusting is optimal.
+\subsection*{Q4: How does your system decide when a situation is dangerous?}
+
+\begin{questionbox}
+``What is your definition of a dangerous conjunction? How do you decide when to alert?''
+\end{questionbox}
+
+\begin{answerbox}
+We calculate an actual probability number for each close pass --- like ``1 in 50,000 chance of collision'' or ``1 in 5,000.'' Our thresholds are:
+\begin{itemize}
+    \item \textbf{Safe (Green)}: Crash probability less than 1 in 100,000. No action needed.
+    \item \textbf{Watch (Yellow)}: Crash probability between 1 in 100,000 and 1 in 10,000. Flag for operator review.
+    \item \textbf{Critical (Red)}: Crash probability above 1 in 10,000. Automatic escape plan generated immediately.
 \end{itemize}
-\end{tcolorbox}
+The 2009 event had a probability of approximately 1 in 5,000 --- clearly in the Critical zone. Our system would have generated the escape plan 48 hours before impact.
+\end{answerbox}
+
+\begin{tipbox}
+Use the phrase ``actual probability number'' rather than ``Pc'' when speaking. Say it in plain English. If a judge is technically sharp, you can mention that the threshold of $10^{-4}$ (1 in 10,000) is the NASA/CARA operational standard.
+\end{tipbox}
 
 \newpage
-\section{Computer Science \& Software Questions}
+\subsection*{Q5: What is TLE data and where does it come from?}
 
-\subsection*{Q7: Why didn't you train an end-to-end Deep Learning / Neural Network model to predict collision probability?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: We deliberately avoided using opaque Neural Networks for end-to-end $P_c$ calculations because astrodynamics demands **verifiable mathematical determinism**.
-\begin{itemize}[leftmargin=1.5em]
-    \item In mission-critical aerospace operations, a neural network that hallucinates a $10^{-6}$ risk when the physical risk is $10^{-3}$ would result in spacecraft loss.
-    \item An analytic Foster/Alfano calculation computes in under $10\ \mu\text{s}$—faster than a forward pass through a deep neural network—while guaranteeing mathematical exactness.
-    \item We use Machine Learning (Random Forest) strictly as an **acceleration surrogate** to pre-sort and prioritize candidate pairs before refined Golden-Section TCA optimization.
-\end{itemize}
-\end{tcolorbox}
+\begin{questionbox}
+``You mentioned fetching satellite data from CelesTrak. What exactly is that data? Is it real?''
+\end{questionbox}
+
+\begin{answerbox}
+Every satellite's orbit is officially tracked and published as a ``Two-Line Element set'' --- basically two lines of coded text that describe the satellite's orbit. Space agencies like the US Space Force (USSPACECOM) generate these from radar tracking data and publish them freely.
+
+CelesTrak is a well-respected public database run by Dr.\ T.S. Kelso, a well-known aerospace engineer, that mirrors and organizes this official tracking data. It is the same data used by universities, research institutions, and commercial operators worldwide.
+
+We connect to this database, download the latest tracking data for active satellites, and then use physics equations to calculate exactly where each satellite is right now, and where it will be in the next 72 hours.
+\end{answerbox}
+
+\begin{tipbox}
+Show the live data table in the demo (Step 1). Say: ``This data is live. These are real satellite names and real positions right now.'' Clicking refresh in front of the judges makes it obvious it is live. That is very impressive.
+\end{tipbox}
+
+\newpage
+%% ============================================================
+\section{Questions About Physics and Math}
+%% ============================================================
+
+\subsection*{Q6: How do you calculate where a satellite is right now?}
+
+\begin{questionbox}
+``Exactly how does your system figure out the position of a satellite?''
+\end{questionbox}
+
+\begin{answerbox}
+We use a physics model called \textbf{SGP4} --- it stands for ``Simplified General Perturbations 4'' and is the international aerospace standard for this calculation. It has been used since the 1980s.
+
+The input is the satellite's TLE data (its official orbit description). The output is the satellite's exact X, Y, Z position and velocity in space at any moment in time. It accounts for the fact that Earth is not a perfect sphere, and that there is a tiny bit of atmosphere even in low orbit that gradually slows satellites down.
+
+For our purposes (predicting positions up to 72 hours ahead), it is accurate to within a few hundred metres --- which is perfectly sufficient for screening.
+\end{answerbox}
+
+\begin{tipbox}
+A good way to explain this: ``Think of it like a GPS. GPS satellites broadcast their position using physics equations. We use a similar, more advanced equation to calculate a satellite's position from its orbit description.''
+\end{tipbox}
 
 \vspace{1em}
-\subsection*{Q8: What is the computational time complexity of your entire pipeline?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}:
-\begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Stage 1 (Coarse Filter)}: $O(N \log N)$ sorting and $O(N^2)$ apogee/perigee scalar bounding-box comparison. For 1,000 satellites, this executes in $<5$~milliseconds.
-    \item \textbf{Stage 2 (Refined TCA Search)}: $O(M)$ where $M$ is the number of overlapping candidate pairs ($M \ll N^2$). Uses Golden-section scalar minimization with bounded iterations ($\le 25$ evaluations).
-    \item \textbf{Stage 3 (Analytic $P_c$)}: $O(1)$ constant time algebraic evaluation per conjunction event ($<10\ \mu\text{s}$).
-    \item \textbf{Stage 4 (CW Maneuver)}: $O(1)$ constant time $3\times 3$ SVD matrix decomposition ($<50\ \mu\text{s}$).
+\subsection*{Q7: How do you avoid checking every satellite against every other satellite (which would be too slow)?}
+
+\begin{questionbox}
+``With 27,000 satellites, checking every pair against each other would be 360 million comparisons. How do you handle that?''
+\end{questionbox}
+
+\begin{answerbox}
+We use a two-step filter:
+
+\textbf{Step 1 (Height check):} Satellites can only collide if they fly at a similar height. We instantly discard all pairs where the two satellites orbit at very different heights. For example, a satellite at 400 km cannot hit one at 800 km --- they are in completely different orbital lanes. This eliminates over 90\% of pairs in milliseconds.
+
+\textbf{Step 2 (Precise check):} For the small number of pairs that pass the height filter, we calculate exactly how close the two satellites will get over the next 72 hours, and at what time. If that closest distance is below a safe threshold, we compute the full collision probability.
+
+This reduces 360 million comparisons down to a few hundred that actually need careful analysis.
+\end{answerbox}
+
+\begin{tipbox}
+Great analogy: ``It is like sorting mail. First you sort by city (fast, eliminates most). Then you sort by street (more detail, fewer items). Then you find the exact house. We sort satellites by height first, then by exact path.''
+\end{tipbox}
+
+\newpage
+\subsection*{Q8: How do you calculate the actual probability of a crash?}
+
+\begin{questionbox}
+``You say you calculate a crash probability. How exactly is that number computed?''
+\end{questionbox}
+
+\begin{answerbox}
+We know two things: (1) how close the satellites will get (their predicted closest distance), and (2) how uncertain our position measurements are (satellite tracking has small errors).
+
+We model these uncertainties as a ``bell curve'' spread around the predicted position. If the two satellites are predicted to pass very close together AND our measurement uncertainty is large, the chance of an actual collision is higher. If they are predicted to pass far apart, the chance is very low.
+
+The formula combines these factors into a single probability number. It is an established aerospace standard formula (called the Foster/Alfano method), and it computes in microseconds.
+
+For the 2009 event, the two satellites were predicted to pass within 3 metres of each other, with measurement uncertainties of about 500 metres. That combination gives a 1-in-5,000 crash probability --- which our system correctly flags as Critical.
+\end{answerbox}
+
+\begin{tipbox}
+If a judge asks you to write the formula on a whiteboard, you can write: $P_c \approx \frac{r^2}{2\sigma^2} e^{-d^2/(2\sigma^2)}$ where $r$ is the satellite size, $d$ is the closest distance, and $\sigma$ is the measurement uncertainty. But keep it simple and explain each variable.
+\end{tipbox}
+
+\vspace{1em}
+\subsection*{Q9: Why does acting 24 hours early use 14 times less fuel?}
+
+\begin{questionbox}
+``You claim a 14$\times$ fuel saving by acting early. Explain the physics behind this.''
+\end{questionbox}
+
+\begin{answerbox}
+When you push a satellite slightly in the direction it is already flying (along its orbit), you change its orbital height very slightly. A higher orbit moves slightly slower. Over time, this means the satellite gradually falls behind --- it drifts along its path relative to where it would have been.
+
+Here is the key: this drift keeps building up over time. After 24 hours, the satellite has drifted 14 times further away compared to if you had applied the same push just 1 hour before the collision.
+
+It is like steering a ship. A tiny rudder adjustment 10 km before a reef sends you safely around it. The same tiny adjustment 100 metres from the reef is not enough to avoid it.
+
+So the exact same fuel, applied much earlier, gives 14 times more safety distance.
+\end{answerbox}
+
+\begin{tipbox}
+In the demo, drag the ``how early we fire'' slider from 1 hour to 24 hours and show the gap number jumping up. This is the most visual and impressive part of the demo. Let the number speak for itself.
+\end{tipbox}
+
+\newpage
+%% ============================================================
+\section{Questions About the Software}
+%% ============================================================
+
+\subsection*{Q10: Why did you not use AI / Deep Learning for everything?}
+
+\begin{questionbox}
+``Why did you not just train a neural network or AI model to predict collisions directly?''
+\end{questionbox}
+
+\begin{answerbox}
+Because in safety-critical aerospace systems, you need to be able to explain and verify every decision. If a neural network tells an operator ``move your satellite'' but cannot explain exactly why, operators cannot trust it. If the AI is wrong, a satellite gets destroyed.
+
+Our physics equations, on the other hand, are deterministic --- they always give the same answer for the same input, and every number can be checked and verified. The physics calculations are also faster than a neural network forward pass, so there is no speed advantage to AI here.
+
+We do use a simple machine learning model (Random Forest), but only to quickly pre-sort which pairs are worth checking in detail. The actual crash probability and escape plan are always calculated using verified physics equations.
+\end{answerbox}
+
+\begin{tipbox}
+This is a strong answer. Say: ``We use AI where it helps (fast pre-sorting), and we use physics where correctness is critical (the actual numbers). We do not use AI as a black box for safety decisions.'' Judges will appreciate this reasoning.
+\end{tipbox}
+
+\vspace{1em}
+\subsection*{Q11: How fast is your system?}
+
+\begin{questionbox}
+``Give me specific numbers. How fast does your system process satellites?''
+\end{questionbox}
+
+\begin{answerbox}
+\begin{itemize}
+    \item \textbf{Step 1 (height filter)}: Under 5 milliseconds for 1,000 satellites.
+    \item \textbf{Step 2 (precise closest distance)}: Run only on the small subset that passes the height filter. Takes a fraction of a second per pair.
+    \item \textbf{Crash probability calculation}: Under 10 microseconds per pair. Essentially instant.
+    \item \textbf{Escape plan calculation}: Under 50 microseconds per event. Essentially instant.
+    \item \textbf{Full pipeline for 100 satellites}: Well under 5 seconds end-to-end.
+\end{itemize}
+Compare this to legacy systems that can take minutes to hours for the same catalog size.
+\end{answerbox}
+
+\begin{tipbox}
+You can demonstrate this live. In the demo, click ``Refresh'' on Step 1. The data appears in 1--2 seconds (including network time to fetch from the API). The physics calculation itself is sub-second. This is the real-time demo.
+\end{tipbox}
+
+\newpage
+\subsection*{Q12: How do you prove the demo is actually live, not pre-recorded?}
+
+\begin{questionbox}
+``How do I know this is not just a pre-recorded video or hardcoded fake data?''
+\end{questionbox}
+
+\begin{answerbox}
+There are three things you can do to verify it is live:
+\begin{enumerate}
+    \item \textbf{Hit Refresh in Step 1}: The satellite position coordinates will update to the current UTC time. The positions change continuously because the satellites are actually moving.
+    \item \textbf{Drag the sliders in Step 4}: The safety gap number updates in real time as you move the sliders. This is a live calculation, not a lookup table.
+    \item \textbf{Ask us to show the terminal}: The backend server is running locally. You can see the API calls happening in real time in the terminal window.
 \end{enumerate}
-\end{tcolorbox}
+\end{answerbox}
+
+\begin{tipbox}
+Before the presentation, have a terminal window open with the backend logs visible. If a judge asks this question, offer to show the terminal. Live log output is very convincing proof that the system is actually calculating something.
+\end{tipbox}
 
 \vspace{1em}
-\subsection*{Q9: How do you handle frontend performance with Three.js rendering thousands of orbits?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}:
-\begin{itemize}[leftmargin=1.5em]
-    \item All heavy CPU propagation and minimization routines run asynchronously in Python background thread pools via FastAPI's \texttt{asyncio.run\_in\_executor}.
-    \item On the client side, WebGL particle instances are rendered via \texttt{THREE.BufferGeometry} and \texttt{THREE.PointsMaterial} with GPU hardware acceleration, maintaining a smooth 60 FPS refresh rate.
-\end{itemize}
-\end{tcolorbox}
+\subsection*{Q13: What happens when two active satellites are both trying to dodge each other at the same time?}
+
+\begin{questionbox}
+``If both satellites are active and both try to maneuver, could they accidentally maneuver into each other's escape path?''
+\end{questionbox}
+
+\begin{answerbox}
+In practice, most close passes involve one active satellite and one piece of dead debris or a derelict satellite that cannot maneuver at all (like Cosmos 2251 in 2009). So usually only one satellite moves.
+
+When both are active (like Starlink vs OneWeb), real-world operators follow international coordination protocols to decide which satellite moves and in which direction.
+
+In our current prototype, we generate an escape plan for one satellite at a time. In our Phase 3 roadmap, we plan to add multi-satellite coordination --- where the system simulates all planned maneuvers together to make sure none of them create new accidental close passes.
+\end{answerbox}
+
+\begin{tipbox}
+It is totally fine to say ``our current version handles one satellite maneuver at a time. Multi-satellite coordination is on our Phase 3 roadmap.'' Judges do not expect a hackathon prototype to solve every edge case. Acknowledging limitations honestly is a sign of maturity.
+\end{tipbox}
 
 \newpage
-\section{Validation, Industry, \& Operations Questions}
+%% ============================================================
+\section{Questions About Impact and Future}
+%% ============================================================
 
-\subsection*{Q10: How did you validate your system against real historical ground truth?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: We ingested the actual pre-collision Two-Line Element (TLE) sets for **Iridium 33** (NORAD 24946) and **Cosmos 2251** (NORAD 22675) from epoch 09041 (archived by CelesTrak).
-\begin{itemize}[leftmargin=1.5em]
-    \item Without any hardcoded special cases, our automated SGP4 + Foster/Alfano pipeline independently computed:
-    \begin{itemize}
-        \item \textbf{TCA}: 2009-02-10 16:56:00 UTC (exact match to historical event).
-        \item \textbf{Altitude}: 789~km above Taymyr Peninsula, Siberia.
-        \item \textbf{Relative Speed}: 14.12~km/s (head-on collision).
-        \item \textbf{Collision Probability}: $P_c \approx 2.0 \times 10^{-4}$ (triggering a Critical Alert 48 hours prior).
-    \end{itemize}
-    \item This confirms that Space-Guard reproduces real-world orbital collision ground truth.
+\subsection*{Q14: What would it take to deploy this for real operational use?}
+
+\begin{questionbox}
+``Could ISRO or a satellite company actually use this system as-is? What is missing?''
+\end{questionbox}
+
+\begin{answerbox}
+Not as-is --- this is a research prototype. For real operational use, we would need:
+\begin{itemize}
+    \item \textbf{Access to better data}: Full satellite position uncertainty data (covariance matrices from Space-Track CDMs), not just public TLE files.
+    \item \textbf{Full catalog scaling}: GPU-accelerated processing to handle all 27,000+ satellites (not just our demo set of 100).
+    \item \textbf{Security and reliability}: Real-time monitoring runs 24/7, requires backup servers, proper authentication, and uptime guarantees.
+    \item \textbf{Integration}: Direct interface to satellite operators' mission control systems.
 \end{itemize}
-\end{tcolorbox}
+The core physics, math, and algorithms are sound and validated on real data. The jump to operational deployment is a matter of engineering scale-up and institutional integration --- both of which are achievable.
+\end{answerbox}
+
+\begin{tipbox}
+Say: ``This is a validated proof-of-concept. The hard part --- the physics and algorithms --- is working correctly on real historical data. The remaining steps are engineering scale-up, which is straightforward with resources. We have a clear Phase 2 and Phase 3 plan for this.''
+\end{tipbox}
 
 \vspace{1em}
-\subsection*{Q11: How does Space-Guard align with ISRO's space situational awareness initiatives?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: ISRO established \textbf{IS4OM} (ISRO System for Safe and Sustainable Space Operations Management) at ISTRAC, Bengaluru, under the Directorate of Space Situational Awareness and Management (DSSAM).
-\begin{itemize}[leftmargin=1.5em]
-    \item IS4OM tracks critical Indian assets including Cartosat, GSAT, RISAT, and EOS satellites against increasing orbital debris.
-    \item Space-Guard provides an automated, rapid preliminary screening and maneuver evaluation module that can integrate upstream of IS4OM, filtering routine catalog data and providing instant CW impulsive maneuver recommendations.
-\end{itemize}
-\end{tcolorbox}
+\subsection*{Q15: What is Kessler Syndrome and how does Space-Guard help prevent it?}
 
-\vspace{1em}
-\subsection*{Q12: What is the difference between GCRS and ECI?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: GCRS (Geocentric Celestial Reference System) is the modern, relativistic International Astronomical Union (IAU) standard realization of an Earth-Centered Inertial (ECI) non-rotating coordinate system.
-\begin{itemize}[leftmargin=1.5em]
-    \item Its origin is located at the Earth's center of mass, and its reference axes are fixed relative to distant extragalactic radio sources (International Celestial Reference Frame, ICRF).
-    \item Unlike Earth-Centered Earth-Fixed (ECEF) frames, GCRS does not rotate with Earth, making orbital equations of motion Newtonian without fictitious Coriolis or centrifugal acceleration terms.
-\end{itemize}
-\end{tcolorbox}
+\begin{questionbox}
+``What is Kessler Syndrome? Is it actually a realistic threat?''
+\end{questionbox}
 
-\vspace{1em}
-\subsection*{Q13: What happens if two maneuvering satellites attempt to avoid each other simultaneously?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: In standard operational practice, active satellites maneuver against inactive derelicts (like Cosmos 2251). In active-versus-active satellite conjunctions (e.g., Starlink vs OneWeb):
-\begin{itemize}[leftmargin=1.5em]
-    \item Operators coordinate using CCSDS standard messages or automated priority protocols (e.g., lower altitude or higher maneuverability burns).
-    \item Space-Guard's Phase 3 roadmap incorporates multi-agent de-confliction where planned burns are simulated against the entire catalog before execution to prevent secondary conjunctions.
-\end{itemize}
-\end{tcolorbox}
+\begin{answerbox}
+Kessler Syndrome is a scenario where one collision in orbit creates so much debris that the debris causes more collisions, which create even more debris, starting a chain reaction. Eventually, an entire orbital altitude band becomes too dangerous to use.
 
-\vspace{1em}
-\subsection*{Q14: How does Space-Guard handle atmospheric drag uncertainties for lower LEO satellites (<400 km)?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: SGP4 models atmospheric drag using the modified ballistic coefficient $B^*$. For very low LEO satellites (such as the ISS at ~415 km or Starlink at 550 km), space weather solar flux ($F_{10.7}$) variations cause thermospheric density fluctuations.
-\begin{itemize}[leftmargin=1.5em]
-    \item For short lookahead windows (24--72 hours), the deterministic BSTAR term in fresh TLEs maintains positional error within $\pm 500\text{ m}$.
-    \item In Phase 2, Space-Guard integrates real-time NOAA solar flux indices to scale covariance ellipses dynamically during solar storm events.
-\end{itemize}
-\end{tcolorbox}
+It is named after NASA scientist Donald Kessler who described it in 1978. It is not science fiction --- scientists consider it a real risk, especially in Low Earth Orbit where satellites are most densely packed.
 
-\vspace{1em}
-\subsection*{Q15: How can a pitch evaluator verify that this code runs live physics rather than pre-calculated responses?}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Defense Answer}]
-\textbf{Answer}: Evaluators can verify live computation through three immediate tests:
-\begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Live UTC Timestamps}: The ephemeris feed dynamically advances Cartesian coordinates at the current UTC second.
-    \item \textbf{Continuous Slider Dynamics}: Adjusting the lead time ($\Delta t$) or $\Delta V$ sliders in the Maneuver Planner evaluates the analytic CW matrix $\Phi_{rv}$ continuously in real time.
-    \item \textbf{CelesTrak Ingestion}: Triggering a new scan pulls live active TLE sets directly from CelesTrak servers.
-\end{enumerate}
-\end{tcolorbox}
+The 2009 Iridium--Cosmos crash was a small example: it added over 2,000 pieces of debris to an already crowded zone. If this keeps happening, eventually that altitude range becomes too dangerous for new satellites, cutting off satellite internet, GPS, weather monitoring, and more.
+
+Space-Guard helps prevent this by catching dangerous close passes early and automatically providing the escape plan --- stopping collisions before they happen, before the debris chain reaction can begin.
+\end{answerbox}
+
+\begin{tipbox}
+This is a great question to answer because it puts the big picture of Space-Guard in perspective. Say it seriously: ``Kessler Syndrome is one of the most serious long-term threats to humanity's access to space. Every prevented collision matters. Space-Guard is one piece of the solution.''
+\end{tipbox}
 
 \end{document}
