@@ -74,3 +74,36 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.22);
 }
+
+/* ── Space-Guard Prototype additions ── */
+
+/* Scanline overlay for terminal aesthetic */
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* Subtle glow pulse for critical alert */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+  50%       { box-shadow: 0 0 24px rgba(239, 68, 68, 0.8); }
+}
+.glow-pulse-red { animation: glow-pulse 1.4s ease-in-out infinite; }
+
+/* Safe gap glow */
+@keyframes glow-pulse-green {
+  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.3); }
+  50%       { box-shadow: 0 0 24px rgba(16, 185, 129, 0.7); }
+}
+.glow-pulse-green { animation: glow-pulse-green 2s ease-in-out infinite; }
+
+/* Range input thumb glow */
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  cursor: pointer;
+}
