@@ -87,12 +87,14 @@ export default function App() {
 
   const fetchObjects = async () => {
     try {
-      const res = await fetch('/api/objects?limit=50');
+      const res = await fetch('/api/objects?limit=100');
       if (res.ok) {
         const data = await res.json();
         setObjects(data.objects || []);
       }
-    } catch {}
+    } catch (err) {
+      console.warn('Satellite fetch error:', err);
+    }
   };
 
   useEffect(() => {
