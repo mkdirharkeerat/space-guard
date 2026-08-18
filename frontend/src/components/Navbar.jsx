@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   Orbit,
+  Radio,
 } from 'lucide-react';
 import { sound } from '../utils/audio';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ export default function Navbar({ backendStatus, dataAsOf }) {
 
   const navItems = [
     { to: '/', label: 'Home', icon: Home },
+    { to: '/demo', label: 'Pitch Demo', icon: Radio, highlight: true },
     { to: '/globe', label: '3D Radar', icon: Globe2 },
     { to: '/screening', label: 'Screening', icon: Radar },
     { to: '/maneuver', label: 'Maneuver', icon: Rocket },

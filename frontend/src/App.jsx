@@ -10,6 +10,7 @@ import HistoricalPage from './pages/HistoricalPage';
 import BPlanePage from './pages/BPlanePage';
 import CatalogPage from './pages/CatalogPage';
 import DocsPage from './pages/DocsPage';
+import PrototypePage from './pages/PrototypePage';
 import { sound } from './utils/audio';
 
 export default function App() {
@@ -148,6 +149,26 @@ export default function App() {
             <Route path="/bplane" element={<BPlanePage selectedEvent={selectedEvent} />} />
             <Route path="/catalog" element={<CatalogPage onSelectObject={setSelectedEvent} />} />
             <Route path="/docs" element={<DocsPage />} />
+            <Route 
+              path="/prototype" 
+              element={
+                <PrototypePage 
+                  objects={objects} 
+                  selectedEvent={selectedEvent} 
+                  onSelectEvent={setSelectedEvent} 
+                />
+              } 
+            />
+            <Route 
+              path="/demo" 
+              element={
+                <PrototypePage 
+                  objects={objects} 
+                  selectedEvent={selectedEvent} 
+                  onSelectEvent={setSelectedEvent} 
+                />
+              } 
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

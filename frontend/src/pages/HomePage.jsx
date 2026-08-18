@@ -13,7 +13,8 @@ import {
   Zap,
   Flame,
   CheckCircle2,
-  Cpu
+  Cpu,
+  Radio,
 } from 'lucide-react';
 import FadeIn from '@/components/FadeIn';
 import { Button } from '@/components/ui/button';
@@ -133,22 +134,22 @@ export default function HomePage({ backendStatus, scanData }) {
 
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md">
-              <Link to="/screening" onClick={() => sound.playClick()}>
-                <Activity className="size-4 mr-1.5" />
-                Launch Screening
+              <Link to="/demo" onClick={() => sound.playClick()}>
+                <Radio className="size-4 mr-1.5" />
+                10-Min Pitch Demo
                 <ArrowRight className="size-4 ml-1.5" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="border-border hover:bg-accent/60 font-medium">
-              <Link to="/globe" onClick={() => sound.playClick()}>
-                <Globe2 className="size-4 mr-1.5 text-primary" />
-                Open 3D Radar
+              <Link to="/screening" onClick={() => sound.playClick()}>
+                <Activity className="size-4 mr-1.5 text-primary" />
+                Full Screening
               </Link>
             </Button>
             <Button asChild variant="ghost" size="lg" className="text-muted-foreground hover:text-foreground font-medium">
               <Link to="/historical" onClick={() => sound.playClick()}>
                 <History className="size-4 mr-1.5 text-rose-400" />
-                2009 Collision Replay
+                2009 Replay Lab
               </Link>
             </Button>
           </div>
