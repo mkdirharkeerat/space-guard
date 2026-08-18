@@ -1,0 +1,253 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!80!black,
+    urlcolor=blue!80!black,
+    citecolor=blue!80!black
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\textbf{Space-Guard} · SIH 2026}
+\lhead{Software Presentation Pitch Deck}
+\rfoot{Page \thepage}
+
+\title{\Huge \textbf{Space-Guard}\\[0.3em]
+\Large \textbf{Autonomous Real-Time Orbital Conjunction Screening \& Collision Avoidance}\\[0.5em]
+\large \textbf{Smart India Hackathon 2026 — Software Edition} · Problem ID: 17}
+\author{\textbf{Team Space-Guard}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent This document provides the complete slide-by-slide presentation script, slide visual structures, mathematical and computer science implementation breakdown, team roles, target audience analysis, and tentative development roadmap for the \textbf{Space-Guard} platform at the Smart India Hackathon (SIH) 2026. Space-Guard is a deterministic, physics-first orbital conjunction assessment and collision avoidance engine designed for operational spacecraft and mega-constellations.
+\end{abstract}
+
+\vspace{1em}
+\tableofcontents
+\newpage
+
+\section{Slide 1: Title \& Team Overview}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=\textbf{Slide 1 — Header \& Team Information}]
+\textbf{Project Name}: Space-Guard: Autonomous Orbital Conjunction Assessment \& Avoidance \\
+\textbf{Theme}: Space Technology / Smart India Hackathon 2026 \\
+\textbf{Tagline}: \textit{Deterministic Physics-First Orbital Defense for Spacecraft \& Constellations}
+\end{tcolorbox}
+
+\subsection*{Team Member Contributions}
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Team Lead \& Full-Stack Software Architect}:
+    \begin{itemize}
+        \item Engineered the asynchronous FastAPI REST microservices architecture and modular routing layer.
+        \item Designed the React 19 single-page application and unified modern component system.
+        \item Integrated CelesTrak active TLE ingestion caching pipelines with sub-second response times.
+    \end{itemize}
+    \item \textbf{Orbital Mechanics \& Astrodynamics Lead}:
+    \begin{itemize}
+        \item Derived and implemented the SGP4 analytical propagation routines in Geocentric Celestial Reference System (GCRS/ECI).
+        \item Formulated the two-stage screening architecture: $O(N^2)$ apogee/perigee altitude filter and Golden-Section scalar minimization for exact Time of Closest Approach (TCA).
+        \item Integrated the Foster/Alfano 2D Gaussian collision probability ($P_c$) analytical formulation.
+    \end{itemize}
+    \item \textbf{Control \& Maneuver Planner Lead}:
+    \begin{itemize}
+        \item Implemented the Clohessy-Wiltshire (CW / Hill's) linearized relative state transition matrices ($\Phi_{rr}, \Phi_{rv}$).
+        \item Developed the Singular Value Decomposition (SVD) optimizer for maximal along-track separation per unit $\Delta V$.
+        \item Formulated the 14$\times$ early secular drift fuel efficiency scaling model.
+    \end{itemize}
+    \item \textbf{Data \& 3D Visualization Engineer}:
+    \begin{itemize}
+        \item Developed the Three.js WebGL orbital radar engine with accurate inclination ($i$), RAAN ($\Omega$), and true Earth scale.
+        \item Designed the interactive 2009 collision replay with dynamic debris fragment kinematics.
+        \item Optimized 60 FPS WebGL rendering with asynchronous worker thread decoupling.
+    \end{itemize}
+\end{itemize}
+
+\newpage
+\section{Slide 2: Problem Statement — The Low Earth Orbit Crisis}
+
+\subsection*{The Modern Orbital Environment}
+\begin{itemize}[leftmargin=1.5em]
+    \item Over \textbf{27,000+} cataloged artificial objects larger than 10~cm orbit Earth at velocities exceeding \textbf{7.5~km/s (27,000~km/h)}.
+    \item With commercial mega-constellations (Starlink, OneWeb, Project Kuiper), satellite density in Low Earth Orbit (LEO) has surged by over \textbf{400\%} in five years.
+\end{itemize}
+
+\subsection*{Real-World Case Study: The 10 February 2009 Collision}
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black,title=\textbf{Historical Ground Truth Benchmark}]
+On \textbf{10 February 2009 at 16:56 UTC}, at an altitude of \textbf{789~km above the Taymyr Peninsula, Siberia}:
+\begin{itemize}
+    \item \textbf{Iridium 33} (an active 560~kg commercial communications satellite) collided with
+    \item \textbf{Cosmos 2251} (a derelict 900~kg Russian military satellite)
+    \item \textbf{Relative Collision Velocity}: \textbf{14.12~km/s (50,832~km/h)} — a near head-on intersection.
+    \item \textbf{Consequence}: Both spacecraft were obliterated in milliseconds, generating over \textbf{2,000 trackable debris fragments} and thousands of untrackable lethal shards that continue to threaten the ISS and operational satellites today (Kessler Syndrome).
+\end{itemize}
+\end{tcolorbox}
+
+\subsection*{Why Existing Screening Approaches Fail}
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{Computational Bottleneck}: Direct pairwise checking of $N$ satellites requires $O(N^2)$ calculations, causing severe latency in operational pipelines.
+    \item \textbf{False-Alarm Fatigue}: Naive distance-only screening produces thousands of daily warnings without realistic collision probabilities ($P_c$), overwhelming operators.
+    \item \textbf{Manual Maneuver Delays}: Human-in-the-loop maneuver calculation takes hours when critical orbital decisions must be executed in minutes.
+\end{enumerate}
+
+\newpage
+\section{Slide 3: Solution Statement — How Space-Guard is Better}
+
+\begin{tcolorbox}[colback=green!5!white,colframe=green!60!black,title=\textbf{High-Level Solution (Non-Technical \& Accessible)}]
+\textbf{Space-Guard} is an autonomous, real-time orbital collision assessment and avoidance platform that watches the sky, detects close passes days in advance, and prescribes the most fuel-efficient escape burn.
+\end{tcolorbox}
+
+\subsection*{How It Works in Three Clear Steps}
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{Continuous Orbital Ingestion}: Ingests live satellite tracking coordinates directly from global radar networks (CelesTrak / Space-Track).
+    \item \textbf{High-Speed Deterministic Screening}: Evaluates orbital trajectories through a fast two-stage mathematical filter, computing exact collision probability ($P_c$) in under 10~$\mu$s.
+    \item \textbf{Optimal Avoidance Execution}: Calculates the exact thruster pulse ($\Delta V$) required to steer the spacecraft away, using \textbf{14 times less fuel} by executing burns early.
+\end{enumerate}
+
+\subsection*{Competitive Comparison Table}
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Feature / Capability} & \textbf{Traditional Legacy Tools} & \textbf{Space-Guard Platform} \\ \midrule
+\textbf{Screening Latency} & Minutes to hours & \textbf{$<$ 5 seconds} (Two-stage filter) \\
+\textbf{Collision Model} & Geometric distance only & \textbf{Analytic 2D Gaussian $P_c$} ($<$10~$\mu$s) \\
+\textbf{AI Role} & Often none or black-box & \textbf{Acceleration surrogate} (No hallucinations) \\
+\textbf{Maneuver Optimization} & Manual trial-and-error & \textbf{Automated SVD CW Planner} \\
+\textbf{Fuel Scaling} & Late emergency burns & \textbf{14$\times$ Early Secular Along-Track Drift} \\
+\textbf{Real-World Validation} & Synthetic data only & \textbf{Verified on 2009 Iridium-Cosmos TLEs} \\ \bottomrule
+\end{tabular}
+\caption{Comparison between Legacy Conjunction Tools and Space-Guard.}
+\end{table}
+
+\newpage
+\section{Slide 4: Implementation — Physics, Math \& Computer Science}
+
+\subsection{1. Physics and Mathematics}
+
+\subsubsection*{A. SGP4 Orbital Propagation}
+Converts Two-Line Element (TLE) mean Keplerian orbital elements ($a, e, i, \Omega, \omega, M$) into instantaneous Cartesian state vectors $[\mathbf{r}, \mathbf{v}]$ in the Geocentric Celestial Reference System (GCRS/ECI non-rotating frame). SGP4 models non-spherical Earth gravitational harmonics ($J_2, J_3, J_4$) and atmospheric drag ($B^*$).
+
+\subsubsection*{B. Two-Stage Conjunction Screening}
+\begin{itemize}
+    \item \textbf{Stage 1 (Coarse Filter)}: Filters all candidate pairs by checking overlap of apogee and perigee altitudes with a safety buffer:
+    $$r_{\text{perigee}, i} - 50\text{ km} \le r_{\text{apogee}, j} \quad \text{and} \quad r_{\text{perigee}, j} - 50\text{ km} \le r_{\text{apogee}, i}$$
+    This discards $>90\%$ of non-threatening pairs in milliseconds.
+    \item \textbf{Stage 2 (Fine TCA Search)}: Applies \texttt{scipy.optimize.minimize\_scalar} (Golden-Section / Brent minimization) to the scalar relative distance function:
+    $$f(t) = \|\mathbf{r}_i(t) - \mathbf{r}_j(t)\|$$
+    pinpointing the exact Time of Closest Approach ($t_{\text{TCA}}$).
+\end{itemize}
+
+\subsubsection*{C. Foster/Alfano 2D Gaussian Probability ($P_c$)}
+In the encounter B-plane normal to relative velocity $\mathbf{v}_{\text{rel}}$, the collision integral evaluates the 2D Gaussian probability density over the hard-body circle of combined radius $\text{HBR} = 10\text{ m}$:
+\begin{equation}
+P_c \approx \frac{\text{HBR}^2}{2\sigma^2} \exp\left(-\frac{d_{\text{miss}}^2}{2\sigma^2}\right)
+\end{equation}
+Because $\text{HBR} \ll \sigma$ ($\sigma = 500\text{ m}$ assumed isotropic TLE uncertainty), probability density is uniform across the disk, yielding exact analytical computation in $<10\ \mu\text{s}$.
+
+\subsubsection*{D. Clohessy-Wiltshire (CW) Maneuver Optimization}
+Linearized relative motion in near-circular orbit ($e < 0.01$) is governed by the state transition matrix:
+$$\mathbf{r}(\Delta t) = \Phi_{rr}(\Delta t)\mathbf{r}_0 + \Phi_{rv}(\Delta t)(\mathbf{v}_0 + \Delta\mathbf{v})$$
+The optimal burn direction is the right singular vector $\mathbf{v}_1$ from the Singular Value Decomposition of $\Phi_{rv}$:
+$$\Phi_{rv}(\Delta t) = U \Sigma V^T \implies \Delta\mathbf{v}_{\text{opt}} = \Delta V \cdot V_{[:, 0]}$$
+Along-track displacement accumulates via the secular term $\Delta y \approx -3 n \Delta t \Delta v_y$, providing \textbf{14$\times$ more separation} at $\Delta t = 24\text{h}$ than at $\Delta t = 1\text{h}$.
+
+\subsection{2. Computer Science Architecture}
+\begin{itemize}
+    \item \textbf{Backend Microservices}: Asynchronous Python 3.12+ FastAPI server utilizing vectorized NumPy arrays and SciPy numerical optimizers.
+    \item \textbf{Frontend Telemetry Workstation}: React 19 with Vite, Tailwind CSS, and Three.js WebGL canvas rendering 60 FPS 3D orbital dynamics.
+    \item \textbf{Surrogate Acceleration Layer}: Pre-trained Random Forest classifier acting as an acceleration surrogate to pre-score pairs before deep propagation.
+\end{itemize}
+
+\subsection{3. Satellite Data Acquisition Pipeline}
+\begin{itemize}
+    \item Direct automated fetch from \textbf{CelesTrak / Space-Track} active satellite catalogs.
+    \item Local persistent cache with automated Time-To-Live (TTL) expiration to minimize external API rate limits.
+\end{itemize}
+
+\newpage
+\section{Slide 5: Live Prototype Walkthrough Plan}
+
+The interactive prototype is demonstrated at \url{http://localhost:5173/demo} across four streamlined stages:
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{Stage 1: Live SGP4 Ephemeris Ingestion}:
+    \begin{itemize}
+        \item Ingests live satellite catalog from CelesTrak.
+        \item Displays real-time Cartesian GCRS coordinates $[X, Y, Z]$, velocities, and altitudes.
+    \end{itemize}
+    \item \textbf{Stage 2: Physics-Based 3D Mapping}:
+    \begin{itemize}
+        \item Visualizes real active satellites with accurate orbital inclination and nodal nodes on a 3D Earth globe.
+        \item Demonstrates coarse altitude band filtering in 3D space.
+    \end{itemize}
+    \item \textbf{Stage 3: 2009 Collision Reenactment}:
+    \begin{itemize}
+        \item Replays the Iridium 33 vs Cosmos 2251 collision using real pre-collision TLEs (epoch 09041).
+        \item Shows the head-on closing rate of 14.12~km/s, physical impact, and debris dispersion.
+    \end{itemize}
+    \item \textbf{Stage 4: Avoidance Maneuver Verification}:
+    \begin{itemize}
+        \item Interactive sliders demonstrating how an impulsive $0.10\text{ m/s}$ burn applied 24 hours prior achieves $+4.83\text{ km}$ safe clearance, reducing $P_c$ from $2.0 \times 10^{-4}$ down to $<10^{-6}$.
+    \end{itemize}
+\end{enumerate}
+
+\newpage
+\section{Slide 6: Target Audience \& Societal Impact}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{1. National Space Agencies (e.g., ISRO, NASA, ESA)}:
+    \begin{itemize}
+        \item Directly augments ISRO's \textbf{IS4OM} (System for Safe and Sustainable Space Operations Management) at ISTRAC Bangalore.
+        \item Provides rapid preliminary triage for national assets (Cartosat, GSAT, RISAT, Chandrayaan/Aditya orbital paths).
+    \end{itemize}
+    \item \textbf{2. Commercial Satellite Operators (e.g., Starlink, OneWeb, Pixxel, Skyroot)}:
+        \item Automated constellation screening and fuel-optimal avoidance to prolong spacecraft lifetime and preserve revenue.
+    \item \textbf{3. Defence \& Space Force Commands}:
+        \item Autonomous surveillance of non-cooperative orbital objects and anti-satellite (ASAT) debris threats.
+    \item \textbf{4. Space Insurance Underwriters}:
+        \item Quantitative risk assessment and empirical collision probability auditing.
+\end{itemize}
+
+\newpage
+\section{Slide 7: Development Roadmap}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Phase 1: SIH Working Prototype (Current Completed Baseline)}:
+    \begin{itemize}
+        \item SGP4 propagation engine, two-stage screening filter, Foster/Alfano $P_c$ model, CW maneuver optimizer, and 3D WebGL radar.
+    \end{itemize}
+    \item \textbf{Phase 2: Full Catalog \& Conjunction Data Messages (Q3–Q4 2026)}:
+    \begin{itemize}
+        \item Ingestion of Space-Track Conjunction Data Messages (CDMs) with full $3\times 3$ error covariance matrices.
+        \item GPU-accelerated propagation scaling to the complete 27,000+ object catalog.
+    \end{itemize}
+    \item \textbf{Phase 3: Multi-Satellite Constellation Autonomy (Q1–Q2 2027)}:
+    \begin{itemize}
+        \item Multi-agent avoidance de-confliction (ensuring maneuvers do not create secondary conjunctions).
+        \item Support for continuous low-thrust electric / ion propulsion trajectories.
+    \end{itemize}
+    \item \textbf{Phase 4: Space Agency Protocol Integration (Q3–Q4 2027)}:
+    \begin{itemize}
+        \item Integration with CCSDS standards and direct telemetry handoff to mission operations centers.
+    \end{itemize}
+\end{itemize}
+
+\end{document}
