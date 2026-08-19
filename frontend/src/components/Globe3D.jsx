@@ -156,8 +156,7 @@ export default function Globe3D({
       });
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.3;
+      renderer.toneMapping = THREE.NoToneMapping;
       
       while (containerRef.current.firstChild) {
         containerRef.current.removeChild(containerRef.current.firstChild);
@@ -169,17 +168,9 @@ export default function Globe3D({
       return;
     }
 
-    // 4. Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    // 4. Lights — full ambient so Earth texture is always visible
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
     scene.add(ambientLight);
-
-    const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
-    sunLight.position.set(20, 15, 20);
-    scene.add(sunLight);
-
-    const rimLight = new THREE.DirectionalLight(0x06b6d4, 1.2);
-    rimLight.position.set(-20, -10, -20);
-    scene.add(rimLight);
 
     // 5. Earth Group
     const earthParent = new THREE.Group();
@@ -188,82 +179,12 @@ export default function Globe3D({
 
     const earthRadius = 6.378;
 
-    // 5a. Procedural Vector Earth Texture
-    const canvas = document.createElement('canvas');
-    canvas.width = 2048;
-    canvas.height = 1024;
-    const ctx = canvas.getContext('2d');
+    // 5a. Real Earth Texture from Blue Marble
+    const textureLoader = new THREE.TextureLoader();
+    const earthDiffuse = textureLoader.load('/textures/earth-blue-marble.jpg');
 
-    // Deep ocean base
-    ctx.fillStyle = '#081122';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Coordinate graticules
-    ctx.strokeStyle = 'rgba(6, 182, 212, 0.15)';
-    ctx.lineWidth = 1.5;
-    for (let x = 0; x <= canvas.width; x += 128) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, canvas.height);
-      ctx.stroke();
-    }
-    for (let y = 0; y <= canvas.height; y += 128) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(canvas.width, y);
-      ctx.stroke();
-    }
-
-    // Smooth Continents Drawing
-    ctx.fillStyle = '#10B981';
-    ctx.strokeStyle = '#059669';
-    ctx.lineWidth = 2;
-
-    const landmasses = [
-      [[350, 180], [600, 160], [700, 260], [650, 420], [550, 480], [450, 450], [380, 320]],
-      [[580, 500], [720, 540], [780, 680], [700, 850], [620, 850], [560, 680]],
-      [[1050, 180], [1280, 160], [1320, 320], [1150, 380], [1020, 340]],
-      [[1280, 160], [1750, 180], [1820, 380], [1650, 500], [1400, 480], [1320, 320]],
-      [[1020, 400], [1280, 400], [1340, 600], [1250, 820], [1100, 820], [980, 550]],
-      [[1550, 620], [1780, 620], [1820, 780], [1600, 820], [1520, 720]],
-    ];
-    landmasses.forEach(p => {
-      ctx.beginPath();
-      p.forEach((pt, i) => {
-        if (i === 0) ctx.moveTo(pt[0], pt[1]);
-        else ctx.lineTo(pt[0], pt[1]);
-      });
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    });
-
-    for (let i = 0; i < 400; i++) {
-      const x = Math.random() * canvas.width;
-      const y = Math.random() * canvas.height;
-      if (
-        (x > 350 && x < 700 && y > 150 && y < 450) ||
-        (x > 1050 && x < 1800 && y > 150 && y < 500) ||
-        (x > 980 && x < 1350 && y > 400 && y < 820)
-      ) {
-        ctx.beginPath();
-        ctx.arc(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40, Math.random() * 4 + 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    const earthTexture = new THREE.CanvasTexture(canvas);
-    earthTexture.needsUpdate = true;
-
-    // Solid Earth Sphere
     const earthGeom = new THREE.SphereGeometry(earthRadius, 64, 64);
-    const earthMat = new THREE.MeshStandardMaterial({
-      map: earthTexture,
-      roughness: 0.5,
-      metalness: 0.1,
-      emissive: new THREE.Color(0x040e1f),
-      emissiveIntensity: 0.35,
-    });
+    const earthMat = new THREE.MeshBasicMaterial({ map: earthDiffuse });
     const earthMesh = new THREE.Mesh(earthGeom, earthMat);
     earthParent.add(earthMesh);
 
